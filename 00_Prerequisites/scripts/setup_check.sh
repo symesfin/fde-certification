@@ -103,12 +103,12 @@ else
   bad ".env not found at the repo root" "cp .env.template .env, then fill it in"
 fi
 
-challenge_env="$ROOT/01_Product_Engineering/challenge/enterprise_fde_challenge/.env"
+challenge_env="$ROOT/01_Product_Engineering/challenge/.env"
 if [ -f "$challenge_env" ]; then
   ok "the Week 1 challenge has its own .env"
 else
   warn "the Week 1 challenge has no .env yet" \
-       "cp .env.example .env inside enterprise_fde_challenge/ -- it is a separate file."
+       "cp .env.template .env inside challenge/ -- it is a separate file."
 fi
 
 head_ "Result"

@@ -18,8 +18,8 @@ but do not own.
 1. **Clone it:**
 
    ```bash
-   git clone https://github.com/AI-Maker-Space/The-AI-Forward-Deployed-Engineer-Certification-Staging.git
-   cd The-AI-Forward-Deployed-Engineer-Certification-Staging
+   git clone https://github.com/AI-Maker-Space/The-AI-Forward-Deployed-Engineer-Certification.git
+   cd The-AI-Forward-Deployed-Engineer-Certification
    ```
 
 2. **Rename our remote to `upstream`.** You will pull from it, never push to it:
