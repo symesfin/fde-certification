@@ -1,9 +1,9 @@
 # Project charter
 
 <!--
-  Fill this in during TC1, from your Getting to Concreteness worksheet.
-  Every week's Session 2 notebook reads this file and stops if it is still the
-  template. That is on purpose.
+  Fill this in during TC1 Step 4, from your Getting to Concreteness form.
+  Later weeks' notebooks read this file and stop if it is still the template.
+  That is on purpose.
 -->
 
 **Department:** Accounting — Accounts Payable. Sponsor: COO.

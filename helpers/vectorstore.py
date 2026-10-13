@@ -74,7 +74,7 @@ class VectorStore:
                 f"vectors, got {vectors.shape[1]}. Different embedding model?"
             )
         self.vectors = vectors if not self.vectors.size else np.vstack([self.vectors, vectors])
-        self.records.extend(dict(r) for r in records)
+        self.records.extend(dict(record) for record in records)
 
     def search(self, query_vector, k: int = 3, *, where: dict | None = None) -> list[Hit]:
         """Top-k by cosine. `where` filters on record metadata BEFORE ranking.
@@ -87,23 +87,23 @@ class VectorStore:
 
         if not len(self):
             return []
-        q = np.asarray(query_vector, dtype="float32").ravel()
-        scores = self.vectors @ q
+        query = np.asarray(query_vector, dtype="float32").ravel()
+        scores = self.vectors @ query
 
         allowed = np.ones(len(self.records), dtype=bool)
         if where:
             for key, value in where.items():
                 wanted = set(value) if isinstance(value, (list, set, tuple)) else {value}
                 allowed &= np.array(
-                    [r.get(key) in wanted for r in self.records], dtype=bool
+                    [record.get(key) in wanted for record in self.records], dtype=bool
                 )
             scores = np.where(allowed, scores, -np.inf)
 
         order = np.argsort(-scores)[:k]
         return [
-            Hit(float(scores[i]), self.records[i].get("text", ""), self.records[i])
-            for i in order
-            if np.isfinite(scores[i])
+            Hit(float(scores[index]), self.records[index].get("text", ""), self.records[index])
+            for index in order
+            if np.isfinite(scores[index])
         ]
 
     def save(self, path: str | Path | None = None) -> Path:
@@ -115,7 +115,7 @@ class VectorStore:
         target.parent.mkdir(parents=True, exist_ok=True)
         np.save(target.with_suffix(".npy"), self.vectors)
         target.with_suffix(".jsonl").write_text(
-            "\n".join(json.dumps(r, ensure_ascii=False) for r in self.records) + "\n",
+            "\n".join(json.dumps(record, ensure_ascii=False) for record in self.records) + "\n",
             encoding="utf-8",
         )
         self.path = target

@@ -13,7 +13,7 @@ dependencies = [
     "python-dotenv>=1.2",      # helpers tier 1
     "litellm>=1.90",           # helpers tier 2
     "numpy>=2.0",              # from Week 3 on; the from-scratch retrieval math
-    "pillow>=11.0",            # Week 3 S2 generates its own image corpus
+    "pillow>=11.0",            # Week 3 S2 reads the packaged photo corpus
 ]
 
 [dependency-groups]
@@ -33,6 +33,48 @@ local = [
     "transformers>=5.0",
     "accelerate>=1.0",
     "sentence-transformers>=5.0",   # the no-API embedding fallback
+]
+
+# The bonus harness appendix builds the same agent three ways. Only the
+# from-scratch one runs on the root environment; the two framework notebooks want
+# the LangChain stack, which nothing else here uses. Opt-in, exactly like `local`:
+#
+#     uv sync --group harness
+#
+# Also listed in [tool.fde].sandbox-only below, so `marimo edit --sandbox` and
+# `check_guarded.py` resolve them from each notebook's own PEP 723 block without
+# the group. Both entries are needed and they are not redundant: the group is for
+# the root environment, the allowlist is for the notebook.
+harness = [
+    "langgraph>=1.2",
+    "langgraph-checkpoint-sqlite>=3.1",
+    "langchain-openai>=1.5",
+    "deepagents>=0.7.6",
+]
+
+# The per-session opt-ins: packages a single notebook declares in its PEP 723
+# block, or that a tier-2 helper imports inside a function.
+#
+#     uv sync --group extras
+#
+# **These used to exist only in [tool.fde].sandbox-only, and that was a trap.**
+# That list is read by scripts/mirrors.py; `uv` has never heard of it. So the
+# packages were never in uv.lock, they got installed by hand once, and the next
+# plain `uv sync` removed them again -- silently, because nothing imports them at
+# module scope. A student then hits ModuleNotFoundError in a notebook that worked
+# yesterday, having done nothing wrong. Both entries are needed and they are not
+# redundant: sandbox-only is what the notebook may declare, this is what the root
+# environment installs. See the `setup` target in the Makefile, which keeps any
+# optional group that is already present.
+#
+# Versions match what the notebooks declare inline, so the sandbox and the root
+# environment resolve to the same thing.
+extras = [
+    "pydantic>=2",                # 01 TC1 and 02 S4 -- structured output
+    "ragas==0.4.3",               # 04 S1
+    "langchain-community<0.4",    # ragas' own pin; unpinned, `import ragas` fails
+    "chromadb>=0.5",              # helpers/vectorstore
+    "qdrant-client>=1.12",        # helpers/vectorstore
 ]
 
 # ---------------------------------------------------------------------------
@@ -67,6 +109,23 @@ explicit = true
 torch = [{ index = "pytorch" }]
 
 [tool.fde]
+# Tier-2 helpers whose consuming week has not been copied into this repository
+# yet. `scripts/check_helpers.py` reports these as pending instead of failing,
+# and FAILS if one of them gains a consumer, so the entry has to be removed the
+# week it arrives. Keep this list empty in the repository every week ships from.
+helpers-pending = [
+    "adapter",      # fine-tuning
+    "embeddings",   # retrieval
+    "guardrails",   # guardrails
+    "judge",        # evals
+    "llm",          # the packaged model call, referenced from retrieval onward
+    "memory",       # memory
+    "rag",          # retrieval
+    "tools",        # agent architecture
+    "trace",        # agent architecture
+    "vectorstore",  # retrieval
+]
+
 # Packages a notebook may declare in its PEP 723 block WITHOUT a matching entry in
 # [project.dependencies] above. Everything else must match the root exactly, so two
 # students on the same lesson get the same library versions.
@@ -79,6 +138,23 @@ sandbox-only = [
     "chromadb",
     "qdrant-client",
     "pydantic",
+    # Ragas drags the LangChain stack in with it, which this project otherwise
+    # does not have and does not want in the root environment. It is declared
+    # here so `--sandbox` resolves it for the one task that uses it.
+    #
+    # The `langchain-community` pin is Ragas': it requires that package with no
+    # upper bound while still importing a module current releases removed, so an
+    # unpinned install fails at `import ragas`.
+    "ragas",
+    "langchain-community",
+    # The harness sessions build the same agent three ways. Only the from-scratch
+    # one runs on the root environment; the two framework notebooks pull in the
+    # whole LangChain stack plus a checkpointer, which nothing else here wants and
+    # which would make every unrelated notebook slower to resolve.
+    "langgraph",
+    "langgraph-checkpoint-sqlite",
+    "langchain-openai",
+    "deepagents",
 ]
 
 [tool.uv]

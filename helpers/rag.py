@@ -11,6 +11,7 @@ work can import it instead of copying it.
 
 from __future__ import annotations
 
+import json
 import re
 from collections.abc import Iterable, Sequence
 from pathlib import Path
@@ -30,6 +31,30 @@ def load_corpus(directory: Path, pattern: str = "*.md") -> list[dict]:
     return docs
 
 
+def load_jsonl_corpus(path: Path, *, source_key: str = "title",
+                      text_key: str = "text") -> list[dict]:
+    """Read a JSONL corpus into the same `{source, text}` records.
+
+    One JSON object per line. Use this when the corpus is a dataset rather than
+    a directory of files -- which is the usual case once you are working from
+    something you downloaded rather than something you wrote.
+
+    Every other key on the line is preserved, so labels ride along with the
+    document instead of living in a second file you have to keep in step.
+    """
+    docs = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        record = json.loads(line)
+        docs.append({
+            **record,
+            "source": record[source_key],
+            "text": record[text_key],
+        })
+    return docs
+
+
 def chunk(text: str, size: int = 900, overlap: int = 150) -> list[str]:
     """Split text into overlapping chunks, preferring paragraph boundaries.
 
@@ -40,7 +65,7 @@ def chunk(text: str, size: int = 900, overlap: int = 150) -> list[str]:
     if size <= overlap:
         raise ValueError("size must exceed overlap")
 
-    paragraphs = [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
+    paragraphs = [paragraph.strip() for paragraph in re.split(r"\n\s*\n", text) if paragraph.strip()]
     chunks: list[str] = []
     current = ""
 
@@ -69,8 +94,8 @@ def chunk_corpus(docs: Iterable[dict], **kwargs) -> list[dict]:
     """
     out = []
     for doc in docs:
-        for i, piece in enumerate(chunk(doc["text"], **kwargs)):
-            out.append({"source": doc["source"], "index": i, "text": piece})
+        for index, piece in enumerate(chunk(doc["text"], **kwargs)):
+            out.append({"source": doc["source"], "index": index, "text": piece})
     return out
 
 

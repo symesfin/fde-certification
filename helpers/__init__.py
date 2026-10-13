@@ -22,12 +22,13 @@ lesson, it stays in the lesson.
 from .config import Config
 from .display import show, stream_chat, stream_md
 from .nb import bootstrap, find_root
-from .ui import spinner, table, track
+from .ui import lines, spinner, table, track
 
 __all__ = [
     "Config",
     "bootstrap",
     "find_root",
+    "lines",
     "show",
     "spinner",
     "stream_chat",

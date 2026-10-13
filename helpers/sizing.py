@@ -158,8 +158,8 @@ def estimate(geo: Geometry, *, context: int = 4096, batch: int = 1,
     conservative floor for a well-behaved server and nowhere near enough for a
     badly configured one — measure yours and replace this number.
     """
-    w = weights_gb(geo.params, precision) if geo.params else 0.0
+    weights = weights_gb(geo.params, precision) if geo.params else 0.0
     kv = kv_cache_gb(geo, context=context, batch=batch, precision=kv_precision)
-    return Estimate(weights=w, kv_cache=kv, overhead=(w + kv) * overhead,
+    return Estimate(weights=weights, kv_cache=kv, overhead=(weights + kv) * overhead,
                     context=context, batch=batch, precision=precision, geometry=geo,
                     overhead_fraction=overhead)

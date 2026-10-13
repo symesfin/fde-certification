@@ -23,7 +23,7 @@ def show(*parts: object) -> None:
     """
     import marimo as mo
 
-    rendered = [mo.md(p) if isinstance(p, str) else mo.as_html(p) for p in parts]
+    rendered = [mo.md(part) if isinstance(part, str) else mo.as_html(part) for part in parts]
     mo.output.replace(mo.vstack(rendered) if len(rendered) > 1 else rendered[0])
 
 
@@ -128,5 +128,5 @@ def stream_chat(stream, *, show_reasoning: bool = True) -> dict:
     mo.output.replace(mo.md(answer))
     return {
         "content": answer,
-        "tool_calls": [calls[i] for i in sorted(calls)],
+        "tool_calls": [calls[index] for index in sorted(calls)],
     }

@@ -2,7 +2,7 @@
 
 Tier 2 by convention. Standard library only.
 
-Week 5 Session 2 writes the tool loop by hand — schema, dispatch, feed the result
+Week 5 Session 10 writes the tool loop by hand — schema, dispatch, feed the result
 back — and that loop is the lesson. What it leaves out is every way the model
 breaks it, which in production is most days:
 
@@ -98,7 +98,7 @@ class Toolbox:
 
     @property
     def schemas(self) -> list[dict]:
-        return [self._schemas[k] for k in sorted(self._schemas)]
+        return [self._schemas[key] for key in sorted(self._schemas)]
 
     @property
     def names(self) -> list[str]:
@@ -138,21 +138,21 @@ class Toolbox:
 
         fn = self._fns[name]
         params = inspect.signature(fn).parameters
-        accepts_kwargs = any(p.kind == p.VAR_KEYWORD for p in params.values())
+        accepts_kwargs = any(param.kind == param.VAR_KEYWORD for param in params.values())
 
-        unexpected = [] if accepts_kwargs else [k for k in args if k not in params]
+        unexpected = [] if accepts_kwargs else [key for key in args if key not in params]
         if unexpected:
             return self._fail(
                 name, call_id,
                 f"unexpected argument(s) {', '.join(sorted(unexpected))}; "
-                f"{name} accepts: {', '.join(k for k in params) or 'nothing'}",
+                f"{name} accepts: {', '.join(key for key in params) or 'nothing'}",
             )
 
         missing = [
-            k for k, p in params.items()
-            if p.default is inspect.Parameter.empty
-            and p.kind not in (p.VAR_POSITIONAL, p.VAR_KEYWORD)
-            and k not in args
+            key for key, param in params.items()
+            if param.default is inspect.Parameter.empty
+            and param.kind not in (param.VAR_POSITIONAL, param.VAR_KEYWORD)
+            and key not in args
         ]
         if missing:
             return self._fail(name, call_id,

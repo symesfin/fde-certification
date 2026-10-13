@@ -3,7 +3,7 @@
 Tier 2 by convention. Imports nothing heavier than the standard library; the
 rungs you pass in may import whatever they like.
 
-Week 6 Session 1 builds the ladder from scratch — logit masking, regex, a
+Week 6 Session 12 builds the ladder from scratch — logit masking, regex, a
 trained classifier, an LLM judge, a policy layer — and the point of building all
 five is that they cost wildly different amounts and catch different things. This
 packages the part that makes it deployable rather than demonstrable.
@@ -148,30 +148,30 @@ class Ladder:
         total = 0.0
 
         for text in unsafe:
-            v = self.check(text)
-            total += v.seconds
-            for name in v.ran:
+            verdict = self.check(text)
+            total += verdict.seconds
+            for name in verdict.ran:
                 report.reached[name] = report.reached.get(name, 0) + 1
-            if not v.allowed:
-                report.by_rung[v.rung] = report.by_rung.get(v.rung, 0) + 1
+            if not verdict.allowed:
+                report.by_rung[verdict.rung] = report.by_rung.get(verdict.rung, 0) + 1
             else:
                 report.missed.append(text[:120])
 
         for text in safe:
-            v = self.check(text)
-            total += v.seconds
-            for name in v.ran:
+            verdict = self.check(text)
+            total += verdict.seconds
+            for name in verdict.ran:
                 report.reached[name] = report.reached.get(name, 0) + 1
-            if not v.allowed:
-                report.blocked_safe.append({"input": text[:120], "rung": v.rung,
-                                            "reason": v.reason[:120]})
+            if not verdict.allowed:
+                report.blocked_safe.append({"input": text[:120], "rung": verdict.rung,
+                                            "reason": verdict.reason[:120]})
 
-        n = len(safe) + len(unsafe)
+        case_count = len(safe) + len(unsafe)
         report.caught = (
             (len(unsafe) - len(report.missed)) / len(unsafe) if unsafe else 0.0
         )
         report.false_positive = len(report.blocked_safe) / len(safe)
-        report.seconds_per_call = total / n if n else 0.0
+        report.seconds_per_call = total / case_count if case_count else 0.0
         return report
 
 

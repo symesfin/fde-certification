@@ -131,6 +131,7 @@ Open a notebook:
 
 ```bash
 make nb F=01_Product_Engineering/sessions/S1_Enterprise_Dev_Environment.py
+make nb F=02_Open_Weights/sessions/S3_Local_Inference_Fundamentals.py
 ```
 
 That runs it in its own sandboxed environment from the dependencies declared
@@ -139,6 +140,9 @@ inside the file, so it works even if you skipped `make setup`.
 > **Prefer Jupyter?** Every notebook ships with an `.ipynb` next to it. Those are
 > **generated** from the `.py` — read or run them freely, but make edits in the
 > `.py`, or your changes will be overwritten.
+>
+> Lost on a word? [`GLOSSARY.md`](./GLOSSARY.md) has every term the course has
+> used so far, in one sentence each, with the week it first comes up.
 
 ---
 

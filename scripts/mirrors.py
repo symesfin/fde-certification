@@ -29,9 +29,31 @@ import difflib
 import json
 import re
 import subprocess
+import os
 import sys
 import tomllib
 from pathlib import Path
+
+
+# marimo writes the exported notebook to its own stdout. When that stdout is a
+# pipe -- which it always is here -- Python picks the encoding from the OS, and
+# on Windows that is cp1252. The breakout-room emoji in the notebooks is not in
+# cp1252, so the child dies with UnicodeEncodeError before writing a byte, and
+# `make check` fails on the machines most of the cohort actually uses.
+# Setting the child's IO encoding explicitly is the only fix that works from
+# this side; `encoding=` on subprocess.run only governs how WE decode the pipe.
+def _utf8_env() -> dict[str, str]:
+    return {**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONUTF8": "1"}
+
+
+# Windows consoles default to a code page that cannot encode the check marks
+# these scripts print, so a redirected run dies with UnicodeEncodeError before
+# reporting anything. Force UTF-8 on our own output rather than dropping to
+# ASCII markers -- the students on managed Windows laptops are the ones running
+# these gates.
+for stream in (sys.stdout, sys.stderr):
+    if hasattr(stream, "reconfigure"):
+        stream.reconfigure(encoding="utf-8", errors="replace")
 
 ROOT = Path(__file__).resolve().parent.parent
 PYPROJECT = ROOT / "pyproject.toml"
@@ -56,9 +78,9 @@ def fail(msg: str) -> None:
 
 def notebooks() -> list[Path]:
     found = [
-        p
-        for p in sorted(ROOT.glob(NOTEBOOK_GLOB))
-        if MARIMO_MARKER in p.read_text(encoding="utf-8")
+        path
+        for path in sorted(ROOT.glob(NOTEBOOK_GLOB))
+        if MARIMO_MARKER in path.read_text(encoding="utf-8")
     ]
     return found
 
@@ -73,7 +95,7 @@ def root_config() -> tuple[str, dict[str, str], set[str]]:
         if name:
             specs[name.group(1).lower()] = spec
     allow = {
-        n.lower() for n in data.get("tool", {}).get("fde", {}).get("sandbox-only", [])
+        name.lower() for name in data.get("tool", {}).get("fde", {}).get("sandbox-only", [])
     }
     return specs["marimo"].removeprefix("marimo=="), specs, allow
 
@@ -100,6 +122,11 @@ def export(nb: Path) -> str:
         ],
         capture_output=True,
         text=True,
+        env=_utf8_env(),
+        # Explicit: marimo emits UTF-8, but a bare text=True decodes with the
+        # OS default. On a Windows code page that is mojibake at best and a
+        # UnicodeDecodeError at worst, on the machines least able to debug it.
+        encoding="utf-8",
         cwd=ROOT,
     )
     if result.returncode != 0:
@@ -107,8 +134,8 @@ def export(nb: Path) -> str:
     return result.stdout
 
 
-def rel(p: Path) -> str:
-    return str(p.relative_to(ROOT))
+def rel(path: Path) -> str:
+    return str(path.relative_to(ROOT))
 
 
 # -------------------------------------------------------------------------- checks
@@ -179,12 +206,12 @@ def check_outputs(mirror: Path) -> bool:
         fail(f"{rel(mirror)} is not valid JSON: {exc}")
         return False
 
-    for i, cell in enumerate(doc.get("cells", [])):
+    for index, cell in enumerate(doc.get("cells", [])):
         if cell.get("cell_type") != "code":
             continue
         if cell.get("outputs") or cell.get("execution_count") is not None:
             fail(
-                f"{rel(mirror)} cell {i} has execution outputs.\n"
+                f"{rel(mirror)} cell {index} has execution outputs.\n"
                 f"  You ran the mirror -- that's fine, just don't commit it.\n"
                 f"  Fix:  git checkout {rel(mirror)}"
             )
@@ -219,7 +246,7 @@ def check_tier1_purity() -> bool:
         tree = ast.parse(module.read_text(encoding="utf-8"))
         for node in ast.walk(tree):
             if isinstance(node, ast.Import):
-                roots = [a.name.split(".")[0] for a in node.names]
+                roots = [alias.name.split(".")[0] for alias in node.names]
             elif isinstance(node, ast.ImportFrom):
                 # Relative imports (`from .config import ...`) stay inside tier 1.
                 roots = [] if node.level else [(node.module or "").split(".")[0]]
@@ -267,10 +294,10 @@ def check_timeouts(notebooks) -> bool:
             name = getattr(fn, "id", None) or getattr(fn, "attr", None) or ""
             if name.lstrip("_") not in {"completion", "embedding"}:
                 continue
-            if any(k.arg == "timeout" for k in node.keywords):
+            if any(keyword.arg == "timeout" for keyword in node.keywords):
                 continue
             # `**kwargs` may carry it; we cannot see inside, so allow it.
-            if any(k.arg is None for k in node.keywords if k.arg is None):
+            if any(keyword.arg is None for keyword in node.keywords if keyword.arg is None):
                 pass
             fail(
                 f"{rel(nb)}:{node.lineno} calls {name}() with no explicit timeout.\n"
@@ -386,20 +413,20 @@ def main() -> int:
     pin, specs, allow = root_config()
 
     if args.paths:
-        # Accept directories as well as files -- `--write 05_Evals/sessions/` is
+        # Accept directories as well as files -- `--write 04_Evals/sessions/` is
         # the obvious thing to type, so it should work.
         targets = []
         for path in args.paths:
             resolved = path.resolve()
             if resolved.is_dir():
                 targets += [
-                    p for p in sorted(resolved.rglob("*.py"))
-                    if MARIMO_MARKER in p.read_text(encoding="utf-8")
+                    notebook for notebook in sorted(resolved.rglob("*.py"))
+                    if MARIMO_MARKER in notebook.read_text(encoding="utf-8")
                 ]
             else:
                 targets.append(resolved)
         if not targets:
-            fail(f"no marimo notebooks found in {', '.join(str(p) for p in args.paths)}")
+            fail(f"no marimo notebooks found in {', '.join(str(path) for path in args.paths)}")
             return 1
     else:
         targets = notebooks()

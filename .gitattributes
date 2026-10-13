@@ -1,6 +1,54 @@
-# The .ipynb files are generated from the marimo .py next to them. Collapsing them
-# in GitHub diffs keeps PR review readable.
+# Line-ending policy for this repository.
+#
+# Without these rules, what lands in a commit depends on each contributor's
+# personal `core.autocrlf` setting. Git for Windows and GitHub Desktop both
+# default to `true`, which writes CRLF into the working tree. That is invisible
+# on Windows -- and it is how `setup_check.sh` ends up with CRLF and then fails
+# the moment a student runs it in WSL or Git Bash:
+#
+#     setup_check.sh: line 8: $'\r': command not found
+#     setup_check.sh: line 9: set: pipefail: invalid option name
+#     setup_check.sh: line 24: syntax error near unexpected token `$'do\r''
+#
+# `text=auto` normalises everything to LF *in the repository*, while still
+# letting Git write native endings into each platform's working tree. The
+# `eol=lf` rules below override that for files parsed by tools that are not
+# Windows tools, regardless of which platform checked them out.
+
+* text=auto
+
+# Read by bash. These MUST be LF on disk everywhere -- including a Windows
+# checkout that a student then runs inside WSL or Git Bash.
+*.sh    text eol=lf
+*.bash  text eol=lf
+
+# Current GNU make and BuildKit both tolerate CRLF, so these are defensive
+# rather than urgent: macOS ships an older make, and the first `RUN ./x.sh`
+# added to a Dockerfile would make it urgent without warning.
+Makefile      text eol=lf
+*.mk          text eol=lf
+Dockerfile    text eol=lf
+*.dockerfile  text eol=lf
+
+# Windows-native scripts. PowerShell reads either, but CRLF keeps them correct
+# in Notepad and in the Windows console.
+*.ps1  text eol=crlf
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+
+# The .ipynb files are generated from the marimo .py next to them. Pinned to LF
+# so the committed bytes are identical no matter who ran `make mirrors`, and
+# collapsed in GitHub diffs to keep PR review readable.
 #
 # On a merge conflict in one of these, do NOT resolve it by hand:
 #     git checkout --ours <file> && make mirrors
-*.ipynb linguist-generated=true
+*.ipynb  text eol=lf linguist-generated=true
+
+# Never translate these.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.pdf   binary
+*.woff  binary
+*.woff2 binary

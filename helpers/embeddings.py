@@ -25,6 +25,7 @@ import json
 import os
 import random
 import time
+import warnings
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Iterable, Literal, Sequence
@@ -73,9 +74,42 @@ class _Cache:
 # ------------------------------------------------------------------ embedder
 
 
+def _unreachable(exc: Exception) -> bool:
+    """Is this "the server is not there", as opposed to "the server said no"?
+
+    A 4xx/5xx means something answered. A connection error, a DNS failure, or a
+    refused socket means nothing did -- and only the second is worth falling back
+    for, because a 401 will fail on the local model too.
+    """
+    text = f"{type(exc).__name__} {exc}".lower()
+    return any(marker in text for marker in (
+        "connection error", "connection refused", "connectionerror",
+        "name or service not known", "failed to establish", "max retries exceeded",
+        "apiconnectionerror", "nodename nor servname",
+    ))
+
+
+def _serves_chat_not_embeddings(exc: Exception) -> bool:
+    """Did a reachable server tell us it does not do embeddings at all?
+
+    This is a common and confusing shape: one endpoint serves chat, lists an
+    embedding model in `/v1/models`, and returns 501 the moment you ask it to
+    embed anything -- llama.cpp does exactly this unless started with
+    `--embeddings`. The model appearing in the list is not a promise.
+
+    Unlike a 401 or a 400, no retry and no correction on our side fixes it, and
+    unlike those it is *not* a reason to stop: a local model can genuinely stand
+    in. So it falls back rather than failing, and says why.
+    """
+    text = f"{type(exc).__name__} {exc}".lower()
+    if getattr(exc, "status_code", None) == 501 or " 501 " in f" {text} ":
+        return True
+    return "does not support embeddings" in text or "not_supported_error" in text
+
+
 @dataclass
 class EmbedStats:
-    """What actually happened. Report these — they are the numbers a client asks about."""
+    """What actually happened. Report these — they are the numbers people ask about."""
 
     texts: int = 0
     cached: int = 0
@@ -83,6 +117,7 @@ class EmbedStats:
     batches: int = 0
     retries: int = 0
     seconds: float = 0.0
+    fell_back: bool = False
 
     def __str__(self) -> str:
         hit = self.cached / self.texts if self.texts else 0
@@ -90,6 +125,7 @@ class EmbedStats:
         return (
             f"{self.texts} texts in {self.seconds:.1f}s ({rate:.1f}/s) · "
             f"{self.batches} batches · {hit:.0%} cache hit · {self.retries} retries"
+            + (" · FELL BACK to the local model" if self.fell_back else "")
         )
 
 
@@ -113,8 +149,9 @@ class Embedder:
         batch_size: int = 32,
         cache_dir: str | Path | None = None,
         max_retries: int = 4,
-        timeout: float = 120.0,
-        local_model: str = "sentence-transformers/all-MiniLM-L6-v2",
+        timeout: float = 600.0,
+        local_model: str = "BAAI/bge-small-en-v1.5",
+        allow_local_fallback: bool = True,
     ):
         self.cfg = cfg
         self.batch_size = max(1, batch_size)
@@ -127,6 +164,7 @@ class Embedder:
         # longer — see Week 3 Session 1.
         self.timeout = timeout
         self.local_model = local_model
+        self.allow_local_fallback = allow_local_fallback
         self.backend = self._resolve(backend)
         self.model_id = cfg.embed_model if self.backend == "api" else local_model
         self.cache = _Cache(cache_dir)
@@ -151,8 +189,8 @@ class Embedder:
             **self.cfg.embed_kwargs(), input=list(batch), timeout=self.timeout
         )
         # Providers are not required to preserve order; index is authoritative.
-        rows = sorted(response.data, key=lambda d: d.get("index", 0))
-        return np.array([r["embedding"] for r in rows], dtype=np.float32)
+        rows = sorted(response.data, key=lambda item: item.get("index", 0))
+        return np.array([row["embedding"] for row in rows], dtype=np.float32)
 
     def _embed_local(self, batch: Sequence[str]):
         import numpy as np
@@ -187,6 +225,35 @@ class Embedder:
             try:
                 return (self._embed_api if self.backend == "api" else self._embed_local)(batch)
             except Exception as exc:
+                # An endpoint that is *configured* is not an endpoint that is
+                # *reachable*. `_resolve` cannot tell the difference -- it runs
+                # before any request -- so a server that is down used to retry
+                # three times and then fail the notebook. Fall back to the local
+                # model instead: slower and smaller, but the session continues.
+                no_embeddings = _serves_chat_not_embeddings(exc)
+                if self.backend == "api" and self.allow_local_fallback and (
+                    _unreachable(exc) or no_embeddings
+                ):
+                    self.backend = "local"
+                    self.model_id = self.local_model
+                    self.stats.fell_back = True
+                    warnings.warn(
+                        (
+                            "Embedding endpoint answered, but does not serve "
+                            "embeddings (501). A model listed in /v1/models is "
+                            "not a promise that the endpoint is enabled — "
+                            "llama.cpp needs `--embeddings`. "
+                            if no_embeddings
+                            else f"Embedding endpoint unreachable ({type(exc).__name__}). "
+                        )
+                        + f"Falling back to the local model {self.local_model!r}. "
+                        f"Vectors from a different model are NOT comparable with "
+                        f"any you embedded earlier -- re-embed the whole corpus, "
+                        f"or fix the endpoint and re-run.",
+                        RuntimeWarning,
+                        stacklevel=2,
+                    )
+                    continue
                 if not is_retryable(exc):
                     raise RuntimeError(
                         f"embedding failed permanently and was not retried "
@@ -202,14 +269,14 @@ class Embedder:
                     # "timed out" is what LiteLLM actually says, and it carries
                     # status 408; matching only the word "timeout" meant the
                     # hint below never appeared for a real timeout.
-                    _text = f"{type(exc).__name__} {exc}".lower()
-                    _timed_out = (
+                    error_text = f"{type(exc).__name__} {exc}".lower()
+                    timed_out = (
                         getattr(exc, "status_code", None) == 408
-                        or "timeout" in _text
-                        or "timed out" in _text
+                        or "timeout" in error_text
+                        or "timed out" in error_text
                     )
-                    if _timed_out:
-                        longest = max((len(t) for t in batch), default=0)
+                    if timed_out:
+                        longest = max((len(text) for text in batch), default=0)
                         hint = (
                             f"\n\nThis looks like a timeout, not a broken endpoint. "
                             f"You sent {len(batch)} texts (longest {longest} chars) "
@@ -258,27 +325,27 @@ class Embedder:
 
         # 1. Serve what we already have.
         pending: list[int] = []
-        for i, text in enumerate(texts):
+        for index, text in enumerate(texts):
             hit = self.cache.get(self.model_id, text)
             if hit is not None:
-                out[i] = hit
+                out[index] = hit
                 self.stats.cached += 1
             else:
-                pending.append(i)
+                pending.append(index)
 
         # 2. Batch the rest.
         for start in range(0, len(pending), self.batch_size):
             idx = pending[start : start + self.batch_size]
-            vectors = self._call_with_retry([texts[i] for i in idx])
+            vectors = self._call_with_retry([texts[index] for index in idx])
             self.stats.batches += 1
             self.stats.requested += len(idx)
-            for i, vec in zip(idx, vectors):
-                out[i] = vec
-                self.cache.put(self.model_id, texts[i], vec)
+            for index, vec in zip(idx, vectors):
+                out[index] = vec
+                self.cache.put(self.model_id, texts[index], vec)
             if progress:
                 progress(self.stats.cached + self.stats.requested, len(texts))
 
-        matrix = np.vstack([np.asarray(v, dtype=np.float32) for v in out])
+        matrix = np.vstack([np.asarray(vector, dtype=np.float32) for vector in out])
         if normalize:
             norms = np.linalg.norm(matrix, axis=1, keepdims=True)
             matrix = matrix / np.maximum(norms, 1e-12)   # never divide by zero
@@ -304,9 +371,9 @@ def sanity_check(embedder: "Embedder") -> dict:
         "quarterly financial invoicing deadlines",   # unrelated
         "depot scanners lost connectivity",          # related to the first
     ]
-    v = embedder.embed(probes)
-    unrelated = float(v[0] @ v[1])
-    related = float(v[0] @ v[2])
+    vectors = embedder.embed(probes)
+    unrelated = float(vectors[0] @ vectors[1])
+    related = float(vectors[0] @ vectors[2])
     ok = related - unrelated > 0.05
     return {
         "unrelated": round(unrelated, 3),

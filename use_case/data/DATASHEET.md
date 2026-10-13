@@ -31,9 +31,16 @@
 <!-- If you have real ground truth somewhere, say where, and say explicitly that
      these rows are not it. -->
 
-## Leakage check
+## Leakage check — outward (what left)
 
 - [ ] No real record was used as a seed.
 - [ ] No real entity names, IDs, or identifiers appear.
 - [ ] No distinctive internal formats that would identify the firm.
 - [ ] Rare categories were generated, not copied.
+
+## Leakage check — inward (what the eval shares with the training data)
+
+**Are the goldens disjoint from anything the system was, or will be, tuned on?**
+<!-- yes, disjoint | no — overlap: <which goldens, which source> | unknown — who would know: <role> -->
+
+**Overlap between `golden.jsonl` and this file, by the dedupe measure:** <!-- n rows at threshold t -->

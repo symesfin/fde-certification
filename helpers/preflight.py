@@ -27,9 +27,11 @@ becomes a Week 9 conversation.
 from __future__ import annotations
 
 import os
+import queue
 import socket
 import ssl
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
+import time
 from dataclasses import dataclass, field
 
 # Hosts every week of this course eventually needs.
@@ -37,8 +39,8 @@ DEFAULT_HOSTS: tuple[tuple[str, str], ...] = (
     ("pypi.org", "Python packages"),
     ("files.pythonhosted.org", "the actual wheel downloads"),
     ("api.openai.com", "the model API"),
-    ("cdn.jsdelivr.net", "the CDN the Week 1 frontend uses"),
-    ("huggingface.co", "open weights, Weeks 2 and 8"),
+    ("cdn.jsdelivr.net", "the CDN your app's frontend uses"),
+    ("huggingface.co", "open weights and fine-tuning"),
     ("registry-1.docker.io", "container images"),
     ("github.com", "this repository"),
 )
@@ -96,16 +98,16 @@ class Report:
 
     @property
     def blocked(self) -> list:
-        return [p for p in self.probes if not p.tls_ok]
+        return [probe for probe in self.probes if not probe.tls_ok]
 
     @property
     def intercepted(self) -> list:
-        return [p for p in self.probes if p.intercepted]
+        return [probe for probe in self.probes if probe.intercepted]
 
     def __str__(self) -> str:
         bits = [f"{len(self.probes) - len(self.blocked)}/{len(self.probes)} reachable"]
         if self.intercepted:
-            names = sorted({p.issuer for p in self.intercepted})
+            names = sorted({probe.issuer for probe in self.intercepted})
             bits.append(f"TLS intercepted by {', '.join(names)}")
         if self.proxy_env:
             bits.append(f"{len(self.proxy_env)} proxy/CA variables set")
@@ -114,14 +116,14 @@ class Report:
     def verdict(self) -> str:
         """The sentence to paste into use_case/ecosystem.md."""
         if self.blocked:
-            hosts = ", ".join(p.host for p in self.blocked)
+            hosts = ", ".join(probe.host for probe in self.blocked)
             return (
                 f"Blocked: {hosts}. Someone has to allow these or mirror them "
                 f"internally before Weeks 2, 8, and 9 — find out who, now, not "
                 f"in the week you need it."
             )
         if self.intercepted:
-            names = ", ".join(sorted({p.issuer for p in self.intercepted}))
+            names = ", ".join(sorted({probe.issuer for probe in self.intercepted}))
             return (
                 f"TLS is terminated by {names}. Everything works in your terminal "
                 f"because your OS trusts that CA. It will fail inside a container, "
@@ -160,41 +162,91 @@ def _one(host: str, why: str, timeout: float) -> Probe:
 
 def check_egress(hosts=DEFAULT_HOSTS, *, timeout: float = 6.0,
                  workers: int = 8) -> Report:
-    """Probe every host concurrently, with a wall-clock deadline per host.
+    """Probe every host concurrently, with a wall-clock deadline for the batch.
 
-    The deadline is enforced by `as_completed`, not by the socket, because DNS
-    resolution ignores socket timeouts entirely — a blackholed lookup blocks
+    The deadline is enforced here rather than by the socket, because DNS
+    resolution ignores socket timeouts entirely -- a blackholed lookup blocks
     until the system resolver gives up, which on a managed network can be tens
-    of seconds. Worker threads that miss the deadline are abandoned; the process
-    still exits because they are daemon threads in a pool we do not join.
-    """
-    report = Report()
-    pending = {}
-    pool = ThreadPoolExecutor(max_workers=min(workers, max(len(hosts), 1)))
-    try:
-        for host, why in hosts:
-            pending[pool.submit(_one, host, why, timeout)] = (host, why)
-        deadline = timeout * 2 + 2          # generous, but bounded
-        done = set()
-        try:
-            for future in as_completed(list(pending), timeout=deadline):
-                done.add(future)
-                report.probes.append(future.result())
-        except TimeoutError:
-            pass
-        for future, (host, why) in pending.items():
-            if future not in done:
-                future.cancel()
-                report.probes.append(
-                    Probe(host=host, why=why,
-                          error=f"no answer within {deadline:.0f}s — treat as blocked")
-                )
-    finally:
-        # Do not wait: a thread stuck in getaddrinfo cannot be interrupted, and
-        # blocking here would reintroduce the hang this function exists to avoid.
-        pool.shutdown(wait=False)
+    of seconds. A probe that misses the deadline is abandoned mid-call and
+    reported as blocked.
 
-    order = {h: i for i, (h, _) in enumerate(hosts)}
-    report.probes.sort(key=lambda p: order.get(p.host, 999))
-    report.proxy_env = {k: os.environ[k] for k in PROXY_VARS if os.environ.get(k)}
+    **Abandoning it has to be real, and that is why this uses raw threads
+    rather than a `ThreadPoolExecutor`.** A pool's workers are not daemon
+    threads, and since Python 3.9 `concurrent.futures.thread` registers an
+    atexit hook that joins every one of them. `shutdown(wait=False)` returns
+    immediately, then the interpreter blocks on the way out -- which moves the
+    hang this module exists to prevent from the middle of the run to the end of
+    it, where it is harder to explain. These threads are `daemon=True` and
+    nothing joins them, so a stuck `getaddrinfo` cannot delay exit.
+    """
+    hosts = tuple(hosts)
+    report = Report()
+    if not hosts:
+        report.proxy_env = _proxy_env()
+        return report
+
+    todo: queue.Queue = queue.Queue()
+    for index, (host, why) in enumerate(hosts):
+        todo.put((index, host, why))
+    done: queue.Queue = queue.Queue()
+
+    def worker() -> None:
+        while True:
+            try:
+                index, host, why = todo.get_nowait()
+            except queue.Empty:
+                return
+            try:
+                done.put((index, _one(host, why, timeout)))
+            except BaseException as exc:      # a worker must never die silently
+                done.put((index, Probe(host=host, why=why,
+                                       error=f"{type(exc).__name__}: {exc}"[:80])))
+
+    for thread_number in range(max(1, min(workers, len(hosts)))):
+        threading.Thread(target=worker, name=f"preflight-{thread_number}",
+                         daemon=True).start()
+
+    budget = timeout * 2 + 2                  # generous, but bounded
+    deadline = time.monotonic() + budget
+    collected: dict[int, Probe] = {}
+    while len(collected) < len(hosts):
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            break
+        try:
+            index, probe = done.get(timeout=remaining)
+        except queue.Empty:
+            break
+        collected[index] = probe
+
+    # Whatever did not answer is still a finding: name it, do not drop it.
+    for index, (host, why) in enumerate(hosts):
+        if index not in collected:
+            collected[index] = Probe(
+                host=host, why=why,
+                error=f"no answer within {budget:.0f}s — treat as blocked",
+            )
+    report.probes = [collected[index] for index in range(len(hosts))]
+    report.proxy_env = _proxy_env()
     return report
+
+
+def _proxy_env() -> dict[str, str]:
+    """The proxy and trust-store variables actually set, counted once each.
+
+    PROXY_VARS lists HTTPS_PROXY and https_proxy because on Unix they are two
+    different variables. Windows environment lookup is case-insensitive, so one
+    variable answers to both names and gets counted twice -- telling a student
+    they have eight proxy settings when they have four. Collapse a repeat only
+    when the value matches; genuinely divergent casings on Unix are worth
+    seeing.
+    """
+    seen: dict[str, str] = {}
+    env: dict[str, str] = {}
+    for name in PROXY_VARS:
+        value = os.environ.get(name)
+        if not value or seen.get(name.upper()) == value:
+            continue
+        seen[name.upper()] = value
+        env[name] = value
+    return env

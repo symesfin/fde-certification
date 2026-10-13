@@ -188,9 +188,9 @@ def _(mo, run_probe, ui):
 
     mo.vstack([
         ui.table(
-            [{"host": _p.host, "why": _p.why, "status": _p.status,
-              "signed by": getattr(_p, "issuer", "") or ""}
-             for _p in REPORT.probes],
+            [{"host": probe.host, "why": probe.why, "status": probe.status,
+              "signed by": getattr(probe, "issuer", "") or ""}
+             for probe in REPORT.probes],
             title="Egress",
         ),
         mo.md(f"**Verdict:** {REPORT.verdict()}"),
@@ -370,7 +370,7 @@ def _(CFG, mo, run_call):
     from helpers.display import stream_md
     from litellm import completion
 
-    _stream = completion(
+    chat_stream = completion(
         **CFG.kwargs(),
         timeout=600,
         messages=[
@@ -384,7 +384,7 @@ def _(CFG, mo, run_call):
         ],
         stream=True,
     )
-    reply = stream_md(_stream)
+    reply = stream_md(chat_stream)
     return
 
 

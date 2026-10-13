@@ -16,10 +16,19 @@ import sys
 from pathlib import Path
 from textwrap import dedent
 
+# Windows consoles default to a code page that cannot encode the check marks
+# these scripts print, so a redirected run dies with UnicodeEncodeError before
+# reporting anything. Force UTF-8 on our own output rather than dropping to
+# ASCII markers -- the students on managed Windows laptops are the ones running
+# these gates.
+for stream in (sys.stdout, sys.stderr):
+    if hasattr(stream, "reconfigure"):
+        stream.reconfigure(encoding="utf-8", errors="replace")
+
 ROOT = Path(__file__).resolve().parent.parent
 OK, BAD = "✓", "✗"
 
-SOURCES = [ROOT / "10_Infrastructure/sessions/S1_From_Container_to_Cluster.py"]
+SOURCES = [ROOT / "09_Infrastructure/sessions/S1_From_Container_to_Cluster.py"]
 
 
 def extract(path: Path) -> list[tuple[str, str]]:
@@ -34,8 +43,8 @@ def extract(path: Path) -> list[tuple[str, str]]:
 
 def check(name: str, docs: list[dict]) -> list[str]:
     problems: list[str] = []
-    kinds = {d.get("kind") for d in docs if d}
-    deployments = [d for d in docs if d and d.get("kind") == "Deployment"]
+    kinds = {doc.get("kind") for doc in docs if doc}
+    deployments = [doc for doc in docs if doc and doc.get("kind") == "Deployment"]
 
     if not deployments:
         return [f"{name}: no Deployment found"]
@@ -49,21 +58,21 @@ def check(name: str, docs: list[dict]) -> list[str]:
                 f"{name}: pod has no `runAsNonRoot: true`. Containers run as root "
                 f"by default and this is the most common enterprise review finding."
             )
-        for c in containers:
-            sc = c.get("securityContext") or {}
+        for container in containers:
+            sc = container.get("securityContext") or {}
             if not sc.get("readOnlyRootFilesystem"):
-                problems.append(f"{name}: container `{c.get('name')}` has no readOnlyRootFilesystem")
+                problems.append(f"{name}: container `{container.get('name')}` has no readOnlyRootFilesystem")
             if (sc.get("capabilities") or {}).get("drop") != ["ALL"]:
-                problems.append(f"{name}: container `{c.get('name')}` does not drop ALL capabilities")
+                problems.append(f"{name}: container `{container.get('name')}` does not drop ALL capabilities")
             if sc.get("allowPrivilegeEscalation") is not False:
-                problems.append(f"{name}: container `{c.get('name')}` allows privilege escalation")
-            if ":latest" in str(c.get("image", "")) or ":" not in str(c.get("image", "")):
-                problems.append(f"{name}: container `{c.get('name')}` image is not pinned to a tag")
-            res = c.get("resources") or {}
+                problems.append(f"{name}: container `{container.get('name')}` allows privilege escalation")
+            if ":latest" in str(container.get("image", "")) or ":" not in str(container.get("image", "")):
+                problems.append(f"{name}: container `{container.get('name')}` image is not pinned to a tag")
+            res = container.get("resources") or {}
             if "limits" not in res or "requests" not in res:
-                problems.append(f"{name}: container `{c.get('name')}` missing resource requests/limits")
-            if "readinessProbe" not in c or "livenessProbe" not in c:
-                problems.append(f"{name}: container `{c.get('name')}` missing a probe")
+                problems.append(f"{name}: container `{container.get('name')}` missing resource requests/limits")
+            if "readinessProbe" not in container or "livenessProbe" not in container:
+                problems.append(f"{name}: container `{container.get('name')}` missing a probe")
 
         if (dep["spec"].get("replicas") or 1) > 1 and "PodDisruptionBudget" not in kinds:
             problems.append(

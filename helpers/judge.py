@@ -49,7 +49,7 @@ def parse_json(text: str) -> dict | None:
     start = -1
     in_string = False
     escape = False
-    for i, ch in enumerate(text):
+    for position, ch in enumerate(text):
         if in_string:
             if escape:
                 escape = False
@@ -62,13 +62,13 @@ def parse_json(text: str) -> dict | None:
             in_string = True
         elif ch == "{":
             if depth == 0:
-                start = i
+                start = position
             depth += 1
         elif ch == "}":
             depth -= 1
             if depth == 0 and start >= 0:
                 try:
-                    return json.loads(text[start : i + 1])
+                    return json.loads(text[start : position + 1])
                 except json.JSONDecodeError:
                     start = -1      # keep scanning for a later, valid object
     return None
@@ -174,10 +174,10 @@ class Judge:
             detail.append({"case": str(case.get("input", ""))[:48],
                            "accepted": round(good, 3), "wrong": round(bad, 3)})
 
-        n = len(detail) or 1
+        divisor = len(detail) or 1
         cal = Calibration(
-            accepted=sum(d["accepted"] for d in detail) / n,
-            wrong=sum(d["wrong"] for d in detail) / n,
+            accepted=sum(row["accepted"] for row in detail) / divisor,
+            wrong=sum(row["wrong"] for row in detail) / divisor,
             n=len(detail),
             detail=detail,
         )

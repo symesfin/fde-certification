@@ -5,9 +5,9 @@ Every session notebook has the same shape — the PEP 723 header, the bootstrap 
 the Build/Ship/Share block, the task rhythm. Getting that wrong once means fixing it
 in twenty files later, so it comes out of one template.
 
-    python scripts/new_session.py 04_Retrieval S1 "Retrieval Variants"
+    python scripts/new_session.py 03_Retrieval S1 "Retrieval Variants"
 
-Writes `04_Retrieval/sessions/S1_Retrieval_Variants.py`, then tell you to run
+Writes `03_Retrieval/sessions/S1_Retrieval_Variants.py`, then tell you to run
 `make mirrors`.
 """
 
@@ -44,48 +44,53 @@ def _():
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
-        # {title}
+    mo.md(r"""
+    # {title}
 
-        ---
-        """
-    )
+    ---
+    """)
     return
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
-        ## 🏗️ Build | 🚢 Ship | 📤 Share
+    mo.md(r"""
+    ## Table of Contents
 
-        ### 🏗️ Build
-        TODO — what the student completes by running this notebook.
-
-        ### 🚢 Ship
-        TODO — the extension that proves they understood it.
-
-        ### 📤 Share
-        TODO — explain it to someone who wasn't here.
-        """
-    )
+    - Task 1: TODO
+    - ❓ Question #1
+    - Conclusion
+    - Additional Context
+    """)
     return
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
-        TODO — one paragraph on why this matters, framed the way it would land with
-        a client rather than a classroom.
+    mo.md(r"""
+    ## 📖 Official documentation
 
-        **Estimated time:** 25–35 minutes
+    The tools this notebook actually uses, and what each is used for *here*.
+    Open every URL by hand before shipping.
 
-        ---
-        ## Setup
-        """
-    )
+    | Tool | Used here for | Docs |
+    | --- | --- | --- |
+    | TODO | TODO | TODO |
+    """)
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    TODO — one paragraph on why this matters, framed the way it would land with
+    a colleague rather than a classroom.
+
+    **Estimated time:** 25–35 minutes
+
+    ---
+    ## Setup
+    """)
     return
 
 
@@ -99,17 +104,15 @@ def _(mo):
 
     CFG = nb.bootstrap(require=("OPENAI_API_KEY",))
     print(f"✅ {{CFG}}")
-    return (CFG,)
+    return
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
-        ---
-        ## Task 1 — TODO
-        """
-    )
+    mo.md(r"""
+    ---
+    ## Task 1 — TODO
+    """)
     return
 
 
@@ -122,49 +125,45 @@ def _():
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
-        ---
-        ## 🏗️ Activity — TODO
+    mo.md(r"""
+    ---
+    ### ❓ Question #1:
 
-        A hands-on extension with a clear goal.
-        """
-    )
-    return
+    TODO — a discussion prompt answerable in one to three sentences. It must
+    point at something the student has to *decide* in this week's challenge;
+    a question that hints at nothing graded is one they will skip, correctly.
 
-
-@app.cell
-def _():
-    # Your experiments here
-    return
-
-
-@app.cell
-def _(mo):
-    mo.md(
-        r"""
-        ---
-        ## What We Just Built vs. What's In Production
-
-        | What we built | What production does |
-        | --- | --- |
-        | TODO | TODO |
-        """
-    )
+    **Answer:**
+    """)
     return
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
-        ---
-        ## 🚀 Advanced Build
+    mo.md(r"""
+    ---
+    # Conclusion
 
-        - **TODO** — a stretch goal worth a real afternoon.
-        - **TODO**
-        """
-    )
+    TODO — what the student built, and the idea to take away.
+
+    | Component | What We Built | What Production Looks Like |
+    | --- | --- | --- |
+    | TODO | TODO | TODO |
+    """)
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    ---
+    # Additional Context
+
+    Where to go next, for anyone who wants to keep pulling on this.
+
+    - [TODO]() — TODO, why it is worth reading
+    - **Keep building:** TODO — a stretch goal worth a real afternoon
+    """)
     return
 
 
@@ -183,7 +182,7 @@ def marimo_pin() -> str:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("week", help="week directory, e.g. 04_Retrieval")
+    ap.add_argument("week", help="week directory, e.g. 03_Retrieval")
     ap.add_argument("session", help="S1 or S2")
     ap.add_argument("title", help='human title, e.g. "Retrieval Variants"')
     args = ap.parse_args()

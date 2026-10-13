@@ -22,7 +22,10 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 MODEL = "LiquidAI/LFM2.5-350M"
-K = 1000          # top-p 0.95 never reaches this far; lossless for the lesson
+TOP_K = 1000      # top-p 0.95 tops out at 489 candidates at T=1.0, so this is
+                  # lossless for the sampling the sessions do. It is NOT enough
+                  # at the top of the temperature slider: by T=2.0 the median
+                  # position needs ~766 of these. See data/README.md.
 STEPS = 12
 
 PROMPTS = [
@@ -34,7 +37,16 @@ PROMPTS = [
     "The incident started when the database",
 ]
 
-OUT = Path(__file__).resolve().parent.parent / "03_Open_Weights" / "sessions" / "data"
+_ROOT = Path(__file__).resolve().parent.parent
+
+# Two destinations, deliberately. Notebooks must be standalone -- a session that
+# reaches into another week's directory for a data file cannot be reordered, and
+# its .ipynb mirror will not run on its own. So both weeks that teach on this
+# trace get their own copy, and this script keeps them identical.
+OUTS = [
+    _ROOT / "02_Open_Weights" / "sessions" / "data",
+    _ROOT / "06_Guardrails" / "sessions" / "data",
+]
 
 
 def main() -> None:
@@ -53,7 +65,7 @@ def main() -> None:
         for step in range(STEPS):
             with torch.no_grad():
                 logits = model(ids).logits[0, -1].float()
-            top = torch.topk(logits, K)
+            top = torch.topk(logits, TOP_K)
 
             logits_out.append(top.values.numpy().astype(np.float32))
             ids_out.append(top.indices.numpy().astype(np.int32))
@@ -70,24 +82,25 @@ def main() -> None:
 
         print(f"[{prompt_index + 1}/{len(PROMPTS)}] {tok.decode(ids[0])!r}")
 
-    OUT.mkdir(parents=True, exist_ok=True)
-    np.savez_compressed(
-        OUT / "logits_trace.npz",
-        logits=np.stack(logits_out),
-        token_ids=np.stack(ids_out),
-    )
     # Decode only the ids that actually appear, so no tokenizer is needed to read it.
-    (OUT / "logits_trace_meta.json").write_text(
-        json.dumps({
-            "model": MODEL,
-            "top_k": K,
-            "steps_per_prompt": STEPS,
-            "prompts": PROMPTS,
-            "positions": meta,
-            "vocab": {str(i): tok.decode([i]) for i in sorted(seen_tokens)},
-        }),
-        encoding="utf-8",
-    )
+    meta_json = json.dumps({
+        "model": MODEL,
+        "top_k": TOP_K,
+        "steps_per_prompt": STEPS,
+        "prompts": PROMPTS,
+        "positions": meta,
+        "vocab": {str(token_id): tok.decode([token_id]) for token_id in sorted(seen_tokens)},
+    })
+
+    for out in OUTS:
+        out.mkdir(parents=True, exist_ok=True)
+        np.savez_compressed(
+            out / "logits_trace.npz",
+            logits=np.stack(logits_out),
+            token_ids=np.stack(ids_out),
+        )
+        (out / "logits_trace_meta.json").write_text(meta_json, encoding="utf-8")
+        print(f"wrote {out.relative_to(_ROOT)}")
 
     print(f"\nlogits {np.stack(logits_out).shape} | vocab {len(seen_tokens)}")
 

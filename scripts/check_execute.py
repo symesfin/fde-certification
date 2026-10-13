@@ -22,9 +22,38 @@ from __future__ import annotations
 import argparse
 import json
 import subprocess
+import os
 import sys
 import tempfile
 from pathlib import Path
+
+
+# marimo writes the exported notebook to its own stdout. When that stdout is a
+# pipe -- which it always is here -- Python picks the encoding from the OS, and
+# on Windows that is cp1252. The breakout-room emoji in the notebooks is not in
+# cp1252, so the child dies with UnicodeEncodeError before writing a byte, and
+# `make check` fails on the machines most of the cohort actually uses.
+# Setting the child's IO encoding explicitly is the only fix that works from
+# this side; `encoding=` on subprocess.run only governs how WE decode the pipe.
+def _utf8_env() -> dict[str, str]:
+    return {**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONUTF8": "1"}
+
+
+# Windows consoles default to a code page that cannot encode the check marks
+# these scripts print, so a redirected run dies with UnicodeEncodeError before
+# reporting anything. Force UTF-8 on our own output rather than dropping to
+# ASCII markers -- the students on managed Windows laptops are the ones running
+# these gates.
+#
+# `line_buffering=True` is the other half, and it is not cosmetic. Python block-
+# buffers stdout whenever it is a pipe rather than a terminal, so `make execute
+# | tee log.txt` prints nothing for the entire run and then everything at once.
+# This gate takes minutes at best, so the student who pipes it sits in front of
+# a silent terminal with no way to tell work from a hang -- which is how the
+# defect below stayed hidden for as long as it did.
+for stream in (sys.stdout, sys.stderr):
+    if hasattr(stream, "reconfigure"):
+        stream.reconfigure(encoding="utf-8", errors="replace", line_buffering=True)
 
 ROOT = Path(__file__).resolve().parent.parent
 OK, BAD, WARN = "✓", "✗", "!"
@@ -44,21 +73,21 @@ def is_notebook(path: Path) -> bool:
 def notebooks(targets: list[str] | None) -> list[Path]:
     if targets:
         out: list[Path] = []
-        for t in targets:
-            p = Path(t)
-            p = (p if p.is_absolute() else ROOT / p).resolve()
-            out.extend(sorted(p.glob("**/sessions/*.py")) if p.is_dir() else [p])
+        for target in targets:
+            path = Path(target)
+            path = (path if path.is_absolute() else ROOT / path).resolve()
+            out.extend(sorted(path.glob("**/sessions/*.py")) if path.is_dir() else [path])
         # An explicitly named file is checked even so; a directory sweep is filtered.
-        return [p for p in out if p.suffix == ".py" and is_notebook(p)]
-    return [p for p in sorted(ROOT.glob("*/sessions/*.py")) if is_notebook(p)]
+        return [path for path in out if path.suffix == ".py" and is_notebook(path)]
+    return [path for path in sorted(ROOT.glob("*/sessions/*.py")) if is_notebook(path)]
 
 
 def errors_in(nb: dict) -> list[tuple[int, str, str]]:
     out = []
-    for i, cell in enumerate(nb.get("cells", [])):
-        for o in cell.get("outputs", []):
-            if o.get("output_type") == "error":
-                out.append((i, o.get("ename", "?"), str(o.get("evalue", ""))[:160]))
+    for index, cell in enumerate(nb.get("cells", [])):
+        for output in cell.get("outputs", []):
+            if output.get("output_type") == "error":
+                out.append((index, output.get("ename", "?"), str(output.get("evalue", ""))[:160]))
     return out
 
 
@@ -70,7 +99,26 @@ def run_py(path: Path, timeout: int) -> tuple[str, list]:
             proc = subprocess.run(
                 [sys.executable, "-m", "marimo", "export", "ipynb",
                  "--include-outputs", str(path), "-o", str(dest), "-f"],
-                capture_output=True, text=True, timeout=timeout, cwd=ROOT,
+                capture_output=True, text=True, encoding="utf-8",
+                env=_utf8_env(), timeout=timeout, cwd=ROOT,
+                # A notebook with inline dependencies makes marimo ask whether
+                # to build a sandbox venv for it. `capture_output` redirects
+                # stdout and stderr but NOT stdin, so the child inherits the
+                # terminal, sees a tty, and asks -- while the question itself
+                # goes to the captured stderr where nobody can read it. The run
+                # then blocks until the timeout, on every notebook, with no
+                # output to explain why. That is why this gate passes in CI,
+                # which has no tty, and hangs for every human who runs it.
+                #
+                # `input` rather than `stdin=DEVNULL`, and the difference is a
+                # Windows quirk worth knowing: DEVNULL opens NUL, NUL is a
+                # character device, and Python's isatty() reports a character
+                # device as a terminal. So marimo asks anyway, gets EOF, and
+                # aborts -- fast instead of hung, but still failing. A pipe is
+                # not a character device on either platform, so this takes the
+                # non-interactive branch everywhere; the "n" is insurance in
+                # case some other path asks something.
+                input="n\n",
             )
         except subprocess.TimeoutExpired:
             return "timeout", [(-1, "Timeout", f"exceeded {timeout}s")]
@@ -123,25 +171,25 @@ def main() -> int:
                 failures += 1
                 continue
             status, errs = fn(target, args.timeout)
-            guards = [e for e in errs if e[1] in GUARDS]
+            guards = [error for error in errs if error[1] in GUARDS]
             # In Jupyter a guard raises instead of halting, so the variables that
             # cell would have defined never exist and every dependent cell dies
             # with NameError. That is the guard working, one format removed --
             # not a broken notebook. Only count NameErrors that appear BEFORE
             # any guard fired, which are the real ones.
-            first_guard = min((e[0] for e in guards), default=None)
+            first_guard = min((error[0] for error in guards), default=None)
             cascade = [
-                e for e in errs
-                if e[1] == "NameError" and first_guard is not None and e[0] > first_guard
+                error for error in errs
+                if error[1] == "NameError" and first_guard is not None and error[0] > first_guard
             ]
-            real = [e for e in errs if e[1] not in GUARDS and e not in cascade]
+            real = [error for error in errs if error[1] not in GUARDS and error not in cascade]
             if status != "ok":
                 print(f"{BAD} {label} {rel}  -- {status}: {errs[0][2] if errs else ''}")
                 failures += 1
             elif real:
                 print(f"{BAD} {label} {rel}  -- {len(real)} error(s)")
-                for i, name, val in real[:3]:
-                    print(f"      cell {i}: {name}: {val}")
+                for index, name, val in real[:3]:
+                    print(f"      cell {index}: {name}: {val}")
                 failures += 1
             elif guards or cascade:
                 tail = f", {len(cascade)} dependent cell(s) cascaded" if cascade else ""

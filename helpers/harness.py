@@ -53,7 +53,7 @@ def fingerprint(cases: Sequence[dict], scorers: Mapping[str, Scorer]) -> str:
     payload = json.dumps(
         {
             "cases": [
-                {"input": c.get("input"), "output": c.get("output")} for c in cases
+                {"input": case.get("input"), "output": case.get("output")} for case in cases
             ],
             "scorers": sorted(scorers),
         },
@@ -98,7 +98,7 @@ class RunReport:
         return sum(self.means.values()) / len(self.means) if self.means else 0.0
 
     def __str__(self) -> str:
-        per = "  ".join(f"{k} {v:.3f}" for k, v in sorted(self.means.items()))
+        per = "  ".join(f"{key} {value:.3f}" for key, value in sorted(self.means.items()))
         tail = f"  · ⚠️ {self.errors} errored" if self.errors else ""
         return f"{self.name}: n={self.n}  mean {self.mean:.3f}  [{per}]{tail}"
 
@@ -132,10 +132,10 @@ def run(
         fingerprint=fingerprint(cases, scorers),
         meta={"scorers": sorted(scorers), **(meta or {})},
     )
-    totals: dict[str, float] = {k: 0.0 for k in scorers}
+    totals: dict[str, float] = {label: 0.0 for label in scorers}
     started = time.perf_counter()
 
-    for i, case in enumerate(cases):
+    for index, case in enumerate(cases):
         case_started = time.perf_counter()
         actual, error = "", None
         try:
@@ -145,7 +145,7 @@ def run(
             report.errors += 1
 
         result = Result(
-            index=i,
+            index=index,
             input=str(case.get("input", ""))[:2000],
             expected=str(case.get("output", ""))[:2000],
             actual=str(actual)[:2000],
@@ -166,11 +166,11 @@ def run(
         if keep_results:
             report.results.append(result)
         if progress:
-            progress(i + 1, len(cases))
+            progress(index + 1, len(cases))
 
     report.n = len(cases)
     report.seconds = time.perf_counter() - started
-    report.means = {k: totals[k] / report.n for k in scorers}
+    report.means = {label: totals[label] / report.n for label in scorers}
     return report
 
 
@@ -182,8 +182,8 @@ def save(report: RunReport, path: str | Path) -> Path:
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
     payload = asdict(report)
-    payload["results"] = [asdict(r) if not isinstance(r, dict) else r
-                          for r in report.results]
+    payload["results"] = [asdict(result) if not isinstance(result, dict) else result
+                          for result in report.results]
     target.write_text(
         json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
@@ -192,7 +192,7 @@ def save(report: RunReport, path: str | Path) -> Path:
 
 def load(path: str | Path) -> RunReport:
     raw = json.loads(Path(path).read_text(encoding="utf-8"))
-    results = [Result(**r) for r in raw.pop("results", [])]
+    results = [Result(**row) for row in raw.pop("results", [])]
     return RunReport(**raw, results=results)
 
 
@@ -218,7 +218,7 @@ class Comparison:
     def __str__(self) -> str:
         if not self.comparable:
             return f"NOT COMPARABLE: {self.reason}"
-        rows = "  ".join(f"{k} {v:+.3f}" for k, v in sorted(self.deltas.items()))
+        rows = "  ".join(f"{key} {value:+.3f}" for key, value in sorted(self.deltas.items()))
         verdict = "PASS" if self.passed else "REGRESSION"
         return f"{verdict}  {self.baseline} → {self.candidate}  [{rows}]"
 

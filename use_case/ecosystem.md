@@ -1,9 +1,9 @@
-# Someone else's ecosystem
+# The ecosystem you deploy into
 
 Where your application would actually run, inside your actual firm.
 
 > **Week 1 starts this file. Week 9 finishes it.**
-> TC1 Step 6 asks eight questions. The full Week 9 checklist has around thirty,
+> TC1 Step 10 asks eight questions. The full Week 9 checklist has around thirty,
 > and the eight are a strict subset — so nothing here gets thrown away.
 
 Describe patterns, not specifics. "On-prem OpenShift, images from an internal
@@ -14,7 +14,7 @@ put real hostnames, IPs, or architecture diagrams in this file.
 
 ## Week 1 — the first eight questions
 
-<!-- Answered in TC1 Step 6. Bring these back from a real conversation. -->
+<!-- Answered in TC1 Step 10. Bring these back from a real conversation. -->
 
 **Who did you ask?** (role, not name)
 

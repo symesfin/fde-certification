@@ -47,7 +47,7 @@ def shingles(text: str, n: int = 4) -> set[str]:
     exact matching misses: reordered clauses, changed names, different
     punctuation."""
     flat = " ".join(str(text).lower().split())
-    return {flat[i : i + n] for i in range(max(len(flat) - n + 1, 1))}
+    return {flat[start : start + n] for start in range(max(len(flat) - n + 1, 1))}
 
 
 def jaccard(a: set, b: set) -> float:
@@ -73,7 +73,7 @@ def dedupe(rows: Sequence[dict], *, threshold: float = 0.7, key: str = "input"):
     for row in rows:
         sig = shingles(str(row.get(key, "")))
         twin = next(
-            (i for i, other in enumerate(kept_shingles) if jaccard(sig, other) >= threshold),
+            (index for index, other in enumerate(kept_shingles) if jaccard(sig, other) >= threshold),
             None,
         )
         if twin is None:
@@ -95,7 +95,7 @@ def leak_check(seeds: Sequence[dict], generated: Sequence[dict]) -> list[str]:
     clients has — so a clean result is not a clearance. Read a sample yourself.
     """
     blob = " ".join(
-        f"{r.get('input', '')} {r.get('output', '')}" for r in generated
+        f"{row.get('input', '')} {row.get('output', '')}" for row in generated
     ).lower()
     found: list[str] = []
     for seed in seeds:
@@ -104,9 +104,9 @@ def leak_check(seeds: Sequence[dict], generated: Sequence[dict]) -> list[str]:
             re.findall(r"\b[A-Z][a-zA-Z]{2,}(?:\s+[A-Z][a-zA-Z]{2,})+\b", text)
         )
         candidates |= set(re.findall(r"\b[\w-]*\d[\w-]*\b", text))
-        for c in candidates:
-            if len(c) > 3 and c.lower() in blob and c not in found:
-                found.append(c)
+        for candidate in candidates:
+            if len(candidate) > 3 and candidate.lower() in blob and candidate not in found:
+                found.append(candidate)
     return found
 
 
@@ -169,11 +169,11 @@ def generate(
     if limit:
         combos = combos[:limit]
 
-    shown = "\n".join(json.dumps(s, ensure_ascii=False) for s in seeds[:3])
+    shown = "\n".join(json.dumps(seed, ensure_ascii=False) for seed in seeds[:3])
     report = SDGReport()
     raw: list[dict] = []
 
-    for i, combo in enumerate(combos, 1):
+    for combo_number, combo in enumerate(combos, 1):
         prompt = GENERATION_PROMPT.format(
             examples=shown,
             n=per_combo,
@@ -199,16 +199,16 @@ def generate(
             except json.JSONDecodeError:
                 report.unparseable += 1
         if progress:
-            progress(i, len(combos))
+            progress(combo_number, len(combos))
 
     report.generated = len(raw)
-    kept, _dropped = dedupe(raw, threshold=dedupe_threshold)
+    kept, dropped = dedupe(raw, threshold=dedupe_threshold)
     report.after_dedupe = len(kept)
 
     if validate:
         valid = []
         for row in kept:
-            payload = {k: v for k, v in row.items() if not k.startswith("_")}
+            payload = {key: value for key, value in row.items() if not key.startswith("_")}
             try:
                 if validate(payload) is not False:
                     valid.append(row)

@@ -1,4 +1,9 @@
+# `.env` alone is not enough: a backup, a per-host variant, or an editor's
+# `.env.save` all carry the same credentials and none of them match a bare `.env`.
+# Keep `.env.template` -- it is the committed example and has no secrets in it.
 .env
+.env.*
+!.env.template
 .venv/
 __pycache__/
 *.pyc
@@ -10,9 +15,6 @@ __marimo__/
 
 # Built artifacts (regenerate with `make html`); the .ipynb mirrors ARE committed.
 _build/
-05_Agent_Architecture/sessions/skills/
-05_Agent_Architecture/sessions/mcp_oncall_server.py
-09_Infrastructure/sessions/deploy/
 
 # Dropped by `import unsloth` when loading a model locally
 unsloth_compiled_cache/
@@ -22,3 +24,17 @@ use_case/evals/golden.private.jsonl
 
 # Vendor master export: real client data, never committed or baked into the image
 01_Product_Engineering/challenge/vendors.csv
+
+# Whatever the harness sessions' agent writes with its `write_file` tool
+Appendix_A_Harnesses/sessions/workspace/
+
+# Cached HotpotQA release used by scripts/make_retrieval_corpus.py (27 MB, regenerable)
+scripts/.hotpot_validation.parquet
+scripts/.summeval.parquet
+
+# The Claude desktop app saves files it hands you into a folder named after
+# itself, inside whichever folder is connected to the session -- which is this
+# repository root. Those are downloads of files that already live at their real
+# paths, so committing them would put a second copy of `helpers/preflight.py`
+# (and friends) somewhere no import will ever find, reading as maintained code.
+Claude outputs/

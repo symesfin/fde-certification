@@ -11,15 +11,31 @@ showing `from helpers.trace import Tracer` is a legitimate reference.
 
 What is not legitimate is zero mentions anywhere. If no week teaches toward it
 and no challenge asks for it, it should be deleted rather than maintained.
+
+One exception, declared rather than silent: a repository that publishes the
+weeks incrementally carries helpers whose consuming week has not arrived yet.
+Those are listed under `[tool.fde].helpers-pending` in pyproject.toml and are
+reported as pending, not failing -- and the moment one of them *does* gain a
+consumer, this gate fails until the entry is removed, so the list cannot rot.
 """
 
 from __future__ import annotations
 
 import sys
+import tomllib
 from pathlib import Path
 
+# Windows consoles default to a code page that cannot encode the check marks
+# these scripts print, so a redirected run dies with UnicodeEncodeError before
+# reporting anything. Force UTF-8 on our own output rather than dropping to
+# ASCII markers -- the students on managed Windows laptops are the ones running
+# these gates.
+for stream in (sys.stdout, sys.stderr):
+    if hasattr(stream, "reconfigure"):
+        stream.reconfigure(encoding="utf-8", errors="replace")
+
 ROOT = Path(__file__).resolve().parent.parent
-OK, BAD = "✓", "✗"
+OK, BAD, WAIT = "✓", "✗", "⏳"
 
 # Tier 1 is imported by every notebook via `from helpers import nb, ui`; it does
 # not need a per-module mention.
@@ -36,24 +52,35 @@ def curriculum_text() -> list[tuple[Path, str]]:
     return out
 
 
+def pending() -> set[str]:
+    """Helpers declared as waiting for their week, from pyproject.toml."""
+    with (ROOT / "pyproject.toml").open("rb") as handle:
+        return set(tomllib.load(handle).get("tool", {}).get("fde", {}).get("helpers-pending", []))
+
+
 def main() -> int:
+    waiting = pending()
     helpers = sorted(
-        p.stem for p in (ROOT / "helpers").glob("*.py") if p.stem not in TIER1
+        path.stem for path in (ROOT / "helpers").glob("*.py") if path.stem not in TIER1
     )
     if not helpers:
         print(f"{OK} no tier-2 helpers")
         return 0
 
     texts = curriculum_text()
-    orphans = []
+    orphans, stale = [], []
     for name in helpers:
         needles = (f"helpers/{name}", f"helpers.{name}", f"helpers import {name}")
-        where = [p for p, body in texts if any(n in body for n in needles)]
-        if not where:
+        where = [path for path, body in texts if any(needle in body for needle in needles)]
+        if not where and name in waiting:
+            print(f"{WAIT} helpers/{name}.py  pending -- its week is not in this repository yet")
+        elif not where:
             orphans.append(name)
         else:
-            rels = sorted({p.relative_to(ROOT).parts[0] for p in where})
+            rels = sorted({path.relative_to(ROOT).parts[0] for path in where})
             print(f"{OK} helpers/{name}.py  ← {', '.join(rels)}")
+            if name in waiting:
+                stale.append(name)
 
     for name in orphans:
         print(
@@ -63,7 +90,12 @@ def main() -> int:
             f"  challenge that asks for it -- or delete it. A helper with tests and\n"
             f"  no callers reads as maintained and is not."
         )
-    return 1 if orphans else 0
+    for name in stale:
+        print(
+            f"{BAD} helpers/{name}.py is listed in [tool.fde].helpers-pending but now has a\n"
+            f"  consumer. Remove it from the list in pyproject.toml."
+        )
+    return 1 if (orphans or stale) else 0
 
 
 if __name__ == "__main__":

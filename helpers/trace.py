@@ -65,7 +65,7 @@ def _blob(attributes: dict) -> str:
         return json.dumps(attributes, default=str).lower()
     except Exception:
         try:
-            return " ".join(f"{k}={v!s}" for k, v in attributes.items()).lower()
+            return " ".join(f"{key}={value!s}" for key, value in attributes.items()).lower()
         except Exception:
             return ""
 
@@ -79,8 +79,8 @@ def percentile(values: Sequence[float], p: float) -> float:
     if not values:
         return 0.0
     ordered = sorted(values)
-    k = max(0, min(len(ordered) - 1, int(round(p / 100 * len(ordered) + 0.5)) - 1))
-    return ordered[k]
+    rank = max(0, min(len(ordered) - 1, int(round(p / 100 * len(ordered) + 0.5)) - 1))
+    return ordered[rank]
 
 
 class Tracer:
@@ -162,7 +162,7 @@ class Tracer:
     # -- reading -----------------------------------------------------------
 
     def roots(self) -> list[Span]:
-        return [s for s in self.spans if s.parent is None]
+        return [span for span in self.spans if span.parent is None]
 
     def summary(self, *, refusal_marker: str = "refused") -> dict:
         """The four numbers worth alerting on.
@@ -171,25 +171,25 @@ class Tracer:
         averages are dominated by whichever span you happen to emit most.
         """
         roots = self.roots()
-        latencies = [s.ms for s in roots]
+        latencies = [span.ms for span in roots]
         by_root_cost: list[float] = []
         for root in roots:
             kin = [root] + self._descendants(root.id)
-            by_root_cost.append(sum(s.cost for s in kin))
+            by_root_cost.append(sum(span.cost for span in kin))
 
-        errors = sum(1 for s in roots if s.status == "error")
+        errors = sum(1 for span in roots if span.status == "error")
         # `default=str` because an attribute may be any object a caller passed
         # in, and a summary that raises on an unserialisable value is the exact
         # failure this module exists to prevent.
-        refusals = sum(1 for s in roots if refusal_marker in _blob(s.attributes))
-        n = len(roots)
+        refusals = sum(1 for span in roots if refusal_marker in _blob(span.attributes))
+        request_count = len(roots)
         return {
-            "requests": n,
+            "requests": request_count,
             "p50_ms": round(percentile(latencies, 50), 1),
             "p95_ms": round(percentile(latencies, 95), 1),
-            "error_rate": round(errors / n, 4) if n else 0.0,
-            "refusal_rate": round(refusals / n, 4) if n else 0.0,
-            "cost_per_request": round(sum(by_root_cost) / n, 6) if n else 0.0,
+            "error_rate": round(errors / request_count, 4) if request_count else 0.0,
+            "refusal_rate": round(refusals / request_count, 4) if request_count else 0.0,
+            "cost_per_request": round(sum(by_root_cost) / request_count, 6) if request_count else 0.0,
             "cost_total": round(sum(by_root_cost), 6),
             "spans": len(self.spans),
             "dropped": self.dropped,
@@ -197,14 +197,14 @@ class Tracer:
         }
 
     def _descendants(self, span_id: str) -> list[Span]:
-        children = [s for s in self.spans if s.parent == span_id]
+        children = [span for span in self.spans if span.parent == span_id]
         out = list(children)
         for child in children:
             out.extend(self._descendants(child.id))
         return out
 
     def slowest(self, n: int = 5) -> list[Span]:
-        return sorted(self.spans, key=lambda s: -s.ms)[:n]
+        return sorted(self.spans, key=lambda span: -span.ms)[:n]
 
     # -- export ------------------------------------------------------------
 
@@ -215,8 +215,8 @@ class Tracer:
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(
             "".join(
-                json.dumps(asdict(s), ensure_ascii=False, default=str) + "\n"
-                for s in self.spans
+                json.dumps(asdict(span), ensure_ascii=False, default=str) + "\n"
+                for span in self.spans
             ),
             encoding="utf-8",
         )

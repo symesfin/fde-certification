@@ -3,11 +3,11 @@
 Everyone you talk to about this project, from the first "where would this even
 run?" to the final readout.
 
-> **Week 10's technical challenge is a client report to the people in this file.**
+> **Week 10's technical challenge is a report to the people in this file.**
 > You cannot write it later from memory. Add a row the day you have the
 > conversation.
 
-Use roles, not names. This is a public fork.
+Use roles, not names. This is a public repo.
 
 | Week | Who (role) | What you asked | What you learned | Follow-up |
 | --- | --- | --- | --- | --- |

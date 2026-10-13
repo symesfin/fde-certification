@@ -96,9 +96,9 @@ def is_retryable(exc: BaseException) -> bool:
     text = f"{type(exc).__name__} {exc}".lower()
     # Permanent wins ties: "invalid request: context length" contains both a
     # permanent marker and, in some providers' wording, "try again".
-    if any(k in text for k in _PERMANENT):
+    if any(marker in text for marker in _PERMANENT):
         return False
-    return any(k in text for k in _TRANSIENT)
+    return any(marker in text for marker in _TRANSIENT)
 
 
 @dataclass
@@ -175,7 +175,7 @@ def complete(
     cfg,
     messages: Sequence[dict],
     *,
-    timeout: float = 120.0,
+    timeout: float = 600.0,
     max_retries: int = 3,
     model: str | None = None,
     stats: CallStats | None = None,
