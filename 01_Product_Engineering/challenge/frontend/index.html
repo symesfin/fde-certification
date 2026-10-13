@@ -93,6 +93,16 @@
         cursor: pointer;
       }
       button:disabled { opacity: 0.55; cursor: progress; }
+      .samples { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-top: 0.75rem; color: var(--muted); font-size: 0.9rem; }
+      .samples button {
+        padding: 0.25rem 0.75rem;
+        font-weight: 400;
+        font-size: 0.9rem;
+        color: var(--text);
+        background: transparent;
+        border: 1px solid var(--border);
+      }
+      .samples button:hover:not(:disabled) { border-color: var(--accent); }
 
       /* Review: document on the left, record on the right */
       .review {
@@ -184,6 +194,14 @@
           </label>
           <button id="extract-button" type="submit">Extract</button>
         </form>
+        <div class="samples">
+          <span>Try a sample (made-up invoices):</span>
+          <button type="button" data-sample="propane_invoice.pdf">Propane invoice</button>
+          <button type="button" data-sample="feed_invoice_with_weigh_ticket.pdf">Feed invoice + weigh ticket</button>
+          <button type="button" data-sample="grain_credit_memo.pdf">Credit memo</button>
+          <button type="button" data-sample="utility_bill_unknown_vendor.pdf">Unknown vendor, no invoice #</button>
+          <button type="button" data-sample="reversal_negative_total.pdf">Reversal</button>
+        </div>
       </section>
 
       <div class="review">
@@ -219,6 +237,7 @@
       const dropzone = document.getElementById("dropzone");
       const viewerSlot = document.getElementById("viewer-slot");
       const result = document.getElementById("result");
+      const sampleButtons = document.querySelectorAll("[data-sample]");
 
       // The fields a reviewer checks against the document come first; the
       // rest are filled by the pipeline, not read off the page.
@@ -258,6 +277,20 @@
         pdfInput.files = e.dataTransfer.files;
         showPreview(pdfInput.files[0]);
       });
+
+      // A sample loads like a chosen file, then runs straight away.
+      for (const btn of sampleButtons) {
+        btn.addEventListener("click", async () => {
+          const res = await fetch(`/samples/${btn.dataset.sample}`);
+          if (!res.ok) return showError(`Couldn't load the sample (HTTP ${res.status}).`);
+          const file = new File([await res.blob()], btn.dataset.sample, { type: "application/pdf" });
+          const files = new DataTransfer();
+          files.items.add(file);
+          pdfInput.files = files.files;
+          showPreview(file);
+          extractForm.requestSubmit();
+        });
+      }
 
       // A data URL is "data:application/pdf;base64,<base64>". Keep what's after the comma.
       function readAsBase64(file) {
@@ -343,6 +376,7 @@
         if (!file) return;
 
         extractButton.disabled = true;
+        for (const btn of sampleButtons) btn.disabled = true;
         result.replaceChildren(el("p", "meta", `Extracting ${file.name}…`));
         const started = performance.now();
         const meta = () => `${file.name} · ${((performance.now() - started) / 1000).toFixed(1)} s`;
@@ -370,6 +404,7 @@
           showError(String(err), meta());
         } finally {
           extractButton.disabled = false;
+          for (const btn of sampleButtons) btn.disabled = false;
         }
       });
     </script>

@@ -17,7 +17,8 @@ from functools import lru_cache
 from pathlib import Path
 from typing import NamedTuple
 
-from fastapi.responses import HTMLResponse, PlainTextResponse
+from fastapi import HTTPException
+from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse
 from gradio import Server
 from pydantic import ValidationError
 
@@ -50,6 +51,7 @@ async def basic_auth(request, call_next):
     return await call_next(request)
 
 FRONTEND = Path(__file__).parent / "frontend" / "index.html"
+SAMPLES = Path(__file__).parent / "samples"
 
 _MAX_FUTURE_DAYS = 30
 COMPANY = "Example Company LLC"
@@ -245,6 +247,15 @@ def _failed(source_key: str, *errors: str,
 @app.get("/", response_class=HTMLResponse)
 def homepage() -> str:
     return FRONTEND.read_text(encoding="utf-8")
+
+
+@app.get("/samples/{name}")
+def sample(name: str) -> FileResponse:
+    """Made-up invoices for the page's "Try a sample" buttons."""
+    path = SAMPLES / name
+    if path.suffix != ".pdf" or path.parent != SAMPLES or not path.is_file():
+        raise HTTPException(status_code=404)
+    return FileResponse(path, media_type="application/pdf")
 
 
 @app.get("/health")

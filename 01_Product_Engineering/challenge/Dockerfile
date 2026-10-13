@@ -21,6 +21,7 @@ RUN uv export --frozen --no-dev --no-emit-project -o requirements.txt \
 
 COPY llm.py app.py schema.py vendors.sample.csv ./
 COPY frontend/ ./frontend/
+COPY samples/*.pdf ./samples/
 # vendors.csv is real client data: it is never copied in. Mount it at runtime:
 #   docker run ... -v "$PWD/vendors.csv:/app/vendors.csv:ro" challenge
 
