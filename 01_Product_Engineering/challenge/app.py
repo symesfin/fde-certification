@@ -10,13 +10,14 @@ import binascii
 import csv
 import os
 import re
+import secrets
 from datetime import date, timedelta
 from difflib import SequenceMatcher
 from functools import lru_cache
 from pathlib import Path
 from typing import NamedTuple
 
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse
 from gradio import Server
 from pydantic import ValidationError
 
@@ -24,6 +25,29 @@ from llm import stream_reply, UnreadableDocument, extract_fields
 from schema import ImportRecord, InvoiceExtraction, Request, Response
 
 app = Server()
+
+# Optional HTTP basic auth for hosted copies: off unless APP_PASSWORD is set.
+# /health stays open because a load balancer's health check can't log in, and
+# Gradio calls its own startup-events route from localhost during launch.
+APP_USERNAME = os.getenv("APP_USERNAME", "demo")
+APP_PASSWORD = os.getenv("APP_PASSWORD")
+
+
+def _auth_exempt(request) -> bool:
+    if request.url.path == "/health":
+        return True
+    local = request.client is not None and request.client.host in ("127.0.0.1", "::1")
+    return local and request.url.path == "/gradio_api/startup-events"
+
+
+@app.middleware("http")
+async def basic_auth(request, call_next):
+    if APP_PASSWORD and not _auth_exempt(request):
+        expected = "Basic " + base64.b64encode(f"{APP_USERNAME}:{APP_PASSWORD}".encode()).decode()
+        if not secrets.compare_digest(request.headers.get("authorization", ""), expected):
+            return PlainTextResponse("Login required", status_code=401,
+                                     headers={"WWW-Authenticate": 'Basic realm="Auto Invoicing"'})
+    return await call_next(request)
 
 FRONTEND = Path(__file__).parent / "frontend" / "index.html"
 

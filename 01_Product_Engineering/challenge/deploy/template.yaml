@@ -1,0 +1,121 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  Auto Invoicing course demo (FDE certification, TC1). Everything the hosted copy
+  needs except the LLM gateway secrets, which load_llm_secrets.py creates. Delete
+  with teardown.sh.
+
+Parameters:
+  CreateService:
+    Type: String
+    AllowedValues: ["false", "true"]
+    Default: "false"
+    Description: App Runner needs the image in ECR first, so deploy once with false, push, then true.
+  ImageTag:
+    Type: String
+    Default: v1
+  LlmModel:
+    Type: String
+    Default: openai/bedrock/gpt-5.6-luna
+  LlmApiBaseSecretArn:
+    Type: String
+    Default: ""
+  LlmExtraHeadersSecretArn:
+    Type: String
+    Default: ""
+  OpenAiApiKeySecretArn:
+    Type: String
+    Default: ""
+
+Conditions:
+  CreateService: !Equals [!Ref CreateService, "true"]
+  HasApiBase: !Not [!Equals [!Ref LlmApiBaseSecretArn, ""]]
+  HasExtraHeaders: !Not [!Equals [!Ref LlmExtraHeadersSecretArn, ""]]
+  HasApiKey: !Not [!Equals [!Ref OpenAiApiKeySecretArn, ""]]
+
+Resources:
+  Repository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: auto-invoicing-demo
+      EmptyOnDelete: true  # so deleting the stack doesn't fail on leftover images
+      ImageScanningConfiguration:
+        ScanOnPush: true
+
+  AppPasswordSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: auto-invoicing-demo/APP_PASSWORD
+      Description: Basic-auth password for the hosted demo (user "demo").
+      GenerateSecretString:
+        PasswordLength: 24
+        ExcludePunctuation: true
+
+  EcrAccessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: auto-invoicing-demo-ecr-access
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: {Service: build.apprunner.amazonaws.com}
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSAppRunnerServicePolicyForECRAccess
+
+  InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: auto-invoicing-demo-instance
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: {Service: tasks.apprunner.amazonaws.com}
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: read-own-secrets-only
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource: !Sub "arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:auto-invoicing-demo/*"
+
+  Service:
+    Type: AWS::AppRunner::Service
+    Condition: CreateService
+    Properties:
+      ServiceName: auto-invoicing-demo
+      SourceConfiguration:
+        AutoDeploymentsEnabled: false
+        AuthenticationConfiguration:
+          AccessRoleArn: !GetAtt EcrAccessRole.Arn
+        ImageRepository:
+          ImageRepositoryType: ECR
+          ImageIdentifier: !Sub "${Repository.RepositoryUri}:${ImageTag}"
+          ImageConfiguration:
+            Port: "7860"
+            RuntimeEnvironmentVariables:
+              - {Name: LLM_MODEL, Value: !Ref LlmModel}
+              - {Name: VENDORS_CSV, Value: /app/vendors.sample.csv}  # fake vendors only
+              - {Name: APP_USERNAME, Value: demo}
+            RuntimeEnvironmentSecrets:
+              - {Name: APP_PASSWORD, Value: !Ref AppPasswordSecret}
+              - !If [HasApiBase, {Name: LLM_API_BASE, Value: !Ref LlmApiBaseSecretArn}, !Ref "AWS::NoValue"]
+              - !If [HasExtraHeaders, {Name: LLM_EXTRA_HEADERS, Value: !Ref LlmExtraHeadersSecretArn}, !Ref "AWS::NoValue"]
+              - !If [HasApiKey, {Name: OPENAI_API_KEY, Value: !Ref OpenAiApiKeySecretArn}, !Ref "AWS::NoValue"]
+      InstanceConfiguration:
+        Cpu: 1 vCPU
+        Memory: 2 GB
+        InstanceRoleArn: !GetAtt InstanceRole.Arn
+      HealthCheckConfiguration:
+        Protocol: HTTP
+        Path: /health
+
+Outputs:
+  RepositoryUri:
+    Value: !GetAtt Repository.RepositoryUri
+  ServiceUrl:
+    Condition: CreateService
+    Value: !Sub "https://${Service.ServiceUrl}"
