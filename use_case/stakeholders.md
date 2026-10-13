@@ -11,7 +11,8 @@ Use roles, not names. This is a public fork.
 
 | Week | Who (role) | What you asked | What you learned | Follow-up |
 | --- | --- | --- | --- | --- |
-| 1 | <!-- e.g. Platform Engineering lead --> | <!-- where would a container run here? --> | <!-- --> | <!-- --> |
+| 1 | Myself (the client's only engineer; I own deployment) | Where would a container run here? | Answered in `ecosystem.md`. Approval is the client's, not mine. | Confirm who signs SOWs above the COO sponsor. |
+| 1 | COO (project sponsor) and AP systems lead | Demo of the earlier proof of concept (GL coding and approver prediction), before 2026-04-01 | The OCR-plus-XML slice was called "a pretty big win" (speaker not recorded). The sponsor's newer asks: utility allocation sheets, energy and propane usage tracking, progress against propane contracts. Cost didn't come up. | Scope narrowed to replacing the document processor's OCR in shadow mode. The five examples haven't been shown to them yet. |
 
 ---
 

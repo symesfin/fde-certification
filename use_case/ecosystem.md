@@ -18,26 +18,26 @@ put real hostnames, IPs, or architecture diagrams in this file.
 
 **Who did you ask?** (role, not name)
 
-<!-- your answer here -->
+Myself: I am the client's only engineer and own its deployment. Approval is the client's (row 7).
 
 | # | Question | Answer |
 | :---: | --- | --- |
-| 1 | Where do internal apps run? (k8s, ECS, App Service, a VM someone maintains) | <!-- --> |
-| 2 | Which cloud? AWS, Azure, GCP, on-prem, several? | <!-- --> |
-| 3 | Is there an internal container registry? | <!-- --> |
-| 4 | How do users log in? (Okta, Entra ID, Ping, SAML, homegrown) | <!-- --> |
-| 5 | Can the app reach the internet? Egress proxy? Allowlist? | <!-- --> |
-| 6 | Where do secrets come from? (Vault, Secrets Manager, Key Vault) | <!-- --> |
-| 7 | Who approves a deployment, and what review does it need? | <!-- --> |
-| 8 | Is there an approved internal LLM endpoint already? | <!-- --> |
+| 1 | Where do internal apps run? (k8s, ECS, App Service, a VM someone maintains) | Serverless functions run by a workflow orchestrator, object storage for files, a managed database for the vendor master. Deploys are a manual CI run with a production confirmation step. |
+| 2 | Which cloud? AWS, Azure, GCP, on-prem, several? | AWS, in the client's account; the model runs on GCP (Vertex AI). |
+| 3 | Is there an internal container registry? | Yes: the client's AWS account routinely uses ECR. |
+| 4 | How do users log in? (Okta, Entra ID, Ping, SAML, homegrown) | Accountants don't: they drop files in their usual network folders and a sync agent pushes them over a private VPN. Engineers use AWS SSO. A web UI would need an auth decision that hasn't been made; the existing private network is the cheapest option. |
+| 5 | Can the app reach the internet? Egress proxy? Allowlist? | Yes, at least to GCP: the pipeline already calls the model there from AWS. |
+| 6 | Where do secrets come from? (Vault, Secrets Manager, Key Vault) | AWS Secrets Manager (the model's service-account credentials). |
+| 7 | Who approves a deployment, and what review does it need? | Cutover: the AP systems lead and the COO sponsor agree based on shadow-mode reports, plus a formal SOW. The sponsor can't approve it alone under the current SOW, so it also needs whoever signs SOWs above him; that role isn't recorded yet. |
+| 8 | Is there an approved internal LLM endpoint already? | No client gateway recorded: production calls Gemini on Vertex AI directly. The course app uses my employer's LLM gateway, which the client allows its invoice data through. |
 
 **What surprised you?**
 
-<!-- your answer here -->
+How well the overall solution works. My client has used many classical SaaS tools and products to improve this process, but adapting LLMs will turn out to be a major cost and time advantage.
 
 **What would you have to change about your app to deploy there?**
 
-<!-- your answer here -->
+The model string becomes Vertex Gemini (or Bedrock, to stay in one cloud). `vendors.csv` is replaced by the vendor-master database query. The input becomes a storage key instead of base64: the workflow service caps a payload at 256 KB, so a PDF can't travel in the request. The handler runs as a serverless function, not a Gradio server.
 
 ---
 

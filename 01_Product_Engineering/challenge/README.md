@@ -456,6 +456,9 @@ later, from generation seeded by these.
 2. **One line in your README** saying which example is the edge case and which
    is the decline.
 
+**Mine:** ex4 is the edge case (a credit memo with a trailing-minus total); ex5 is
+the decline (a reversal with a negative total, which must come back `failed`).
+
 ---
 
 ## Step 8 — Build something real
@@ -535,6 +538,40 @@ coming, and doing them now teaches the wrong lesson.
    box, or showing which model is answering, or handling errors visibly. Pick
    what matters for your use case, not all of them.
 
+### My answers
+
+**1. What is one thing you do at work this could take over?**
+AP accountants hand-correct about half of ~1,100 invoices a week before they
+reach the accounting ERP. With this, vendor, total, date, invoice # and vendor ID
+reach the ERP already filled: they stop retyping fields in the document
+processor's verification screen and stop inventing invoice numbers. They check
+results instead, and only failures need hands-on work.
+
+**2. What exactly goes in?**
+One PDF, base64-encoded, scanned or digital, plus three fields from the caller:
+- `processing_id`: the caller's unique ID for this run; ties the result to its audit files.
+- `accountant_shortname`: the name of the drop folder the file came from.
+- `source_key`: the storage path of the original file, echoed back so a reviewer can open it.
+
+**3. What comes back, and who reads it?**
+JSON with `status` (`ok` | `vendor_unmatched` | `failed`), the import-ready
+`record`, the raw `extraction`, `errors` and `warnings`. In shadow mode nothing
+goes into the ERP; the output is compared against the document processor. After
+cutover, accountants review 100% of results from a review folder, tapering to
+spot checks.
+
+**4. What did you name it, and why would an agent pick it correctly?**
+`extract_invoice_record`.
+- **extract** says it changes nothing: it reads a file and returns data, and
+  nothing is posted to the ERP. Agents choose tools partly by guessing side
+  effects; `process_invoice` or `submit_invoice` would suggest the bill gets
+  entered or paid.
+- **invoice** matches the user's own words ("read this invoice"), so an agent
+  connects the request to the tool.
+- **record** names the result: one structured, import-ready record with a
+  status, not raw text. That is also why `ocr_invoice` doesn't fit.
+- No product names.
+
 ---
 
 ## Step 9 — Containerize it
@@ -608,6 +645,22 @@ Hold the thought — Step 10 is about to make it concrete.
 3. **One or two sentences** on what a container image captures that a virtual
    environment does not — and why that difference is what makes the image the
    thing you hand to a platform team.
+
+### My answers
+
+**The CDN dependency.** `frontend/index.html` loads `@gradio/client` from a public
+CDN, so on a network that blocks it the page loads and does nothing. On such a
+network: build every asset into the image and turn off runtime fetches (system
+fonts in the Gradio theme, `GRADIO_ANALYTICS_ENABLED=False`,
+`LITELLM_LOCAL_MODEL_COST_MAP=True`), so the container's only outbound call is to
+the LLM gateway.
+
+**Image vs. virtual environment.** A venv holds only Python packages and depends
+on the host's interpreter, OS and system libraries. An image holds all of that
+plus the start command, port and user; the configuration is just environment
+variables and a mounted vendor file. That is what a platform team wants: one
+versioned artifact they can scan, sign, run and scale with their own tools,
+without knowing Python, and that behaves the same in dev and prod.
 
 ---
 
@@ -752,31 +805,31 @@ Fill these in directly in this README, and commit it.
 
 **Who did you ask?** (role, not name)
 
-<!-- Your answer here -->
+Myself: I am the client's only engineer and own its deployment. Production sign-off is the client's: the AP systems lead and the COO sponsor agree based on shadow-mode reports, plus a formal SOW. The sponsor can't approve it alone under the current SOW, so it also needs whoever signs SOWs above him; that role isn't recorded yet.
 
 **Where would this application run?**
 
-<!-- Your answer here -->
+In the client's AWS account, as serverless functions run by a workflow orchestrator, with object storage for files and a managed database for the vendor master. Deploys are a manual CI run with a production confirmation step.
 
 **Which cloud provider, if any?**
 
-<!-- Your answer here -->
+AWS for everything except the model, which runs on GCP (Vertex AI).
 
 **How would users authenticate?**
 
-<!-- Your answer here -->
+Accountants don't log in at all: they drop files in their usual network folders and a sync agent pushes them over a private VPN. Engineers use AWS SSO. A web UI would need an auth decision that hasn't been made; putting it behind the existing private network is the cheapest option.
 
 **Could this container reach an external LLM API? If not, what would it use instead?**
 
-<!-- Your answer here -->
+Yes. The production pipeline already calls Gemini on GCP from AWS, with service-account credentials in the cloud secrets manager. This course app calls models through my employer's LLM gateway, which the client allows its invoice data through.
 
 **What surprised you in this conversation?**
 
-<!-- Your answer here -->
+How well the overall solution works. My client has used many classical SaaS tools and products to improve this process, but adapting LLMs will turn out to be a major cost and time advantage.
 
 **What would you have to change about this app to make it deployable there?**
 
-<!-- Your answer here -->
+The model string becomes Vertex Gemini (or Bedrock, to stay in one cloud). `vendors.csv` is replaced by the vendor-master database query. The input becomes a storage key instead of base64: the workflow service caps a payload at 256 KB, so a PDF can't travel in the request. The handler runs as a serverless function, not a Gradio server.
 
 Then log the answers in [`use_case/ecosystem.md`](../../use_case/ecosystem.md)
 and the person you asked in
@@ -855,45 +908,151 @@ demo.
 Run each prompt through your app. Name the capability it tests.
 
 **1.** *Explain object-oriented programming in simple terms to a complete beginner.*
-**Aspect tested:** <!-- your answer --> **Response:** <!-- your answer -->
+**Aspect tested:** Pitching an explanation at the audience's level. **Response:**
+
+```text
+Object-oriented programming (OOP) is a way of organizing code around **objects**—things that contain both:
+
+- **Data**: information about the thing
+- **Behavior**: actions the thing can perform
+
+### Simple example: a dog
+
+A dog has:
+
+- Data: name, age, color
+- Behaviors: bark, eat, run
+
+In OOP, we might create a **class** called `Dog`:
+
+```python
+class Dog:
+    def __init__(self, name):
+        self.name = name
+
+    def bark(self):
+        print(self.name + " says woof!")
+```
+
+Then we create an **object** from that class:
+
+```python
+my_dog = Dog("Buddy")
+my_dog.bark()
+```
+
+Here:
+
+- `Dog` is the **class**—a blueprint or template
+- `my_dog` is an **object**—a specific dog made from the blueprint
+- `name` is an **attribute**—data belonging to the object
+- `bark()` is a **method**—an action the object can perform
+
+### Why use OOP?
+
+OOP helps you:
+
+1. **Organize code** into understandable pieces
+2. **Reuse code** instead of writing the same thing repeatedly
+3. **Model real-world concepts**, such as users, cars, bank accounts, or products
+4. **Protect data** by controlling how it can be changed
+
+### Common OOP ideas
+
+- **Class**: A blueprint
+- **Object**: A specific item created from a class
+- **Encapsulation**: Keeping data and the code that uses it together
+- **Inheritance**: Creating a new class based on an existing one
+- **Polymorphism**: Different objects responding to the same action in different ways
+
+A useful analogy is:
+
+> A class is like a cookie cutter, and objects are the individual cookies made from it.
+```
+
 
 **2.** *Read a paragraph of your choosing and summarize the key points.*
-**Aspect tested:** <!-- your answer --> **Response:** <!-- your answer -->
+**Aspect tested:** Staying faithful while compressing, without adding facts. (Paragraph: my charter's problem statement.) **Response:**
+
+```text
+- AP accountants manually correct about half of roughly 1,100 weekly invoices.
+- Manual invoice numbering and allocation sheets allow duplicate invoices and other errors to reach the ERP system.
+```
+
 
 **3.** *Write a short, imaginative story (100–150 words) about a robot finding friendship in an unexpected place.*
-**Aspect tested:** <!-- your answer --> **Response:** <!-- your answer -->
+**Aspect tested:** Open-ended creative writing, and whether it respects the length and form. **Response:**
+
+```text
+Every night, Rust-7 polished the windows of the abandoned lighthouse, though no ships visited anymore. His only companions were gulls that stole his screws.
+
+One stormy evening, a green jellyfish floated through the broken roof and landed in his chest cavity. It glowed brighter whenever Rust-7’s heart-engine hummed.
+
+“Are you lost?” he asked.
+
+“Probably,” pulsed the jellyfish.
+
+Rust-7 carried it to the lantern room, where they watched lightning stitch the sky. The jellyfish discovered it could conduct electricity; Rust-7 discovered he could laugh when its tentacles tickled his wires.
+
+By dawn, the storm had passed. The jellyfish drifted toward the sea, but Rust-7 lowered a cable from the lighthouse window.
+
+“Visit tomorrow?”
+
+The jellyfish flashed twice.
+
+From then on, the abandoned lighthouse shone every night—not for ships, but for one tiny friend who always came home.
+```
+
 
 **4.** *If a store sells apples in packs of 4 and oranges in packs of 3, how many packs of each do I need to get exactly 12 apples and 9 oranges?*
-**Aspect tested:** <!-- your answer --> **Response:** <!-- your answer -->
+**Aspect tested:** Multi-step arithmetic. **Response:**
+
+```text
+You need:
+
+- **3 packs of apples**: 3 × 4 = 12 apples  
+- **3 packs of oranges**: 3 × 3 = 9 oranges
+```
+
 
 **5.** *Rewrite a paragraph of your choosing in a professional, formal tone.*
-**Aspect tested:** <!-- your answer --> **Response:** <!-- your answer -->
+**Aspect tested:** Changing tone while keeping the meaning. (Paragraph: my charter's problem statement.) **Response:**
+
+```text
+Accounts payable accountants manually correct approximately half of the 1,100 invoices processed each week before they are entered into the accounting ERP system. Manually generated invoice numbers and allocation sheets allow duplicate invoices and other errors to pass through.
+```
+
 
 **❓ Are the answers correct and useful?**
-<!-- your answer -->
+Yes, fine.
 
 ### Pass 2 — Your actual use case
 
 Test it with prompts from the problem you care about — your five golden
 examples from Step 7 are the obvious first three.
 
-**Prompt:** <!-- --> **Result:** <!-- -->
-**Prompt:** <!-- --> **Result:** <!-- -->
-**Prompt:** <!-- --> **Result:** <!-- -->
+**Prompt:** ex1, a supply invoice whose posted record is wrong. *Tests reading the printed amount due rather than echoing the posted value.* **Result:** 6/6 fields. Read the printed 513.34 (masked), not the posted 512.34.
+**Prompt:** ex4, a credit memo printed with a trailing minus. *Tests the credit-memo rules: trailing minus, `doc_type=CreditMemo`, the "CM" suffix, ignoring the referenced original invoice number.* **Result:** 6/6 fields.
+**Prompt:** ex6, an employee expense report with a handwritten date and no invoice number. *Tests handwriting, and a vendor and invoice number that aren't on the page.* **Result:** 2/6 fields. Read the handwritten 04/26 as 04/22; vendor unmatched (deliberately left out of the mock vendor list); the invoice number fell back to the old format instead of the accountants' scheme.
 
 **❓ Does it behave the way you expected? Why or why not?**
-<!-- your answer -->
+Yes, as expected: ex1 and ex4 came back exactly right, and ex6's misread handwritten date was expected.
 
 ### Pass 3 — Where it falls down
 
 Try things it cannot do yet — real-time data, memory across sessions, access to
 your systems.
 
-**Prompt:** <!-- --> **Result:** <!-- -->
-**Prompt:** <!-- --> **Result:** <!-- -->
+**Prompt:** ex3 and ex6, bills with no invoice number printed. **Result:** both fail. The accountants' number (an identifier + month code + year) isn't on the page, and the fallback doesn't follow their scheme yet.
+**Prompt:** ex6, a handwritten document date. **Result:** misread, 04/22 for 04/26. Nothing flags it: no field is marked handwritten or low-confidence.
 
 **❓ What are the real limitations of this application?**
-<!-- your answer -->
+- **Fields that aren't on the page:** made-up invoice numbers, and vendor IDs when the name or phone doesn't match the vendor master.
+- **Long bundles:** 300-page utility bills, and invoice + ticket + bill-of-lading files where the model has to find the page that holds the total. (Not yet run here: the longest file tested is 7 pages, which passed.)
+- **Handwriting:** the one real model miss in the run (ex6's date).
+- **The OCR text layer** matters less, because a PDF-capable model sees the page image.
+
+**What a vibe check is worth as evidence:** two runs of the same prompt will be worded differently and both judged "fine". Before a result can be compared across two versions, save each run's outputs together with its exact settings: the pinned model snapshot, prompt hash, temperature and git SHA. Otherwise a model change is indistinguishable from noise.
 
 ### ✅ Deliverables
 
@@ -953,6 +1112,25 @@ most valuable thing you will learn this week.
    reject, and what did you change as a result — one line in
    `use_case/decisions.md` or a rewritten example.
 
+### My answers
+
+I demoed an earlier version — the proof of concept (GL coding and approver
+prediction, on three months of invoices) — to the COO sponsor and the AP systems
+lead before 2026-04-01. I didn't ask the three questions as written; this is what
+the records show.
+
+1. **What would you use this for?** Not asked directly. The OCR-plus-XML slice was
+   called "a pretty big win" in the 2026-04-01 meeting (speaker not recorded).
+2. **What is missing before you would use it?** The sponsor's newer asks: utility
+   allocation sheets, energy and propane usage tracking, and progress against
+   propane contracts.
+3. **What would you expect it to cost?** It didn't come up with the client, only in
+   our internal call ("how expensive compared to today").
+
+**What changed:** scope narrowed from coding and approval to replacing the
+document processor's OCR, in shadow mode. **The examples** haven't been shown to
+them yet.
+
 ---
 
 ## 📤 Step 13 — Share: bring it to work
@@ -1005,6 +1183,37 @@ build against it — measuring it afterwards is a different, weaker thing.
    heading is a list of exactly what it would take to run each piece at work.
 4. **Your repo link posted in [our community on Maven](https://bit.ly/fde1-maven-community)**,
    and comments on at least two other students' submissions after the deadline.
+
+## Bring it to work
+
+| Line | Number | Source |
+| --- | --- | --- |
+| tokens per call | 1,569 in, 271 out (mean of 6 real invoices) | **measured** |
+| price per 1M tokens | $0.20 in, $1.20 out (`gpt-5.6-luna`) | **looked up**: LiteLLM's price table, Azure list price; the Bedrock price behind the gateway isn't confirmed |
+| cost per call | 1,569 / 1e6 × $0.20 + 271 / 1e6 × $1.20 = **$0.00064** | computed |
+| calls per day | 160 (the ~1,100/wk in scope) | looked up (charter) |
+| model per year | $0.00064 × 160 × 250 = **$26** | computed |
+| minutes per pass | 4 (simple invoices take 3–5) | looked up, est. |
+| loaded $/hour | $35 ($55k junior/associate salary × 1.35 overhead ÷ 2,080 h; range $30–45) | looked up, est. |
+| human per year | 4 / 60 × $35 × 160 × 250 = **$93,000** | computed |
+| **ratio** | **~3,600× — comfortable** | computed |
+
+The 55–90 hrs/wk across the team (est., $100k–165k a year) includes allocation-sheet
+work, which is out of scope for Week 1. Accountants still review 100% of results after
+cutover, so the saving is smaller than the full pass, but even a tenth of it leaves the
+model cost as noise. Cost never came up with the client.
+
+**p95 latency target:** 30 s per invoice up to 10 pages (est.). Today's path includes a
+person at the verification screen, so anything under a minute is faster. Measured: median
+2.4 s, slowest 4.4 s across 6 invoices (too few for a real p95). **Neither cost nor latency
+is likely to stop this being used:** in the drop-folder workflow nobody waits on the result,
+and the real adoption risk is trust in accuracy. If one, latency, and only where someone
+waits on a screen.
+
+**What I would swap:**
+- **Data:** the six examples are real posted invoices, run locally; the vendor list is a mock (3 real business rows, 20 fake). At work: the real vendor master (active vendors for the company, via the database query) and real PDFs from the accountants' folders via the sync agent and object storage.
+- **Model or endpoint:** `gpt-5.6-luna` through my employer's LLM gateway becomes Gemini on Vertex AI (the client pipeline's provider), using the credentials in the secrets manager; Bedrock if the client wants to stay in AWS. Either is a model-string change.
+- **Access or approval:** sign-off on the shadow reports from the AP systems lead and the COO sponsor; a formal SOW signed above the sponsor; and the client's OK to send invoices to an external model provider (who gives it isn't recorded, probably IT or security).
 
 ---
 

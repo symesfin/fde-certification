@@ -37,3 +37,15 @@ wrong thing.
 - Include at least one **edge case** and one where the right answer is *"I don't
   know"* or *"escalate this"*. A system that never declines is not calibrated.
 - Keep them short enough to read in full during review.
+
+### In this repo: two copies
+
+The inputs are real client invoices, and the client has not approved publishing
+their values.
+
+| File | Values | Use it for |
+| --- | --- | --- |
+| `golden.jsonl` | **Masked.** IDs, invoice numbers and amounts are replaced consistently; dates, structure and every `why` are kept | Reading and review, and seeding synthetic data |
+| `golden.private.jsonl` | Real, from the posted records. Gitignored | Scoring. The PDFs (`ex1.pdf`–`ex6.pdf`) live in private storage at `$EVAL_S3_URI`; `sha256` pins each one |
+
+Masked values will not match the PDFs, so score against the private file.

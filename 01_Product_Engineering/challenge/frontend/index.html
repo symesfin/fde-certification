@@ -3,44 +3,205 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- Rename this. It is your app. -->
-    <title>Your AI Application</title>
+    <title>Auto Invoicing</title>
     <style>
+      :root {
+        --bg: #f5f6f8;
+        --card: #ffffff;
+        --text: #1c2230;
+        --muted: #5d6677;
+        --border: #dde1e8;
+        --accent: #2457d6;
+        --accent-text: #ffffff;
+        --ok: #1a7f37;
+        --warn: #f5a623;
+        --warn-text: #7a4a00;
+        --warn-bg: #fff6e5;
+        --err: #c62828;
+        --err-bg: #fdeeee;
+        --radius: 10px;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #13161c;
+          --card: #1c2029;
+          --text: #e6e9ef;
+          --muted: #9aa3b2;
+          --border: #2e3442;
+          --accent: #6d95ff;
+          --accent-text: #0d1220;
+          --warn-text: #ffcf80;
+          --warn-bg: #2e2412;
+          --err-bg: #2f1717;
+        }
+      }
+
+      * { box-sizing: border-box; }
       body {
-        font-family: system-ui, sans-serif;
-        max-width: 44rem;
-        margin: 2rem auto;
-        padding: 0 1rem;
+        margin: 0;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
         line-height: 1.5;
+        color: var(--text);
+        background: var(--bg);
       }
-      #log {
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        padding: 1rem;
-        min-height: 20rem;
+      header, main { max-width: 84rem; margin: 0 auto; padding: 0 1.25rem; }
+      header { padding-top: 1.75rem; padding-bottom: 1rem; }
+      h1 { margin: 0; font-size: 1.6rem; }
+      .subtitle { margin: 0.25rem 0 0; color: var(--muted); }
+
+      .panel {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1rem 1.25rem;
         margin-bottom: 1rem;
-        white-space: pre-wrap;
-        overflow-y: auto;
       }
-      .turn { margin-bottom: 1rem; }
-      .who { font-weight: 600; }
-      form { display: flex; gap: 0.5rem; }
-      input { flex: 1; padding: 0.5rem; font: inherit; }
-      button { padding: 0.5rem 1rem; font: inherit; }
+
+      /* Upload bar */
+      #extract-form { display: flex; gap: 0.75rem; align-items: stretch; }
+      .dropzone {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        border: 2px dashed var(--border);
+        border-radius: var(--radius);
+        color: var(--muted);
+        cursor: pointer;
+      }
+      .dropzone.dragover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+      .dropzone input { font: inherit; color: var(--text); max-width: 100%; }
+      .dropzone input::file-selector-button {
+        font: inherit;
+        margin-right: 0.75rem;
+        padding: 0.4rem 0.9rem;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--bg);
+        color: var(--text);
+        cursor: pointer;
+      }
+      button {
+        font: inherit;
+        padding: 0.5rem 1.25rem;
+        border: 0;
+        border-radius: var(--radius);
+        background: var(--accent);
+        color: var(--accent-text);
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:disabled { opacity: 0.55; cursor: progress; }
+
+      /* Review: document on the left, record on the right */
+      .review {
+        display: grid;
+        grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+        gap: 1rem;
+        align-items: start;
+      }
+      @media (max-width: 900px) { .review { grid-template-columns: 1fr; } }
+      .review .panel { margin-bottom: 0; }
+      .panel h2 { margin: 0 0 0.75rem; font-size: 1rem; }
+      #viewer {
+        width: 100%;
+        height: 78vh;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--bg);
+      }
+      .empty {
+        display: grid;
+        place-items: center;
+        height: 78vh;
+        border: 1px dashed var(--border);
+        border-radius: 6px;
+        color: var(--muted);
+        text-align: center;
+        padding: 1rem;
+      }
+
+      /* Result */
+      .result-head { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+      .meta { color: var(--muted); font-size: 0.9rem; }
+      .badge {
+        display: inline-block;
+        padding: 0.15rem 0.75rem;
+        border-radius: 999px;
+        font-weight: 600;
+        color: #fff;
+        background: #666;
+      }
+      .badge[data-status="ok"] { background: var(--ok); }
+      .badge[data-status="vendor_unmatched"] { background: var(--warn); color: #222; }
+      .badge[data-status="failed"] { background: var(--err); }
+      .callout { border-radius: 6px; padding: 0.5rem 0.75rem; margin-top: 0.75rem; }
+      .callout h3 { margin: 0 0 0.25rem; font-size: 0.9rem; }
+      .callout ul { margin: 0; padding-left: 1.2rem; }
+      .callout.errors { background: var(--err-bg); color: var(--err); }
+      .callout.warnings { background: var(--warn-bg); color: var(--warn-text); }
+      .section-title { margin: 1rem 0 0.4rem; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+      dl.fields {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        gap: 0.35rem 1rem;
+        margin: 0;
+      }
+      dl.fields dt { color: var(--muted); }
+      dl.fields dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+      dl.fields.secondary dd { font-weight: 400; }
+      .tag {
+        margin-left: 0.4rem;
+        padding: 0 0.4rem;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 400;
+        color: var(--muted);
+      }
+      details.raw { margin-top: 1rem; }
+      details.raw summary { cursor: pointer; color: var(--muted); }
+      details.raw pre { overflow: auto; max-height: 20rem; font-size: 0.8rem; }
+
     </style>
   </head>
   <body>
-    <h1>Your AI Application</h1>
-    <p>
-      This is a deliberately plain frontend. Making it good is your job — open
-      this file in VS Code and point Claude Code at it.
-    </p>
+    <header>
+      <h1>Auto Invoicing</h1>
+      <p class="subtitle">
+        Upload a vendor invoice or credit memo. Check the extracted record against
+        the document before anything is posted — this page posts nothing.
+      </p>
+    </header>
 
-    <div id="log"></div>
-    <form id="form">
-      <input id="input" placeholder="Ask something..." autocomplete="off" />
-      <button type="submit">Send</button>
-    </form>
+    <main>
+      <section class="panel">
+        <form id="extract-form">
+          <label class="dropzone" id="dropzone">
+            <input id="pdf" type="file" accept="application/pdf,.pdf" required />
+            <span>or drop a PDF here</span>
+          </label>
+          <button id="extract-button" type="submit">Extract</button>
+        </form>
+      </section>
+
+      <div class="review">
+        <section class="panel">
+          <h2>Document</h2>
+          <div id="viewer-slot">
+            <div class="empty">The uploaded PDF appears here for review.</div>
+          </div>
+        </section>
+        <section class="panel">
+          <h2>Extracted record</h2>
+          <div id="result">
+            <p class="meta">Choose a PDF and press Extract.</p>
+          </div>
+        </section>
+      </div>
+
+    </main>
 
     <script type="module">
       // NOTE: this loads the Gradio client from a public CDN. On a locked-down
@@ -50,47 +211,166 @@
       import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
 
       const client = await Client.connect(window.location.origin);
-      const log = document.getElementById("log");
-      const form = document.getElementById("form");
-      const input = document.getElementById("input");
+      // --- Invoice extraction ---------------------------------------------
 
-      // The model has no memory. This array is the entire conversation.
-      const history = [];
+      const extractForm = document.getElementById("extract-form");
+      const pdfInput = document.getElementById("pdf");
+      const extractButton = document.getElementById("extract-button");
+      const dropzone = document.getElementById("dropzone");
+      const viewerSlot = document.getElementById("viewer-slot");
+      const result = document.getElementById("result");
 
-      function addTurn(who, text) {
-        const div = document.createElement("div");
-        div.className = "turn";
-        div.innerHTML = `<span class="who">${who}:</span> `;
-        const span = document.createElement("span");
-        div.appendChild(span);
-        span.textContent = text;
-        log.appendChild(div);
-        log.scrollTop = log.scrollHeight;
-        return span;
+      // The fields a reviewer checks against the document come first; the
+      // rest are filled by the pipeline, not read off the page.
+      const PRIMARY = ["doc_type", "number", "date", "total", "vendor_id", "vendor_name"];
+      const LABELS = {
+        doc_type: "Document type", number: "Invoice number", date: "Invoice date",
+        total: "Total", vendor_id: "Vendor ID", vendor_name: "Vendor",
+        recognition: "Matched on", batch_no: "Batch", processor: "Processor",
+        company: "Company", group_name: "Group",
+      };
+      const MATCH = { phone: "matched by phone", fuzzy_name: "matched by name", address: "matched by address" };
+
+      // Preview straight from the browser's copy of the file: nothing extra is uploaded.
+      let previewUrl = null;
+      function showPreview(file) {
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        previewUrl = URL.createObjectURL(file);
+        const frame = document.createElement("iframe");
+        frame.id = "viewer";
+        frame.title = `Uploaded document: ${file.name}`;
+        frame.src = previewUrl;
+        viewerSlot.replaceChildren(frame);
       }
 
-      form.addEventListener("submit", async (e) => {
+      pdfInput.addEventListener("change", () => {
+        if (pdfInput.files[0]) showPreview(pdfInput.files[0]);
+      });
+      for (const type of ["dragenter", "dragover"]) {
+        dropzone.addEventListener(type, (e) => { e.preventDefault(); dropzone.classList.add("dragover"); });
+      }
+      for (const type of ["dragleave", "drop"]) {
+        dropzone.addEventListener(type, () => dropzone.classList.remove("dragover"));
+      }
+      dropzone.addEventListener("drop", (e) => {
         e.preventDefault();
-        const message = input.value.trim();
-        if (!message) return;
-        input.value = "";
+        if (!e.dataTransfer.files.length) return;
+        pdfInput.files = e.dataTransfer.files;
+        showPreview(pdfInput.files[0]);
+      });
 
-        addTurn("You", message);
-        const out = addTurn("Assistant", "");
+      // A data URL is "data:application/pdf;base64,<base64>". Keep what's after the comma.
+      function readAsBase64(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result.slice(reader.result.indexOf(",") + 1));
+          reader.onerror = () => reject(reader.error);
+          reader.readAsDataURL(file);
+        });
+      }
 
-        // submit() streams; each event carries the reply so far.
-        let reply = "";
-        const job = client.submit("/chat", { message, history });
-        for await (const event of job) {
-          if (event.type === "data") {
-            reply = event.data[0];
-            out.textContent = reply;
-            log.scrollTop = log.scrollHeight;
+      // crypto.randomUUID only exists on https or localhost. Opened by IP over
+      // plain http inside a firm network, it is undefined, so fall back.
+      function newId() {
+        if (crypto.randomUUID) return crypto.randomUUID();
+        const bytes = crypto.getRandomValues(new Uint8Array(16));
+        return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+      }
+
+      // Everything shown comes from the PDF or the model, so build nodes with
+      // textContent, never innerHTML.
+      function el(tag, className, text) {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined) node.textContent = text;
+        return node;
+      }
+
+      function addList(title, items, className) {
+        if (!items?.length) return;
+        const box = el("div", `callout ${className}`);
+        const ul = el("ul");
+        for (const item of items) ul.append(el("li", "", item));
+        box.append(el("h3", "", title), ul);
+        result.append(box);
+      }
+
+      function addFields(title, record, keys, className, res) {
+        const present = keys.filter((k) => k in record);
+        if (!present.length) return;
+        const dl = el("dl", `fields ${className}`);
+        for (const key of present) {
+          const dd = el("dd", "", record[key] === "" ? "—" : String(record[key] ?? "—"));
+          if (key === "vendor_id" && MATCH[res.vendor_match_method]) {
+            dd.append(el("span", "tag", MATCH[res.vendor_match_method]));
           }
+          dl.append(el("dt", "", LABELS[key] ?? key), dd);
+        }
+        result.append(el("h3", "section-title", title), dl);
+      }
+
+      function renderResponse(res, meta) {
+        result.replaceChildren();
+
+        const head = el("div", "result-head");
+        const badge = el("span", "badge", res.status.replace("_", " "));
+        badge.dataset.status = res.status;
+        head.append(badge);
+        if (meta) head.append(el("span", "meta", meta));
+        result.append(head);
+
+        addList("Errors", res.errors, "errors");
+        addList("Warnings", res.warnings, "warnings");
+
+        if (res.record) {
+          const rest = Object.keys(res.record).filter((k) => !PRIMARY.includes(k));
+          addFields("Check against the document", res.record, PRIMARY, "primary", res);
+          addFields("Filled by the pipeline", res.record, rest, "secondary", res);
         }
 
-        history.push({ role: "user", content: message });
-        history.push({ role: "assistant", content: reply });
+        const raw = el("details", "raw");
+        raw.append(el("summary", "", "Raw response"), el("pre", "", JSON.stringify(res, null, 2)));
+        result.append(raw);
+      }
+
+      function showError(message, meta) {
+        renderResponse({ status: "failed", errors: [message], warnings: [], record: null }, meta);
+      }
+
+      extractForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const file = pdfInput.files[0];
+        if (!file) return;
+
+        extractButton.disabled = true;
+        result.replaceChildren(el("p", "meta", `Extracting ${file.name}…`));
+        const started = performance.now();
+        const meta = () => `${file.name} · ${((performance.now() - started) / 1000).toFixed(1)} s`;
+
+        try {
+          const pdf_b64 = await readAsBase64(file);
+          const job = client.submit("/extract_invoice_record", {
+            pdf_b64,
+            processing_id: newId(),
+            accountant_shortname: "demo",
+            source_key: file.name,
+          });
+          for await (const event of job) {
+            if (event.type === "data") {
+              renderResponse(JSON.parse(event.data[0]), meta());
+            } else if (event.type === "status" && event.stage === "error") {
+              // The endpoint raised (model timeout, lookup outage): a system error, not a document problem.
+              // message is typed string | ValidationError[], so stringify anything that isn't text.
+              const msg = typeof event.message === "string" ? event.message
+                : event.message ? JSON.stringify(event.message) : "The server raised an error.";
+              showError(msg, meta());
+            }
+          }
+        } catch (err) {
+          showError(String(err), meta());
+        } finally {
+          extractButton.disabled = false;
+        }
       });
     </script>
   </body>

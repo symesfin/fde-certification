@@ -16,3 +16,9 @@ _build/
 
 # Dropped by `import unsloth` when loading a model locally
 unsloth_compiled_cache/
+
+# Golden examples with real client values: private until the client approves publishing
+use_case/evals/golden.private.jsonl
+
+# Vendor master export: real client data, never committed or baked into the image
+01_Product_Engineering/challenge/vendors.csv
