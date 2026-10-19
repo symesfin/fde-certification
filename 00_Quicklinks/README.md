@@ -25,8 +25,8 @@ Quicklinks are here to help you **easily navigate each week's materials** for th
 
 | 🎓 Session | ⏺️ Recording |
 |:-----------|:-------------|
-| [Session 3 - Local Inference Fundamentals](../02_Open_Weights/sessions/S3_Local_Inference_Fundamentals.py) | Coming soon |
-| [Session 4 - Synthetic Data Generation](../02_Open_Weights/sessions/S4_Synthetic_Data_Generation.py) | Coming soon |
+| [Session 3 - Local Inference Fundamentals](../02_Open_Weights/sessions/S3_Local_Inference_Fundamentals.py) | [Recording!](https://us02web.zoom.us/rec/share/32K8POoLKNXyfORuqNLCs4LdfFP75e1LqBLzmN5GeRuOGo0dBDdXF6nNZQ-BaMXH.vXKjWl1HSUGnXr2T) <br> passcode: `$V+*3m@g` |
+| [Session 4 - Synthetic Data Generation](../02_Open_Weights/sessions/S4_Synthetic_Data_Generation.py) | [Recording!](https://us02web.zoom.us/rec/share/yUo7IkNCgwnrQhtr46eg4pW0pGV3lApIIjNggqQ1BP_KWotUNfAiwZAfqhiSVhzX.6-qFXps_PDjEpUfj) <br> passcode: `E5mY7h+9` |
 
 ---
 
