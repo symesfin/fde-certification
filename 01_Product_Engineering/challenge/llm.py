@@ -37,7 +37,7 @@ EXTRACTION_PROMPT = """Extract these fields from the attached invoice PDF. Retur
 
 - doc_type: "CreditMemo" if the document says credit memo or credit note, otherwise "Invoice".
 - vendor_name: the company that sent the document (the seller), not the bill-to, ship-to or remit-to party.
-- vendor_phone: the vendor's phone number as printed. If several, the first one. null if none.
+- vendor_phone: the vendor's phone number as printed in the document. Skip the banner a fax machine prints across the top of a page, and any number labeled fax. If several remain, the first one. null if none.
 - invoice_number: the invoice, statement or credit memo number as printed. Not an account number, a PO number, or a referenced original invoice. null if none.
 - invoice_total: the grand total with the sign it has on the document, as a decimal string like "1234.56" or "-51.28". A trailing minus ("51.28-") or parentheses ("(51.28)") mean negative. No currency symbols or thousands separators.
 - invoice_date: the document date, YYYY-MM-DD.

@@ -38,3 +38,4 @@ scripts/.summeval.parquet
 # paths, so committing them would put a second copy of `helpers/preflight.py`
 # (and friends) somewhere no import will ever find, reading as maintained code.
 Claude outputs/
+.DS_Store
