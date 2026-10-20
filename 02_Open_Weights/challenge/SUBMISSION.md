@@ -40,7 +40,7 @@ Seeds: three invented rows in [`seeds.jsonl`](./seeds.jsonl), none taken from re
 ## 📤 Share
 
 ### Step 6: shown to someone who knows the real data
-**Pending.** The client's contacts are all unavailable this week, so nothing has been shown to anyone yet and there are no answers to record. When they're back, the plan is to send 20 rows and the datasheet, with the three questions in order, and record what they say in their own words. Logged in [`use_case/stakeholders.md`](../../use_case/stakeholders.md).
+**Pending.** The client's contacts have been unavailable last week and this week, so nothing has been shown to anyone yet and there are no answers to record. As soon as I'm able to, the plan is to send 20 rows and the datasheet, with the three questions in order, and record what they say in their own words. Logged in [`use_case/stakeholders.md`](../../use_case/stakeholders.md).
 
 ### Bring it to work
 **Project:** the client's invoice pipeline, this use case. No project is blocked on access; I have the real invoices. Synthetic data still helps in two places: a regression set for prompt and model changes, because the real queue sends too few reversals, credit memos and faxed bills to test each change on; and anything shown outside the client team, such as a demo or this course, where real invoices can't go.
