@@ -14,7 +14,22 @@ Validation checks the schema and the status rules, not whether a value is correc
 has checked the labels in this file yet. Pilot rows (not in this file) were checked against
 their inputs, field by field and for arithmetic: 24 by Claude Code (combinations 0, 17, 38 and
 49), three by Codex (combination 17) and three by the author (combination 0). None were checked
-by a domain expert. The Step 3 read of 50 rows is the first check of this file.
+by a domain expert.
+
+The Step 3 read (`read_50.md`, one row per combination) was done by Claude Code, an AI
+assistant, not a person. It found 0 wrong labels in 50, so the 95% upper bound on the label
+error rate is about 6% (rule of three: 3/50). A 95% extractor score therefore means the
+extractor follows the rules on somewhere between about 89% and 100% of rows like these. The
+three rows generated after the read (raw lines 151 to 153) were checked the same way: 0 wrong
+labels.
+
+Two labeling conventions came up in the read and are now decided:
+
+- **Vendor-name case.** A name printed in capitals is labeled in title case (read row 46), so
+  Week 4 compares vendor names case-insensitively.
+- **An OCR swap that needs arithmetic.** In read row 7 an S stands for 8 in the total, which
+  only the line items can resolve. The row is kept on purpose, as a harder case than the
+  condition axis promises.
 
 **Settings:** `openai/bedrock/gpt-5.6-sol`, reasoning effort medium, temperature and top_p not
 set; 3 rows per call; 50 combinations; dedupe threshold 0.7; `seeds.jsonl` sha256
@@ -23,15 +38,37 @@ every pair dedupe dropped, is in `synthetic_v1.run.json` beside the data (gitign
 
 **Counts:**
 
-| Generated | Unparseable lines | Dead combinations | Empty combinations | After dedupe | Schema-valid |
-| --- | --- | --- | --- | --- | --- |
-| 150 | 0 | 0 | 0 | 150 | 150 |
+| Generated | Unparseable lines | Dead combinations | Empty combinations | After dedupe | Schema-valid | Removed after reading | Final |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 153 | 0 | 0 | 0 | 153 | 153 | 3 | 150 |
 
-50 calls, 251,248 tokens (90,010 in, 161,238 out), 1,903 s (38 s a call). 90 rows are `ok`
-(30 invoices, 30 invoices with a decoy, 30 credit memos) and 60 are `failed` (30 reversals, 30
-with nothing to extract); every row's status matches its combination's outcome. `leak_check`
-flagged 7 strings, all generic labels or the year: "AMOUNT DUE", "Account Name", "Statement
-Date", "Due Date", "Invoice Date", "WEIGH TICKET", "2026".
+51 calls: 50 for the first run and 1 to regenerate combination 43 (below). 255,401 tokens
+(91,825 in, 163,576 out), 1,933 s. Of the 150 final rows, 90 are `ok` (30 invoices, 30
+invoices with a decoy, 30 credit memos) and 60 are `failed` (30 reversals, 30 with nothing to
+extract); every row's status matches its combination's outcome.
+
+**Removed after reading:** one line per row. `finish()` in `generate.py` drops them, so a
+rebuild with `--from-raw` keeps them out. Line numbers are raw-file lines (`_raw_line` in each
+row).
+
+- Raw line 130 (combination 43): vendor phone (555) 555-0100 has no 555, so it may reach a
+  real person.
+- Raw line 131 (combination 43): vendor phone (555) 555-0100, same reason.
+- Raw line 132 (combination 43): vendor phone (555) 555-0100, same reason.
+
+That emptied combination 43 (one-person shop, born-digital, reversal), so it was generated
+again (raw lines 151 to 153) after the prompt gained a rule that every phone number is
+555-01xx. The other 147 rows came from the prompt without that rule.
+
+**Renamed after reading:** vendor names too close to a real company's. `finish()` replaces them
+in the input and the label, keeping each name's length and initial.
+
+- Raw line 39: "East River Counties Electric Cooperative" became "Elderbrook Counties Electric
+  Cooperative" (East River Electric Power Cooperative is a real South Dakota co-op).
+- Raw line 40: "High Plains Electric Cooperative" became "Hawk Plains Electric Cooperative"
+  (High Plains Power is a real Wyoming co-op).
+- Raw line 66: "Aurora Nutrition Systems, LLC" became "Avelin Nutrition Systems, LLC" (Aurora
+  Cooperative is a real Nebraska feed and grain co-op).
 
 **What dedupe did:** nothing. No pair reached 0.7: the closest scored 0.37, no row's nearest
 neighbour reached 0.4, and the median nearest neighbour was 0.2. The repetition left in the
@@ -52,7 +89,7 @@ towns and roads), street number 742 in 17 rows and the fax time 08:42 in 10.
 - Rows are deduplicated (character 4-gram Jaccard at 0.7), then validated against
   `InvoiceExtraction` and the pipeline's status rules.
 
-**Rows:** 150
+**Rows:** 150 (153 schema-valid, 3 removed after reading)
 
 ## Variation axes
 
@@ -119,6 +156,23 @@ PDF first.
   makes one up. These rows only check that the extracted number is null.
 - **An exact rerun.** The model has no dated snapshot, so regenerating may give different rows.
 
+## Known limits of realism
+
+From the Step 3 read. These rows are fine to keep, and good material for the Step 6 "would this
+ever happen?" review.
+
+- **Documents with nothing billed are built from an invoice.** They keep a statement date, an
+  invoice number or "Due on receipt" (read rows 5, 45 and 50), as if the generator took an
+  invoice and removed the amount.
+- **Details an accountant might question:** "Net 22" terms (read row 22), finisher meal at
+  $176 a ton (read row 27), and a delivery manifest whose bulk-weight total, 286,520 lb, doesn't
+  match its lines, 334,120 lb (read row 40).
+- **OCR swaps beyond the axis's promise:** an S for 8 in a total (read row 7) and a 0 for an a
+  in a vendor name (read row 38).
+- **Repeated defaults:** street number 742 or 7420 in 7 of the 50 rows, shop invoice number
+  963 twice and 4826 three times at different vendors, and the surname Mercer three times,
+  including two shops owned by "Calvin Mercer" and "Cal Mercer".
+
 ## What it must never be compared against
 
 The real ground truth is `use_case/evals/golden.private.jsonl` (posted values, gitignored) with
@@ -130,12 +184,28 @@ place of a score on the goldens or from shadow mode.
 ## Leakage check — outward (what left)
 
 - [x] No real record was used as a seed.
-- [ ] No real entity names, IDs, or identifiers appear.
+- [x] No real entity names, IDs, or identifiers appear.
 - [ ] No distinctive internal formats that would identify the firm.
 - [ ] Rare categories were generated, not copied.
 
-The seeds were written by hand from Week 1's `make_samples.py` invoices. The other three
-boxes wait for the Step 3 read of 50 rows.
+The seeds were written by hand from Week 1's `make_samples.py` invoices. What the checks found:
+
+- **`leak_check`** (seed strings that reappear in the output): 7 hits, all generic labels or
+  the year: "AMOUNT DUE", "Account Name", "Statement Date", "Due Date", "Invoice Date", "WEIGH
+  TICKET", "2026". None is a name or an identifier.
+- **Phone numbers, every row:** in the first run's 150 rows, 642 phone-like numbers, 639 with
+  555 in the middle. The three without it were vendor phones in combination 43; those rows
+  were removed (above), and `finish()` now drops any row like them. The three regenerated rows
+  use 555-01xx numbers.
+- **Names:** no row mentions the client, and every bill-to is an invented "Example" entity.
+  Claude Code read all 150 vendor names, then searched the web for the six most plausible as
+  real businesses; none matched exactly. Three were close to real co-ops and were renamed
+  (above). A web search is not a business registry, so a coincidental match is still
+  possible.
+
+Box 2 is ticked on that basis; real town names and ZIP codes remain, as places rather than
+entities. Boxes 3 and 4 need someone who knows the client's internal number formats and rare
+categories.
 
 ## Leakage check — inward (what the eval shares with the training data)
 

@@ -13,6 +13,7 @@ call in flight. Delete that file to start over.
 
 import json
 import random
+import re
 import sys
 from calendar import month_name
 from dataclasses import asdict
@@ -100,6 +101,7 @@ Two more labeling rules:
 Content:
 - The bill-to is always the client: a hog producer billed under several entities and cost centers (a parent company, farm entities, sow farms, nurseries, finishing sites), each with its own name and address. Put "Example" in every client name, as the examples do. Vendors are businesses that sell to that client.
 - Amounts add up: line items sum to any subtotal, and the subtotal plus tax, fees and freight equals the total. Where a line shows a quantity and a unit price, its amount is their product. Unit prices are realistic for the product.
+- Every phone and fax number is a 555-01xx number, as in the examples, so none can reach a real line.
 - Invent every vendor, person, address, phone number, amount, date and reference number; never reuse one from the examples. Make the {n} examples differ from each other in vendor, layout, amounts and dates.
 
 Output only the JSON lines, nothing else."""
@@ -165,6 +167,36 @@ def opening(row: dict) -> str:
     return " ".join(str(row.get("input", "")).split())[:80]
 
 
+# Phone-like numbers. The data should use 555 numbers; one without 555 may reach
+# a real person.
+PHONE = re.compile(r"\(?\d{3}\)?[\s.-]?(\d{3})[\s.-]\d{4}")
+
+
+def real_looking_phones(row: dict) -> list[str]:
+    text = f"{row.get('input', '')} {json.dumps(row.get('output'))}"
+    return sorted({match.group(0) for match in PHONE.finditer(text) if match.group(1) != "555"})
+
+
+# Vendor names too close to a real company's, found reading the rows (Step 3).
+# Replaced everywhere in the row, input and label alike; each new name keeps the
+# old one's length and initial, so columns and the spread stay as generated.
+RENAMES = {
+    # East River Electric Power Cooperative, South Dakota
+    "East River Counties Electric Cooperative": "Elderbrook Counties Electric Cooperative",
+    # Aurora Cooperative, Nebraska
+    "Aurora Nutrition Systems": "Avelin Nutrition Systems",
+    # High Plains Power, Wyoming
+    "High Plains Electric Cooperative": "Hawk Plains Electric Cooperative",
+}
+
+
+def renamed(row: dict) -> dict:
+    text = json.dumps(row, ensure_ascii=False)
+    for old, new in RENAMES.items():
+        text = text.replace(old, new)
+    return json.loads(text)
+
+
 def generate(combos: list[dict]) -> tuple[list[dict], dict]:
     """One call per combination not already in RAW.
 
@@ -173,7 +205,10 @@ def generate(combos: list[dict]) -> tuple[list[dict], dict]:
     stats = CallStats()
     raw = load_raw()
     resumed = len(raw)
-    done = {json.dumps(row["_axes"], sort_keys=True) for row in raw}
+    earlier = json.loads(RUN.read_text()).get("generation") if raw and RUN.exists() else None
+    # A combination is done once it has a row that survives finish()'s removals,
+    # so one whose rows were all removed is generated again.
+    done = {json.dumps(row["_axes"], sort_keys=True) for row in raw if not real_looking_phones(row)}
     unparseable = 0
     dead: list[int] = []
     print(f"model: {MODEL}, reasoning_effort: {REASONING_EFFORT}, {len(combos)} combinations")
@@ -222,10 +257,11 @@ def generate(combos: list[dict]) -> tuple[list[dict], dict]:
         "per_combo": PER_COMBO,
         "seeds_sha256": sha256(SEEDS_FILE.read_bytes()).hexdigest(),
         "combinations": len(combos),
-        "resumed_rows": resumed,  # rows from an earlier, interrupted run; stats cover this one only
+        "resumed_rows": resumed,  # rows from earlier runs; stats cover this run only
         "unparseable": unparseable,
         "dead_combos": dead,
         "stats": asdict(stats),
+        "earlier": earlier,  # the record of the run that wrote the resumed rows
     }
     # Written before finish(), so a failure there still leaves the record of what was generated.
     RUN.write_text(json.dumps({"generation": generation}, indent=2) + "\n")
@@ -239,6 +275,15 @@ def finish(raw: list[dict], combos: list[dict], generation: dict) -> None:
         unparseable=generation.get("unparseable", 0),
         failed_combos=len(generation.get("dead_combos", [])),
     )
+    # Renames come first, so dedupe, validation and the saved rows all see them.
+    # _raw_line is a stable id: line numbers in OUT shift whenever a row is removed.
+    rows, renamed_lines = [], []
+    for line, row in enumerate(raw, 1):
+        new = renamed(row)
+        if new != row:
+            renamed_lines.append(line)
+        rows.append({**new, "_raw_line": line})
+    raw = rows
     # Replied, but not one parseable row: as lost to coverage as a dead combination.
     present = [row["_axes"] for row in raw]
     empty = [
@@ -259,8 +304,19 @@ def finish(raw: list[dict], combos: list[dict], generation: dict) -> None:
             where = combos.index(row["_axes"]) if row.get("_axes") in combos else "?"
             print(f"invalid, combination {where}: {exc.errors()[0]['msg']}")
     report.valid = len(valid)
-    report.leaks = leak_check(SEEDS, valid)
-    OUT.write_text("".join(json.dumps(row, ensure_ascii=False) + "\n" for row in valid))
+
+    # Removals found by reading the rows (Step 3). In code rather than by hand, so
+    # --from-raw can't rebuild the file with them back in.
+    final, removed = [], []
+    for row in valid:
+        if phones := real_looking_phones(row):
+            removed.append(
+                {"raw_line": row["_raw_line"], "reason": f"phone without 555: {', '.join(phones)}"}
+            )
+        else:
+            final.append(row)
+    report.leaks = leak_check(SEEDS, final)
+    OUT.write_text("".join(json.dumps(row, ensure_ascii=False) + "\n" for row in final))
 
     # Every pair dedupe dropped, closest first: the evidence for the threshold.
     pairs = sorted(
@@ -291,6 +347,9 @@ def finish(raw: list[dict], combos: list[dict], generation: dict) -> None:
             "report": asdict(report),
             "empty_combos": empty,
             "dropped": pairs,
+            "removed": removed,
+            "renamed_raw_lines": renamed_lines,
+            "saved": len(final),
         },
     }
     RUN.write_text(json.dumps(record, indent=2) + "\n")
@@ -298,7 +357,10 @@ def finish(raw: list[dict], combos: list[dict], generation: dict) -> None:
     print(f"\n{report}")
     print(f"dead combos: {generation.get('dead_combos')}, empty combos: {empty}")
     print(f"possible leaks: {report.leaks}")
-    print(f"saved {report.valid} rows to {OUT.relative_to(ROOT)}, run record to {RUN.name}")
+    for item in removed:
+        print(f"removed raw line {item['raw_line']}: {item['reason']}")
+    print(f"renamed vendors in raw lines {renamed_lines}")
+    print(f"saved {len(final)} rows to {OUT.relative_to(ROOT)}, run record to {RUN.name}")
 
 
 if __name__ == "__main__":
