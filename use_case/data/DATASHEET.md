@@ -4,7 +4,7 @@
 
 **Generated on:** 2026-10-20
 
-**Generated from:** three invented seed rows (`02_Open_Weights/challenge/seeds.jsonl`, built from Week 1's `make_samples.py` invoices, not from real records) and the 50 axis combinations below, by `02_Open_Weights/challenge/generate.py`. Labels follow Week 1's `EXTRACTION_PROMPT`, which the generator imports, plus the status rules and two labeling rules in its own prompt.
+**Generated from:** three invented seed rows (`02_Open_Weights/challenge/seeds.jsonl`, built from Week 1's `make_samples.py` invoices, not from real records) and the 50 axis combinations below, by `02_Open_Weights/challenge/generate.py`. Labels follow Week 1's `EXTRACTION_PROMPT`, which the generator imports, plus the status rules and two labeling rules in its own prompt. They follow that prompt as of commit `33fe5a1` (unchanged since `ca66386`), which asks for no line items or confidences, so no label has `line_items` or `field_confidences`; a rerun of `generate.py` imports the prompt as it is then.
 
 **Labels:** prototyping data, not backtesting. Every label was written by the generator. Validation checks the schema and the status rules, not whether a value is correct. Pilot rows (not in this file) were checked against their inputs, field by field and for arithmetic: 24 by Claude Code (combinations 0, 17, 38 and 49), three by Codex (combination 17) and three by the author (combination 0). None were checked by a domain expert.
 
@@ -108,7 +108,7 @@ From the Step 3 read. These rows are fine to keep, and good material for the Ste
 
 ## What it must never be compared against
 
-The real ground truth is `use_case/evals/golden.private.jsonl` (gitignored) with its PDFs, `ex1.pdf` to `ex6.pdf`, in private storage at `$EVAL_S3_URI`. Its expected values were reviewed against each document: what the document shows, even where the posted record differs (ex1), and the posted value only where the document is blank (the Week 1 row in `decisions.md`). Shadow mode in production compares against posted records, so its accuracy is a lower bound. These rows are not ground truth. A score on them is not an accuracy figure, and must never be reported next to, averaged with, or used in place of a score on the goldens or from shadow mode.
+The real ground truth is `use_case/evals/golden.private.jsonl` (gitignored) with its PDFs, `ex1.pdf` to `ex6.pdf`, in private storage at `$EVAL_S3_URI`. Its expected values were reviewed against each document: what the document shows, even where the posted record differs (ex1), and the posted value only where the document is blank (the Week 1 row in `decisions.md`). Shadow mode measures agreement with posted records; reviewing disagreements against the documents establishes correctness. These rows are not ground truth. A score on them is not an accuracy figure, and must never be reported next to, averaged with, or used in place of a score on the goldens or from shadow mode.
 
 ## Leakage check — outward (what left)
 
@@ -155,7 +155,7 @@ prompt's later revisions isn't recorded. Any Week 8 fine-tuning set must also ex
 `ex1` to `ex6` PDFs themselves, matched on the sha256 in `golden.jsonl`.
 
 **Overlap between `golden.jsonl` and this file, by the dedupe measure:** not measurable as
-specified. A golden's `input` is `{"file", "sha256"}`, a pointer to a PDF rather than invoice
+specified. A golden's `input` is a PDF filename, with its sha256 beside it, rather than invoice
 text, so a Jaccard score against these rows would be near zero whatever the overlap. Two checks
 would answer it: the same 4-gram Jaccard against text extracted from `ex1.pdf` to `ex6.pdf` in
 private storage, and a read of the goldens' `why` fields against the axes table for shared
