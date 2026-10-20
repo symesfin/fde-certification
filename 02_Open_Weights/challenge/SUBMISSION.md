@@ -47,7 +47,7 @@ Seeds: three invented rows in [`seeds.jsonl`](./seeds.jsonl), none taken from re
 
 **Data:** seeded from a description of the queue, not from records. Records would give truer layouts, but they carry vendor names, account numbers and amounts into the output, and `leak_check` only catches exact strings. Even this week's invented seeds let three real-looking phone numbers and three near-real vendor names through. The axes would come from shadow-mode disagreements and dead-letter reasons, which show what breaks without copying any invoice.
 
-**Model or endpoint:** the same one, `gpt-5.6-sol` on Bedrock through the gateway, which is a different model family from the production extractor. With invented seeds and a written description, nothing from the client is in the prompt, so this data can leave the network. Seeding from records would need an endpoint the client already approves for its invoices.
+**Model or endpoint:** the same one, `gpt-5.6-sol` on Bedrock through the gateway, which is a different model family from the production extractor (Gemini). The local Week 1 extractor is `gpt-5.6-luna`, the same family, as the datasheet notes. With invented seeds and a written description, nothing from the client is in the prompt, so this data can leave the network. Seeding from records would need an endpoint the client already approves for its invoices.
 
 **Approval:** none to generate it. Before invoices modeled on the client's vendors and sites go into a demo or anything else shown outside the team, the client contact should agree: the names are invented, but the structure still describes their business.
 
