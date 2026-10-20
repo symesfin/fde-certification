@@ -8,7 +8,7 @@
 
 **Labels:** prototyping data, not backtesting. Every label was written by the generator. Validation checks the schema and the status rules, not whether a value is correct. Pilot rows (not in this file) were checked against their inputs, field by field and for arithmetic: 24 by Claude Code (combinations 0, 17, 38 and 49), three by Codex (combination 17) and three by the author (combination 0). None were checked by a domain expert.
 
-The Step 3 read (`read_50.md`, one row per combination) was done first by Claude Code, an AI assistant, then reviewed and verified row by row by the author. It found 0 wrong labels in 50, so the 95% upper bound on the label error rate is about 6% (rule of three: 3/50). A 95% extractor score therefore means the extractor follows the rules on somewhere between about 89% and 100% of rows like these. The three rows generated after the read (raw lines 151 to 153) were checked the same way: 0 wrong labels. I am not an accounts-payable domain expert; that check is Step 6.
+The Step 3 read (`read_50.md`, one row per combination) was done first by Claude Code, an AI assistant, then reviewed and verified row by row by the author. It found no wrong labels in the 50 rows read. That doesn't establish an error rate: both reviewers checked against the prompt rules the generator followed, and neither is an accounts-payable expert, so a mistake they share would pass. If the review missed nothing, the rule of three would put the label error rate in this file below about 6% (3/50, the 50 being one random row per combination). The three rows generated after the read (raw lines 151 to 153) were checked the same way: 0 wrong labels. The domain check is Step 6.
 
 Two labeling conventions came up in the read and are now decided:
 
@@ -27,9 +27,11 @@ Two labeling conventions came up in the read and are now decided:
 
 **Removed after reading:** one line per row. `finish()` in `generate.py` drops them, so a rebuild with `--from-raw` keeps them out. Line numbers are raw-file lines (`_raw_line` in each row).
 
-- Raw line 130 (combination 43): vendor phone (555) 555-0100 has no 555, so it may reach a real person.
-- Raw line 131 (combination 43): vendor phone (555) 555-0100, same reason.
-- Raw line 132 (combination 43): vendor phone (555) 555-0100, same reason.
+- Raw line 130 (combination 43): the vendor phone has no 555, so it may reach a real person.
+- Raw line 131 (combination 43): same reason.
+- Raw line 132 (combination 43): same reason.
+
+The numbers are left out here; they stay in the gitignored raw file.
 
 That emptied combination 43 (one-person shop, born-digital, reversal), so it was generated again (raw lines 151 to 153) after the prompt gained a rule that every phone number is 555-01xx. The other 147 rows came from the prompt without that rule.
 
@@ -82,7 +84,7 @@ Two things, scored separately in Week 4:
    - true values under OCR swaps a reader can undo
 2. **The app's status**, which is decided by app code from the extraction: a negative Invoice fails, and a document with nothing billed fails because there is no extraction to post.
 
-A score measures how often the extractor agrees with the generator's labels. With a label error rate of e, the true rate of following the rules is within e points of the score either way. The Step 3 read puts e below about 6% (0 wrong in 50), so a 95% score means about 89% to 100%. A larger checked sample would narrow that range. Scores per combination show which rule or layout breaks, and the set works as a regression check when the prompt or model changes. The rows are text, so scoring the PDF extractor on them means rendering each one to a PDF first.
+A score measures how often the extractor agrees with the generator's labels, not how often it is right. The read can't rule out mistakes the reviewers share (see Labels), so the 6% bound there is conditional and this file gives no range for the true rate; a larger sample checked by a domain expert would. Scores per combination show which rule or layout breaks, and the set works as a regression check when the prompt or model changes. The rows are text, so scoring the PDF extractor on them means rendering each one to a PDF first.
 
 ## What it cannot validate
 
@@ -90,7 +92,7 @@ A score measures how often the extractor agrees with the generator's labels. Wit
 - **Reading scans.** The production extractor reads page images. Scanned rows here are text with simulated OCR errors, which stand in for a scan but don't reproduce how a vision model misreads one.
 - **Failure modes outside the axes:** two invoices in one file, bundles longer than two pages, invoices printed from email, handwriting, splitting multi-site bills by cost center, and matching vendors against the vendor master.
 - **Decoy-free credits, reversals and empty documents.** Each outcome comes with its usual decoy, so those cases don't exist here.
-- **Labels where generator and extractor share a blind spot.** Both are GPT-5.6 models (Sol writes, Luna extracts), and a person has checked 52 of the 150 final labels (49 from the 50-row read, less one row removed afterward, plus the 3 regenerated rows).
+- **Labels where generator and extractor share a blind spot.** Both are GPT-5.6 models (Sol writes, Luna extracts), and a person has checked 52 of the 150 final labels (50 read, less 1 removed afterward, plus 3 regenerated).
 - **Whether a rule is right.** The generator labeled every row by the extractor's own prompt, so a wrong rule (the fax rule, the statement date as invoice date, null for an account number) produces matching wrong labels and a perfect score. Only the goldens and shadow mode test the rules themselves.
 - **Invoice-number generation.** When a bill has no number, as in ex3 and ex6, the pipeline makes one up. These rows only check that the extracted number is null.
 - **An exact rerun.** The model has no dated snapshot, so regenerating may give different rows.
@@ -106,7 +108,7 @@ From the Step 3 read. These rows are fine to keep, and good material for the Ste
 
 ## What it must never be compared against
 
-The real ground truth is `use_case/evals/golden.private.jsonl` (posted values, gitignored) with its PDFs, `ex1.pdf` to `ex6.pdf`, in private storage at `$EVAL_S3_URI`; in production, it is the posted records shadow mode compares against. These rows are not ground truth. A score on them is not an accuracy figure, and must never be reported next to, averaged with, or used in place of a score on the goldens or from shadow mode.
+The real ground truth is `use_case/evals/golden.private.jsonl` (gitignored) with its PDFs, `ex1.pdf` to `ex6.pdf`, in private storage at `$EVAL_S3_URI`. Its expected values were reviewed against each document: what the document shows, even where the posted record differs (ex1), and the posted value only where the document is blank (the Week 1 row in `decisions.md`). Shadow mode in production compares against posted records, so its accuracy is a lower bound. These rows are not ground truth. A score on them is not an accuracy figure, and must never be reported next to, averaged with, or used in place of a score on the goldens or from shadow mode.
 
 ## Leakage check — outward (what left)
 
@@ -144,11 +146,11 @@ no real record was an input.
 **Are the goldens disjoint from anything the system was, or will be, tuned on?**
 No. Overlap: scenarios, not text. Week 1's `EXTRACTION_PROMPT` was written in the same commit
 as the goldens (`c4b660a`), and three of its rules restate golden `why` fields: not an account
-number (ex3), and a trailing minus means negative and not a referenced original invoice (ex4).
-This file's labels follow that prompt, and its outcome axis covers the ex3 and ex4 scenarios
+number (ex3); and, for ex4, a trailing minus means negative (the app then posts the negative
+`CreditMemo` positive) and not a referenced original invoice. This file's labels follow that prompt, and its outcome axis covers the ex3 and ex4 scenarios
 and ex5's `failed`. Its seeds were invented, so it shares no text with the goldens. If Week 8
 fine-tunes on this file, scores on ex3 to ex5 are inflated by training on their scenarios;
-report them apart from ex1, ex2 and ex6. Whether the goldens also shaped the the client production
+report them apart from ex1, ex2 and ex6. Whether the goldens also shaped the client's production
 prompt's later revisions isn't recorded. Any Week 8 fine-tuning set must also exclude the
 `ex1` to `ex6` PDFs themselves, matched on the sha256 in `golden.jsonl`.
 

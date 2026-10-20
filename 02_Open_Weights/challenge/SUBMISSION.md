@@ -33,7 +33,7 @@ Seeds: three invented rows in [`seeds.jsonl`](./seeds.jsonl), none taken from re
 [`DATASHEET.md`](../../use_case/data/DATASHEET.md): prototyping vs backtesting, what it can and cannot validate, what it must never be compared against, and whether the goldens are disjoint from anything the system is tuned on.
 
 ### Model/endpoint decision
-[`use_case/decisions.md`](../../use_case/decisions.md), the Week 2 rows: the generator model, and the `vendor_phone` fax rule.
+[`use_case/decisions.md`](../../use_case/decisions.md), the Week 2 rows: the generator model, the dedupe threshold, and the `vendor_phone` fax rule.
 
 ---
 

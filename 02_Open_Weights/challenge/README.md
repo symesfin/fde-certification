@@ -10,6 +10,12 @@
 
 ---
 
+## Bring it to work
+
+My four lines (project, data, model or endpoint, approval) are in [`SUBMISSION.md`](./SUBMISSION.md#bring-it-to-work).
+
+---
+
 ## Overview
 
 > **Read first:** [`use_case/CHARTER.md`](../../use_case/CHARTER.md) and your
