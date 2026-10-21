@@ -88,6 +88,9 @@ Status:
 - "ok": errors is [] and extraction is filled in.
 - "failed", nothing to extract (no amount due anywhere): extraction is null and errors has one line like "model could not read the document: <what the document is>, no invoice total".
 - "failed", reversal (doc_type Invoice with a negative total): extraction is filled in and errors has one line like "negative total <invoice_total> on an Invoice: reversal, enter by hand".
+- "failed", no line items (the document lists no charges): extraction is filled in and errors has one line: "no line items to check the total against".
+- "failed", line items that don't add up (an Invoice's line_items don't sum to invoice_total, or a CreditMemo's don't match it in amount; a statement carrying an unpaid previous balance is one): extraction is filled in and errors has one line like "line items sum to <sum>, total is <invoice_total>".
+- A document that fails more than one way has one errors line for each, in the order above.
 - No other status.
 
 "extraction" is what the pipeline's extractor should return. These are the instructions it is given; label by them exactly:
@@ -138,16 +141,26 @@ class Output(BaseModel):
 
     @model_validator(mode="after")
     def follows_the_status_rules(self):
+        # Week 1's build_response rules, restated. Rows without a line_items key
+        # were labeled before the line-item rules (synthetic_v1) and keep the
+        # rules they were labeled under.
         extraction = self.extraction
-        if extraction and extraction.doc_type not in ("Invoice", "CreditMemo"):
-            raise ValueError(f"doc_type {extraction.doc_type!r}")
-        reversal = bool(
-            extraction and extraction.doc_type == "Invoice" and extraction.invoice_total < 0
-        )
-        if self.status == "ok" and (self.errors or extraction is None or reversal):
-            raise ValueError("ok needs an extraction, no errors and no negative Invoice")
-        if self.status == "failed" and not (self.errors and (extraction is None or reversal)):
-            raise ValueError("failed needs errors, and either no extraction or a negative Invoice")
+        broken = []
+        if extraction and extraction.doc_type == "Invoice" and extraction.invoice_total < 0:
+            broken.append("reversal")
+        if extraction and "line_items" in extraction.model_fields_set:
+            lines_sum = sum(li.amount for li in extraction.line_items)
+            if not extraction.line_items:
+                broken.append("no line items")
+            elif extraction.doc_type == "CreditMemo":
+                if abs(lines_sum) != abs(extraction.invoice_total):
+                    broken.append("line items don't add up")
+            elif lines_sum != extraction.invoice_total:
+                broken.append("line items don't add up")
+        if self.status == "ok" and (self.errors or extraction is None or broken):
+            raise ValueError(f"ok needs an extraction, no errors and no broken rule: {broken}")
+        if self.status == "failed" and not (self.errors and (extraction is None or broken)):
+            raise ValueError("failed needs errors, and either no extraction or a broken rule")
         return self
 
 
