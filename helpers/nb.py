@@ -83,4 +83,20 @@ def bootstrap(*, require: tuple[str, ...] = (), start: Path | None = None) -> Co
             f"Copy {root / '.env.template'} to {root / '.env'} and fill it in."
         )
 
+    _quiet_litellm()
     return from_env(root)
+
+
+def _quiet_litellm() -> None:
+    """Stop LiteLLM printing a red "Provider List" line on every call.
+
+    It prints that whenever a model is missing from its price list -- any gateway
+    alias -- even though the call succeeds. The only switch is a module attribute.
+    `import_module`, not an import statement, because tier 1 may not import
+    litellm; `find_spec` first, so a sandbox without it is left alone.
+    """
+    import importlib
+    import importlib.util
+
+    if importlib.util.find_spec("litellm") is not None:
+        importlib.import_module("litellm").suppress_debug_info = True

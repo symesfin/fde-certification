@@ -13,7 +13,9 @@ dependencies = [
     "python-dotenv>=1.2",      # helpers tier 1
     "litellm>=1.90",           # helpers tier 2
     "numpy>=2.0",              # from Week 3 on; the from-scratch retrieval math
-    "pillow>=11.0",            # Week 3 S2 reads the packaged photo corpus
+    "pillow>=11.0",            # Week 3 S6 reads the charts and keyframes
+    "pydantic>=2",             # Week 1's challenge app and Week 2 S4 import it directly;
+                               # litellm brings it anyway, declared so a litellm change cannot remove it
 ]
 
 [dependency-groups]
@@ -52,29 +54,28 @@ harness = [
     "deepagents>=0.7.6",
 ]
 
-# The per-session opt-ins: packages a single notebook declares in its PEP 723
-# block, or that a tier-2 helper imports inside a function.
+# One group per week whose notebooks need packages the root environment does not
+# ship. The notebooks run under `--sandbox` without any of these (each resolves
+# its own PEP 723 header); install a week's group when you open its notebooks
+# from the root environment instead, or to run `make execute` on that week.
 #
-#     uv sync --group extras
+#     make setup-week W=3        # uv sync --group week3
+#     make setup-all             # every optional group
 #
-# **These used to exist only in [tool.fde].sandbox-only, and that was a trap.**
-# That list is read by scripts/mirrors.py; `uv` has never heard of it. So the
-# packages were never in uv.lock, they got installed by hand once, and the next
-# plain `uv sync` removed them again -- silently, because nothing imports them at
-# module scope. A student then hits ModuleNotFoundError in a notebook that worked
-# yesterday, having done nothing wrong. Both entries are needed and they are not
-# redundant: sandbox-only is what the notebook may declare, this is what the root
-# environment installs. See the `setup` target in the Makefile, which keeps any
-# optional group that is already present.
-#
-# Versions match what the notebooks declare inline, so the sandbox and the root
-# environment resolve to the same thing.
-extras = [
-    "pydantic>=2",                # 01 TC1 and 02 S4 -- structured output
-    "ragas==0.4.3",               # 04 S1
+# Pins are copied from the notebooks' headers, and scripts/mirrors.py fails CI
+# if a notebook and its group disagree.
+week3 = [
+    "rank-bm25>=0.2.2",           # S5 -- the chunk index on the Agentic RAG side
+    "pandas>=2.2",                # S5 -- the results table
+    "mcp>=1.2",                   # S5 -- litellm imports it when tools= is passed
+    "qdrant-client>=1.12",        # S6 -- the vector database, in-process
+    "fastembed>=0.7",             # S6 -- CLIP and the local text model as ONNX, no torch
+    "opencv-python-headless>=4.10",  # S6 -- keyframe sampling
+    "llama-index-core>=0.14",     # S6 -- the one-step opener (MultiModalVectorStoreIndex)
+]
+week4 = [
+    "ragas==0.4.3",               # S7 -- Faithfulness, behind a run button
     "langchain-community<0.4",    # ragas' own pin; unpinned, `import ragas` fails
-    "chromadb>=0.5",              # helpers/vectorstore
-    "qdrant-client>=1.12",        # helpers/vectorstore
 ]
 
 # ---------------------------------------------------------------------------
@@ -115,15 +116,13 @@ torch = [{ index = "pytorch" }]
 # week it arrives. Keep this list empty in the repository every week ships from.
 helpers-pending = [
     "adapter",      # fine-tuning
-    "embeddings",   # retrieval
+    "embeddings",   # dense retrieval -- the Week 3 bonus swap; no session imports it yet
     "guardrails",   # guardrails
     "judge",        # evals
     "llm",          # the packaged model call, referenced from retrieval onward
     "memory",       # memory
-    "rag",          # retrieval
     "tools",        # agent architecture
     "trace",        # agent architecture
-    "vectorstore",  # retrieval
 ]
 
 # Packages a notebook may declare in its PEP 723 block WITHOUT a matching entry in
@@ -135,16 +134,15 @@ helpers-pending = [
 sandbox-only = [
     "torch",
     "transformers",
-    "chromadb",
     "qdrant-client",
+    "fastembed",
+    "opencv-python-headless",
+    "rank-bm25",
+    "pandas",
+    "mcp",
+    "llama-index-core",
     "pydantic",
-    # Ragas drags the LangChain stack in with it, which this project otherwise
-    # does not have and does not want in the root environment. It is declared
-    # here so `--sandbox` resolves it for the one task that uses it.
-    #
-    # The `langchain-community` pin is Ragas': it requires that package with no
-    # upper bound while still importing a module current releases removed, so an
-    # unpinned install fails at `import ragas`.
+    # Ragas drags the LangChain stack in with it; see the week4 group for the pin.
     "ragas",
     "langchain-community",
     # The harness sessions build the same agent three ways. Only the from-scratch

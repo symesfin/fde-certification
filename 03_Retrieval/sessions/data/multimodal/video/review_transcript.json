@@ -1,0 +1,41 @@
+{
+  "video": "review.mp4",
+  "fps": 8,
+  "segments": [
+    {
+      "id": "seg_000",
+      "start": 0.0,
+      "end": 6.0,
+      "text": "Welcome to the Northline Broadband 2024 support review. We will cover ticket volume, retention, network reliability, and how the team grew.",
+      "onscreen_asset": null
+    },
+    {
+      "id": "seg_001",
+      "start": 6.0,
+      "end": 16.0,
+      "text": "Ticket volume reached a record twenty-seven thousand in the fourth quarter, driven by the regional pricing change and storm damage, up from twelve thousand in the first quarter.",
+      "onscreen_asset": "fig_tickets_quarterly.png"
+    },
+    {
+      "id": "seg_002",
+      "start": 16.0,
+      "end": 26.0,
+      "text": "Monthly churn spiked to six point two percent in March because of a billing bug that double-charged a cohort, then improved to three point nine percent in April after the onboarding rewrite.",
+      "onscreen_asset": "fig_churn_monthly.png"
+    },
+    {
+      "id": "seg_003",
+      "start": 26.0,
+      "end": 37.0,
+      "text": "On reliability, Coast ninety-fifth percentile latency reached two hundred and forty milliseconds, the worst of any region, which repeatedly paged the on-call engineer. A regional cache brought it back to target.",
+      "onscreen_asset": "fig_latency_region.png"
+    },
+    {
+      "id": "seg_004",
+      "start": 37.0,
+      "end": 45.0,
+      "text": "Finally, the support organisation grew to a hundred and five people, with field engineering the largest team at forty-five.",
+      "onscreen_asset": "fig_headcount_team.png"
+    }
+  ]
+}

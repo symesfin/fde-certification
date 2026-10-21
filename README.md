@@ -132,6 +132,7 @@ Open a notebook:
 ```bash
 make nb F=01_Product_Engineering/sessions/S1_Enterprise_Dev_Environment.py
 make nb F=02_Open_Weights/sessions/S3_Local_Inference_Fundamentals.py
+make nb F=03_Retrieval/sessions/S5_Agentic_Retrieval.py
 ```
 
 That runs it in its own sandboxed environment from the dependencies declared

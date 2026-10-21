@@ -10,10 +10,10 @@ Quicklinks are here to help you **easily navigate each week's materials** for th
 
 **👨‍💻 [Weekly Technical Challenge](../01_Product_Engineering/challenge)**
 
-| 🎓 Session | ⏺️ Recording |
-|:-----------|:-------------|
-| [Session 1 - Enterprise Dev Environment](../01_Product_Engineering/sessions/S1_Enterprise_Dev_Environment.py) | [Recording!](https://us02web.zoom.us/rec/share/XpIbU5FmhvbOY7BF93c0lCa8qpRlY2FlJHujuX5ie-BqD45SSa18-1qGstdolAO6.s6QyuNj1DTx60eU_) <br> passcode: `@2aw.9?%` | 
-| [Session 2 - The Craft of AI Consulting](../01_Product_Engineering#-session-2--thinking-like-a-product-person) | [Recording!](https://us02web.zoom.us/rec/share/ccfxk1FE9vKFhXRraEUqoTmLNeG9VNgugfFZOrlZZYz2nwMVvV0N1fcOa6O3FEE6.qLTiL8WWMbYPMwaQ) <br> passcode: `1?wY&U97` | 
+| 🎓 Session | ⏺️ Recording | 🖼️ Slides |
+|:-----------|:-------------|:-------------|
+| [Session 1 - Enterprise Dev Environment](../01_Product_Engineering/sessions/S1_Enterprise_Dev_Environment.py) | [Recording!](https://us02web.zoom.us/rec/share/XpIbU5FmhvbOY7BF93c0lCa8qpRlY2FlJHujuX5ie-BqD45SSa18-1qGstdolAO6.s6QyuNj1DTx60eU_) <br> passcode: `@2aw.9?%` | [Slides](https://canva.link/q825s1z0soae51u) |
+| [Session 2 - The Craft of AI Consulting](../01_Product_Engineering#-session-2--thinking-like-a-product-person) | [Recording!](https://us02web.zoom.us/rec/share/ccfxk1FE9vKFhXRraEUqoTmLNeG9VNgugfFZOrlZZYz2nwMVvV0N1fcOa6O3FEE6.qLTiL8WWMbYPMwaQ) <br> passcode: `1?wY&U97` | [Slides](https://canva.link/4h8vbao5ksatz57) |
 
 ---
 
@@ -23,10 +23,23 @@ Quicklinks are here to help you **easily navigate each week's materials** for th
 
 **👨‍💻 [Weekly Technical Challenge](../02_Open_Weights/challenge)**
 
-| 🎓 Session | ⏺️ Recording |
-|:-----------|:-------------|
-| [Session 3 - Local Inference Fundamentals](../02_Open_Weights/sessions/S3_Local_Inference_Fundamentals.py) | [Recording!](https://us02web.zoom.us/rec/share/32K8POoLKNXyfORuqNLCs4LdfFP75e1LqBLzmN5GeRuOGo0dBDdXF6nNZQ-BaMXH.vXKjWl1HSUGnXr2T) <br> passcode: `$V+*3m@g` |
-| [Session 4 - Synthetic Data Generation](../02_Open_Weights/sessions/S4_Synthetic_Data_Generation.py) | [Recording!](https://us02web.zoom.us/rec/share/yUo7IkNCgwnrQhtr46eg4pW0pGV3lApIIjNggqQ1BP_KWotUNfAiwZAfqhiSVhzX.6-qFXps_PDjEpUfj) <br> passcode: `E5mY7h+9` |
+| 🎓 Session | ⏺️ Recording | 🖼️ Slides |
+|:-----------|:-------------|:-------------|
+| [Session 3 - Local Inference Fundamentals](../02_Open_Weights/sessions/S3_Local_Inference_Fundamentals.py) | [Recording!](https://us02web.zoom.us/rec/share/32K8POoLKNXyfORuqNLCs4LdfFP75e1LqBLzmN5GeRuOGo0dBDdXF6nNZQ-BaMXH.vXKjWl1HSUGnXr2T) <br> passcode: `$V+*3m@g` | [Slides](https://canva.link/gwpnuy77h9331xh) |
+| [Session 4 - Synthetic Data Generation](../02_Open_Weights/sessions/S4_Synthetic_Data_Generation.py) | [Recording!](https://us02web.zoom.us/rec/share/yUo7IkNCgwnrQhtr46eg4pW0pGV3lApIIjNggqQ1BP_KWotUNfAiwZAfqhiSVhzX.6-qFXps_PDjEpUfj) <br> passcode: `E5mY7h+9` | [Slides](https://canva.link/snm1js94ongg7kk) |
+
+---
+
+## [Week 3 - Retrieval](../03_Retrieval/)
+
+🔍 One agent, two corpus interfaces — and everything that is not text
+
+**👨‍💻 [Weekly Technical Challenge](../03_Retrieval/challenge)**
+
+| 🎓 Session | ⏺️ Recording | 🖼️ Slides |
+|:-----------|:-------------|:-------------|
+| [Session 5 - Agentic Retrieval](../03_Retrieval/sessions/S5_Agentic_Retrieval.py) | [Recording!](https://us02web.zoom.us/rec/share/2N7OCVlMBM1zyIE-VzUaaiwLEfByKZNtfjGQuPBEAlU6EETnuPWn7ISeRrwNjPmL.5aCsDtyGW7elj1K8) <br> passcode: `lHhex*4.` | [Slides](https://canva.link/oxp3pbq8tlnd9a6) |
+| [Session 6 - Multimodal Retrieval](../03_Retrieval/sessions/S6_Multimodal_Retrieval.py) | Coming soon | Coming soon |
 
 ---
 

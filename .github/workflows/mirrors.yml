@@ -51,6 +51,6 @@ jobs:
       - uses: astral-sh/setup-uv@v9.0.0
         with:
           enable-cache: true
-      - run: uv sync --frozen --group dev
+      - run: uv sync --frozen --group dev --group harness --group week3 --group week4
       - name: Run every notebook, both formats
-        run: uv run --group dev python scripts/check_execute.py
+        run: uv run --group dev --group harness --group week3 --group week4 python scripts/check_execute.py

@@ -45,6 +45,8 @@ Dockerfile    text eol=lf
 *.ipynb  text eol=lf linguist-generated=true
 
 # Never translate these.
+*.mp4   binary
+*.onnx  binary
 *.png   binary
 *.jpg   binary
 *.jpeg  binary

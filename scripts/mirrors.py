@@ -97,6 +97,17 @@ def root_config() -> tuple[str, dict[str, str], set[str]]:
     allow = {
         name.lower() for name in data.get("tool", {}).get("fde", {}).get("sandbox-only", [])
     }
+    # The per-week groups (`week3 = [...]`) are the root pins for sandbox-only
+    # packages: a notebook may declare them without a root dependency, but the
+    # specifier it declares must match the one its week group installs.
+    for group, entries in data.get("dependency-groups", {}).items():
+        if not group.startswith("week"):
+            continue
+        for raw in entries:
+            spec = raw.split("#", 1)[0].strip()
+            name = REQ_NAME_RE.match(spec)
+            if name:
+                specs.setdefault(name.group(1).lower(), spec)
     return specs["marimo"].removeprefix("marimo=="), specs, allow
 
 
@@ -178,8 +189,10 @@ def check_deps(nb: Path, pin: str, specs: dict[str, str], allow: set[str]) -> bo
         ok = False
 
     for name, spec in declared.items():
-        if name in allow or name == "marimo":
+        if name == "marimo":
             continue
+        if name in allow and name not in specs:
+            continue  # sandbox-only with no week group pin (torch, the harness stack): the notebook's call
         if name not in specs:
             fail(
                 f"{rel(nb)}: `{spec}` is in neither [project.dependencies] nor "

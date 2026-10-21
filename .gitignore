@@ -28,8 +28,6 @@ use_case/evals/golden.private.jsonl
 # Whatever the harness sessions' agent writes with its `write_file` tool
 Appendix_A_Harnesses/sessions/workspace/
 
-# Cached HotpotQA release used by scripts/make_retrieval_corpus.py (27 MB, regenerable)
-scripts/.hotpot_validation.parquet
 scripts/.summeval.parquet
 
 # The Claude desktop app saves files it hands you into a folder named after

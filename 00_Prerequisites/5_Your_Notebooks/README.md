@@ -43,7 +43,31 @@ A browser tab opens on `localhost`. That is the whole thing.
 
 > `--sandbox` builds the environment from the notebook's own header rather than
 > your root environment. It is slower the first time and immune to everything
-> that usually goes wrong. Drop it if you would rather use the root environment.
+> that usually goes wrong.
+
+### Two ways to run a notebook
+
+| | Command | Needs |
+| --- | --- | --- |
+| **Sandboxed** (the default, used everywhere in this course) | `uv run marimo edit --sandbox <file.py>` or `make nb F=<file.py>` | nothing installed; the notebook's own header lists its packages |
+| **Root environment** | `uv run marimo edit <file.py>` | that week's package group: `make setup-week W=3` for Week 3, `W=4` for Week 4 |
+
+The root environment is what `make setup` builds, and it is deliberately small:
+the challenge apps, `make check` and the helpers run there, and the notebooks
+do not need it. Some weeks' notebooks import packages the root environment does
+not ship (Week 3's BM25 index, Qdrant and FastEmbed; Week 4's Ragas). Under
+`--sandbox` that is handled for you. Without it, `ModuleNotFoundError` on the
+first cell means you skipped `make setup-week W=<n>` — run it once and reopen.
+`make env` (or `uv run python scripts/check_env.py`) tells you which week
+groups your root environment has right now, and the command for any it lacks.
+`make setup-all` installs every optional group at once (about 3 GB, mostly
+torch).
+
+One thing the two routes share: `uv run` syncs the root environment before it
+starts marimo, even with `--sandbox`. So a stale `uv.lock` (someone changed
+`pyproject.toml` and did not run `uv lock`) shows up as a *Missing packages*
+popup on the sandboxed route too. That is `uv.lock`'s fault, not the
+notebook's — `uv lock` once at the repo root fixes it.
 
 ---
 

@@ -1,0 +1,13 @@
+quarter,region,tickets_k,p95_latency_ms,churn_pct,nps,notes
+Q1 2024,North,4.2,118,4.6,24,Steady; routers over three years old driving intermittent tickets
+Q1 2024,Central,3.9,176,5.0,21,Billing queries after the January price list
+Q1 2024,Coast,3.9,232,5.8,19,Fixed-wireless weather faults
+Q2 2024,North,6.1,121,4.4,32,Onboarding rewrite launched
+Q2 2024,Central,5.8,181,4.7,30,Stable
+Q2 2024,Coast,6.1,238,5.3,27,First latency alerts at peak
+Q3 2024,North,5.0,120,4.3,30,Stable
+Q3 2024,Central,4.8,183,4.5,29,Stable
+Q3 2024,Coast,5.2,244,5.1,22,Partial outage at the aggregation point; most on-call pages of the year
+Q4 2024,North,9.2,119,4.1,43,Regional pricing change drove billing queries
+Q4 2024,Central,8.7,178,4.2,41,Storm damage in the first week of December
+Q4 2024,Coast,9.1,146,4.5,37,Coast cache live; latency back under the 150 ms objective

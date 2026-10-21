@@ -5,7 +5,7 @@
 #     "python-dotenv>=1.2",
 #     "litellm>=1.90",
 #     "numpy>=2.0",
-#     "pydantic",
+#     "pydantic>=2",
 # ]
 # ///
 
