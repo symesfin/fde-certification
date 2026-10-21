@@ -1,7 +1,8 @@
 """Generate the sample PDFs the page offers under "Try a sample".
 
 Every vendor, address, phone and amount is made up. The vendors that should
-match are in vendors.sample.csv; one deliberately isn't. Regenerate with:
+match are in vendors.sample.csv; one deliberately isn't. One more is a test
+file the page doesn't offer. Regenerate with:
 
     uv run --with reportlab python samples/make_samples.py
 """
@@ -83,6 +84,21 @@ def propane():
     c.save()
 
 
+def propane_tampered_total():
+    # Test file, not on the page. Known vendor by phone; the lines sum to
+    # 1,449.64 but the printed total is 1,000,000.00. Should come back failed.
+    c = canvas.Canvas(str(OUT / "propane_invoice_tampered_total.pdf"), pagesize=letter)
+    header(c, "Prairie Propane Supply",
+           ["410 Tank Farm Rd", "Prairieview, OK 73000", "Phone (405) 555-0104"],
+           "INVOICE", [("Invoice No.", "PPS-20418"), ("Invoice Date", "09/30/2026"), ("Due Date", "10/30/2026")])
+    table(c, [("Propane delivery, Site 14 barn tank", "812 gal", "$1.72", "1,396.64"),
+              ("Delivery fee", "1", "$35.00", "35.00"),
+              ("Tank rental, Sept", "1", "$18.00", "18.00")],
+          "TOTAL DUE", "$1,000,000.00")
+    footer(c, "Sample document for the Auto Invoicing demo. All names and figures are fictitious.")
+    c.save()
+
+
 def feed_with_weigh_ticket():
     c = canvas.Canvas(str(OUT / "feed_invoice_with_weigh_ticket.pdf"), pagesize=letter)
     header(c, "Heartland Feed Company", ["88 Mill St", "Cornfield, OK 73001"],
@@ -136,6 +152,7 @@ def reversal():
 
 
 if __name__ == "__main__":
-    for make in (propane, feed_with_weigh_ticket, credit_memo, unknown_utility, reversal):
+    for make in (propane, propane_tampered_total, feed_with_weigh_ticket, credit_memo,
+                 unknown_utility, reversal):
         make()
     print("\n".join(sorted(p.name for p in OUT.glob("*.pdf"))))

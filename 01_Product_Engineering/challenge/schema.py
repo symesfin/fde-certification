@@ -27,19 +27,27 @@ class Request(BaseModel):
 
 
 class LineItem(BaseModel):
-    account_number: str
-    site_location: str
+    account_number: str | None = None  # for splitting; not asked for yet
+    site_location: str | None = None  # for splitting; not asked for yet
     description: str
     amount: Decimal = Field(description="Negative for credits.")
+
+
+class DocType(StrEnum):
+    INVOICE = "Invoice"
+    CREDIT_MEMO = "CreditMemo"
 
 
 class InvoiceExtraction(BaseModel):
     """One per file. A file holding two invoices still yields one: a known gap."""
 
-    doc_type: str = Field(description="Invoice or CreditMemo, read from the document.")
+    doc_type: DocType = Field(description="Read from the document. Any other spelling fails.")
     vendor_name: str
     invoice_number: str | None = Field(
         description="None when the bill has none; the pipeline generates one."
+    )
+    account_number: str | None = Field(
+        default=None, description="Starts a generated invoice number, as the accountants' scheme does."
     )
     invoice_total: Decimal = Field(
         description="As printed, sign included. The sign rule lives in the app: a "
@@ -48,8 +56,10 @@ class InvoiceExtraction(BaseModel):
     invoice_date: date
     due_date: date | None = None
     vendor_phone: str | None = None
-    line_items: list[LineItem] = []
-    field_confidences: dict[str, float] = Field(
+    line_items: list[LineItem] = Field(
+        default=[], description="Must sum to invoice_total, or the file fails."
+    )
+    field_confidences: dict[str, float | None] = Field(
         default={}, description="Kept for the reviewer. Does not decide the route."
     )
 
@@ -70,7 +80,7 @@ class ImportRecord(BaseModel):
     Dates become MM/DD/YYYY and totals 5,073.05 only when the XML is written.
     """
 
-    doc_type: str = Field(description="Invoice or CreditMemo.")
+    doc_type: DocType
     total: Decimal
     date: date
     number: str = Field(description='A credit memo gets "CM" appended, as the accountants do.')
@@ -87,7 +97,7 @@ class ImportRecord(BaseModel):
 
 
 class Status(StrEnum):
-    OK = "ok"  # passed, no warnings
+    OK = "ok"  # passed; warnings possible
     VENDOR_UNMATCHED = "vendor_unmatched"  # passed, vendor_id blank, flagged
     FAILED = "failed"  # dead-letter queue, with errors
 

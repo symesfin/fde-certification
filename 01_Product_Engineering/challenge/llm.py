@@ -39,9 +39,12 @@ EXTRACTION_PROMPT = """Extract these fields from the attached invoice PDF. Retur
 - vendor_name: the company that sent the document (the seller), not the bill-to, ship-to or remit-to party.
 - vendor_phone: the vendor's phone number as printed in the document. Skip the banner a fax machine prints across the top of a page, and any number labeled fax. If several remain, the first one. null if none.
 - invoice_number: the invoice, statement or credit memo number as printed. Not an account number, a PO number, or a referenced original invoice. null if none.
+- account_number: the bill-to customer's account number with this vendor, as printed. null if none.
 - invoice_total: the grand total with the sign it has on the document, as a decimal string like "1234.56" or "-51.28". A trailing minus ("51.28-") or parentheses ("(51.28)") mean negative. No currency symbols or thousands separators.
 - invoice_date: the document date, YYYY-MM-DD.
-- due_date: the payment due date, YYYY-MM-DD. null if none."""
+- due_date: the payment due date, YYYY-MM-DD. null if none.
+- line_items: every charge line printed on the vendor's bill, as a list of {"description": "...", "amount": "1234.56"}. Write each amount in the same format as invoice_total: a decimal string with the sign it has on its line, where a trailing minus or parentheses mean negative, and no currency symbols or thousands separators. Take each figure from the page; don't compute or adjust any. Include tax, fees and discounts. Leave out the previous balance, payments received, subtotals, the total itself, and lines on attached pages such as allocation sheets or weigh tickets. [] if the bill lists no charges.
+- field_confidences: for each key above except line_items, a number from 0 to 1 for how sure you are that you read it correctly."""
 
 
 class UnreadableDocument(Exception):

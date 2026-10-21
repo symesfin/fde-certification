@@ -1188,15 +1188,15 @@ build against it — measuring it afterwards is a different, weaker thing.
 
 | Line | Number | Source |
 | --- | --- | --- |
-| tokens per call | 1,569 in, 271 out (mean of 6 real invoices) | **measured** |
+| tokens per call | 1,778 in, 1,453 out (mean of 6 real invoices; 271 out before the prompt asked for line items and confidences) | **measured** |
 | price per 1M tokens | $0.20 in, $1.20 out (`gpt-5.6-luna`) | **looked up**: LiteLLM's price table, Azure list price; the Bedrock price behind the gateway isn't confirmed |
-| cost per call | 1,569 / 1e6 × $0.20 + 271 / 1e6 × $1.20 = **$0.00064** | computed |
+| cost per call | 1,778 / 1e6 × $0.20 + 1,453 / 1e6 × $1.20 = **$0.0021** | computed |
 | calls per day | 160 (the ~1,100/wk in scope) | looked up (charter) |
-| model per year | $0.00064 × 160 × 250 = **$26** | computed |
+| model per year | $0.0021 × 160 × 250 = **$84** | computed |
 | minutes per pass | 4 (simple invoices take 3–5) | looked up, est. |
 | loaded $/hour | $35 ($55k junior/associate salary × 1.35 overhead ÷ 2,080 h; range $30–45) | looked up, est. |
 | human per year | 4 / 60 × $35 × 160 × 250 = **$93,000** | computed |
-| **ratio** | **~3,600× — comfortable** | computed |
+| **ratio** | **~1,100× — comfortable** | computed |
 
 The 55–90 hrs/wk across the team (est., $100k–165k a year) includes allocation-sheet
 work, which is out of scope for Week 1. Accountants still review 100% of results after
@@ -1204,11 +1204,13 @@ cutover, so the saving is smaller than the full pass, but even a tenth of it lea
 model cost as noise. Cost never came up with the client.
 
 **p95 latency target:** 30 s per invoice up to 10 pages (est.). Today's path includes a
-person at the verification screen, so anything under a minute is faster. Measured: median
-2.4 s, slowest 4.4 s across 6 invoices (too few for a real p95). **Neither cost nor latency
-is likely to stop this being used:** in the drop-folder workflow nobody waits on the result,
-and the real adoption risk is trust in accuracy. If one, latency, and only where someone
-waits on a screen.
+person at the verification screen, so anything under a minute is faster. Measured on the
+six goldens: median 7.1 s, slowest 15.8 s (ex2, 7 pages, 58 lines); the run before took
+29.2 s on ex2. Six calls are too few for a real p95. Time tracks output tokens, which grow
+with the line count (median 2.4 s, slowest 4.4 s before the prompt asked for line items).
+**Neither cost nor latency is likely to stop this being used:** in the drop-folder workflow
+nobody waits on the result, and the real adoption risk is trust in accuracy. If one,
+latency, and only where someone waits on a screen.
 
 **What I would swap:**
 - **Data:** the six examples are real posted invoices, run locally; the vendor list is a mock (3 real business rows, 20 fake). At work: the real vendor master (active vendors for the company, via the database query) and real PDFs from the accountants' folders via the sync agent and object storage.

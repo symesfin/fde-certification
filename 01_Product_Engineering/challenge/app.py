@@ -23,7 +23,7 @@ from gradio import Server
 from pydantic import ValidationError
 
 from llm import stream_reply, UnreadableDocument, extract_fields
-from schema import ImportRecord, InvoiceExtraction, Request, Response
+from schema import DocType, ImportRecord, InvoiceExtraction, Request, Response
 
 app = Server()
 
@@ -59,6 +59,7 @@ ACCOUNTANT_MAP: dict[str, str] = {}  # folder shortname -> full name
 
 VENDORS_CSV = os.getenv("VENDORS_CSV", str(Path(__file__).parent / "vendors.csv"))
 FUZZY_THRESHOLD = float(os.getenv("VENDOR_MATCH_THRESHOLD", "0.8"))
+PHONE_NAME_FLOOR = float(os.getenv("VENDOR_PHONE_NAME_FLOOR", "0.5"))
 _PHONE_COLUMNS = ("phone_1", "phone_2", "phone_3")
 
 
@@ -78,6 +79,7 @@ class VendorMatch(NamedTuple):
     vendor_name: str
     recognition: str  # the phone number or name the match used
     method: str  # "phone" | "fuzzy_name" | "none"
+    phone_rejected: str = ""  # vendor whose phone matched a bill naming someone else
 
 
 class _Vendor(NamedTuple):
@@ -87,7 +89,7 @@ class _Vendor(NamedTuple):
 
 
 def _normalize_phone(raw: str) -> str:
-    """Digits only; drop a leading US country code. "+1 (580) 237-4691" -> "5802374691"."""
+    """Digits only; drop a leading US country code. "+1 (580) 555-0123" -> "5805550123"."""
     digits = re.sub(r"\D", "", raw)
     if len(digits) == 11 and digits.startswith("1"):
         return digits[1:]
@@ -115,18 +117,24 @@ def _vendors() -> tuple[_Vendor, ...]:
 
 
 def match_vendor(vendor_name: str, vendor_phone: str | None) -> VendorMatch:
-    """Vendor master lookup: phone first, then fuzzy name. Same rules as production."""
+    """Vendor master lookup: phone first, then fuzzy name. Production's rules except where noted."""
     vendors = _vendors()
 
     # 1. Phone: prefix match, because the vendor master pads numbers with trailing
     #    zeros ("58023746910000"). Shared numbers go to the closest name. Fewer
     #    than 10 digits is a fragment that would prefix-match the wrong vendor,
     #    so it falls through to the name match. (Differs from production; filed.)
+    #    A hit whose name scores below PHONE_NAME_FLOOR is no match, and the name
+    #    match isn't tried: phone and name point at different vendors, so a
+    #    person decides. In production an accountant sees the name; an ok result
+    #    here gets no look. (Differs from production.)
     digits = _normalize_phone(vendor_phone or "")
     if len(digits) >= 10:
         hits = [v for v in vendors if any(p.startswith(digits) for p in v.phones)]
         if hits:
             best = max(hits, key=lambda v: _name_similarity(vendor_name, v.vendor_name))
+            if _name_similarity(vendor_name, best.vendor_name) < PHONE_NAME_FLOOR:
+                return VendorMatch("", vendor_name, "", "none", best.vendor_name)
             return VendorMatch(best.vendor_id, best.vendor_name, vendor_phone, "phone")
 
     # 2. Fuzzy name: best ratio wins, accepted at or above the threshold.
@@ -180,7 +188,7 @@ def build_response(req: Request) -> Response:
         return _failed(req.source_key, f"model could not read the document: {e}")
 
     # Credit memos keep a positive total; the printed minus only marks the credit.
-    total = abs(ext.invoice_total) if ext.doc_type == "CreditMemo" else ext.invoice_total
+    total = abs(ext.invoice_total) if ext.doc_type == DocType.CREDIT_MEMO else ext.invoice_total
 
     errors = []
     if not ext.vendor_name.strip():
@@ -191,6 +199,23 @@ def build_response(req: Request) -> Response:
         errors.append(f"negative total {total} on an Invoice: reversal, enter by hand")
     elif total == 0:
         errors.append("total is zero")
+    # The printed lines are a second reading of the total. Signed on an Invoice,
+    # so a credit read as one doesn't pass; a credit memo may print its lines
+    # without the minus its total carries, so there only the amount must agree.
+    # No lines fails rather than skips the check, or a model that drops them
+    # would wave any total through. The lines leave out a statement's previous
+    # balance and payments, so a statement carrying an unpaid balance fails
+    # instead of posting that balance a second time.
+    if not ext.line_items:
+        errors.append("no line items to check the total against")
+    else:
+        lines_sum = sum(li.amount for li in ext.line_items)
+        if ext.doc_type == DocType.CREDIT_MEMO:
+            agree = abs(lines_sum) == abs(ext.invoice_total)
+        else:
+            agree = lines_sum == ext.invoice_total
+        if not agree:
+            errors.append(f"line items sum to {lines_sum}, total is {ext.invoice_total}")
     if errors:
         return _failed(req.source_key, *errors, extraction=ext)
 
@@ -201,17 +226,31 @@ def build_response(req: Request) -> Response:
     # 3. Vendor match. Lookup outages raise; no match is a status, not an error.
     match = match_vendor(ext.vendor_name, ext.vendor_phone)
     status = "ok"
-    if match.method == "none":
+    if match.phone_rejected:
+        status = "vendor_unmatched"
+        warnings.append(f"phone {ext.vendor_phone} is {match.phone_rejected!r}'s, but the bill "
+                        f"names {ext.vendor_name!r}; vendor_id left blank")
+    elif match.method == "none":
         status = "vendor_unmatched"
         warnings.append(f"no vendor master match for {ext.vendor_name!r}; vendor_id left blank")
 
     batch_no = req.processing_id.replace("-", "")[:12]
+    # A generated number comes from the document, never the run: the same bill
+    # must get the same number every time, or the ERP's duplicate check misses it.
+    # The account number goes first when printed, as in the accountants' utility
+    # scheme, so one utility's same-day bills for several accounts don't collide.
     number = (ext.invoice_number or "").strip()
-    if not number:
-        number = f"{match.vendor_id}{ext.invoice_date:%m%d}-{batch_no}"
+    stem = re.sub(r"[^0-9A-Za-z]", "", ext.account_number or "") or match.vendor_id
+    generated = []
+    if not number and stem:
+        number = f"{stem}{ext.invoice_date:%m%d%y}"
+        generated.append("invoice_number")
         warnings.append(f"no invoice number on document; generated {number} "
                         "(accountants' scheme not known yet)")
-    if ext.doc_type == "CreditMemo" and not number.upper().endswith("CM"):
+    elif not number:
+        warnings.append("no invoice number on document and no account number or vendor_id "
+                        "to build one from; number left blank")
+    if number and ext.doc_type == DocType.CREDIT_MEMO and not number.upper().endswith("CM"):
         number += "CM"
 
     record = ImportRecord(
@@ -230,8 +269,8 @@ def build_response(req: Request) -> Response:
 
     # 4. Response
     return Response(status=status, record=record, extraction=ext, errors=[],
-                    warnings=warnings, vendor_match_method=match.method,
-                    source_key=req.source_key)
+                    warnings=warnings, generated_fields=generated,
+                    vendor_match_method=match.method, source_key=req.source_key)
 
 
 def _failed(source_key: str, *errors: str,
