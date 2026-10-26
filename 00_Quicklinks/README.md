@@ -39,7 +39,7 @@ Quicklinks are here to help you **easily navigate each week's materials** for th
 | 🎓 Session | ⏺️ Recording | 🖼️ Slides |
 |:-----------|:-------------|:-------------|
 | [Session 5 - Agentic Retrieval](../03_Retrieval/sessions/S5_Agentic_Retrieval.py) | [Recording!](https://us02web.zoom.us/rec/share/2N7OCVlMBM1zyIE-VzUaaiwLEfByKZNtfjGQuPBEAlU6EETnuPWn7ISeRrwNjPmL.5aCsDtyGW7elj1K8) <br> passcode: `lHhex*4.` | [Slides](https://canva.link/oxp3pbq8tlnd9a6) |
-| [Session 6 - Multimodal Retrieval](../03_Retrieval/sessions/S6_Multimodal_Retrieval.py) | Coming soon | Coming soon |
+| [Session 6 - Multimodal Retrieval](../03_Retrieval/sessions/S6_Multimodal_Retrieval.py) | [Recording!](https://us02web.zoom.us/rec/share/Mes_AsM362yK3wDlNOmkJYux0shqqdUPDrr2nZRc9eDHxKrIUUxqFvI3wsK9v-ZI.nSF1Fxup29WveNu2) <br> passcode: `5E!?2i7C` | [Slides](https://canva.link/l4wz4ni88qlpq1x) |
 
 ---
 
