@@ -74,8 +74,8 @@ week3 = [
     "llama-index-core>=0.14",     # S6 -- the one-step opener (MultiModalVectorStoreIndex)
 ]
 week4 = [
-    "ragas==0.4.3",               # S7 -- Faithfulness, behind a run button
-    "langchain-community<0.4",    # ragas' own pin; unpinned, `import ragas` fails
+    "deepeval>=4.3",              # S7 -- the one-step opener, GEval beside the hand judge, the baseline run
+    "mcp>=1.2",                   # S8 -- litellm imports it when tools= is passed, same as Week 3
 ]
 
 # ---------------------------------------------------------------------------
@@ -118,7 +118,6 @@ helpers-pending = [
     "adapter",      # fine-tuning
     "embeddings",   # dense retrieval -- the Week 3 bonus swap; no session imports it yet
     "guardrails",   # guardrails
-    "judge",        # evals
     "llm",          # the packaged model call, referenced from retrieval onward
     "memory",       # memory
     "tools",        # agent architecture
@@ -142,9 +141,7 @@ sandbox-only = [
     "mcp",
     "llama-index-core",
     "pydantic",
-    # Ragas drags the LangChain stack in with it; see the week4 group for the pin.
-    "ragas",
-    "langchain-community",
+    "deepeval",
     # The harness sessions build the same agent three ways. Only the from-scratch
     # one runs on the root environment; the two framework notebooks pull in the
     # whole LangChain stack plus a checkpointer, which nothing else here wants and

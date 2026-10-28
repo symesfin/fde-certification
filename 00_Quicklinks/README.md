@@ -43,4 +43,17 @@ Quicklinks are here to help you **easily navigate each week's materials** for th
 
 ---
 
+## [Week 4 - Evals](../04_Evals/)
+
+📊 Prove it works — a framework first, then the harness it is made of, and the number in your stakeholder's units
+
+**👨‍💻 [Weekly Technical Challenge](../04_Evals/challenge)**
+
+| 🎓 Session | ⏺️ Recording | 🖼️ Slides |
+|:-----------|:-------------|:-------------|
+| [Session 7 - Practical Evals](../04_Evals/sessions/S7_Practical_Evals.py) | Coming soon | Coming soon |
+| [Session 8 - Agent Evals via Simulation](../04_Evals/sessions/S8_Agent_Evals_via_Simulation.py) | Coming soon | Coming soon |
+
+---
+
 📖 Lost on a word? [`GLOSSARY.md`](../GLOSSARY.md) has every term the course has used so far, one sentence each, with the week it first comes up.

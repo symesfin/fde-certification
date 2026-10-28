@@ -72,7 +72,7 @@ So the pattern throughout is: **build the primitive from scratch, then name the
 library that does it properly.** A tool loop is about thirty lines; you write
 those, then you see why a real one adds schema derivation and error handling. A
 retriever is a dot product; you write that, then you use a vector store. An eval
-harness is a loop and a scorer; you write it, then Week 4 shows you Ragas.
+harness is a loop and a scorer; you write it, then Week 4 shows you DeepEval.
 
 After that, picking a framework is a normal engineering decision and you can
 read its source when it misbehaves. That is the whole aim — the frameworks are
@@ -133,6 +133,7 @@ Open a notebook:
 make nb F=01_Product_Engineering/sessions/S1_Enterprise_Dev_Environment.py
 make nb F=02_Open_Weights/sessions/S3_Local_Inference_Fundamentals.py
 make nb F=03_Retrieval/sessions/S5_Agentic_Retrieval.py
+make nb F=04_Evals/sessions/S7_Practical_Evals.py
 ```
 
 That runs it in its own sandboxed environment from the dependencies declared

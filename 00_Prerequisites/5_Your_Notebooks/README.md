@@ -50,14 +50,29 @@ A browser tab opens on `localhost`. That is the whole thing.
 | | Command | Needs |
 | --- | --- | --- |
 | **Sandboxed** (the default, used everywhere in this course) | `uv run marimo edit --sandbox <file.py>` or `make nb F=<file.py>` | nothing installed; the notebook's own header lists its packages |
-| **Root environment** | `uv run marimo edit <file.py>` | that week's package group: `make setup-week W=3` for Week 3, `W=4` for Week 4 |
+| **Root environment** | `uv run python scripts/nb.py <file.py>` — or by hand, `uv sync --inexact --group week4` then `uv run python -m marimo edit --no-sandbox <file.py>` | that week's package group, which the script installs for you (`make setup-week W=4` does the same) |
+
+**On a managed Windows laptop, use the root-environment route.** The sandbox
+builds a fresh environment every time a notebook's header changes and launches
+the `marimo.exe` inside it; a Windows Application Control policy that blocks
+executables it has not seen before stops that with *"An Application Control
+policy has blocked this file (os error 4551)"* — and the same policy can block
+`.venv\Scripts\marimo.exe`, so even the un-sandboxed `uv run marimo edit`
+fails. `scripts/nb.py` never launches a new executable: it syncs the week
+group into `.venv` and starts marimo through the Python interpreter that is
+already running. Same notebook, same package pins — `scripts/mirrors.py` keeps
+a week group's pins equal to its notebooks' headers. Write the block down in
+`use_case/ecosystem.md`; it is exactly the kind of control the deployment
+week asks you to name, and the fix at work is asking IT to allow executables
+under `.venv\Scripts` and the `uv` cache.
 
 The root environment is what `make setup` builds, and it is deliberately small:
 the challenge apps, `make check` and the helpers run there, and the notebooks
 do not need it. Some weeks' notebooks import packages the root environment does
-not ship (Week 3's BM25 index, Qdrant and FastEmbed; Week 4's Ragas). Under
+not ship (Week 3's BM25 index, Qdrant and FastEmbed; Week 4's DeepEval). Under
 `--sandbox` that is handled for you. Without it, `ModuleNotFoundError` on the
-first cell means you skipped `make setup-week W=<n>` — run it once and reopen.
+first cell means you skipped `make setup-week W=<n>` — run it once and reopen,
+or open with `scripts/nb.py`, which runs it for you.
 `make env` (or `uv run python scripts/check_env.py`) tells you which week
 groups your root environment has right now, and the command for any it lacks.
 `make setup-all` installs every optional group at once (about 3 GB, mostly

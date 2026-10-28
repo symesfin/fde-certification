@@ -37,3 +37,6 @@ scripts/.summeval.parquet
 # (and friends) somewhere no import will ever find, reading as maintained code.
 Claude outputs/
 .DS_Store
+
+# DeepEval writes its run cache here (04_Evals S7); regenerable
+.deepeval/

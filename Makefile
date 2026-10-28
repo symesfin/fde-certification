@@ -23,7 +23,7 @@ help:
 # a transitive dependency of the base environment (`pydantic` would be wrong:
 # litellm pulls it in regardless). `rank_bm25` and `ragas` are pulled by nothing
 # else, so they are true signals for their week groups.
-OPTIONAL_GROUPS = local:torch harness:langgraph week3:rank_bm25 week4:ragas
+OPTIONAL_GROUPS = local:torch harness:langgraph week3:rank_bm25 week4:deepeval
 WEEK_GROUPS = week3 week4
 
 setup:

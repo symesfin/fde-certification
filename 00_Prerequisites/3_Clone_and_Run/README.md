@@ -167,7 +167,10 @@ make nb F=01_Product_Engineering/sessions/S1_Enterprise_Dev_Environment.py
 ```
 
 That runs it in its own sandbox from the dependencies declared inside the file,
-so it works even if `make setup` failed.
+so it works even if `make setup` failed. On a managed Windows laptop that
+blocks new executables (error 4551), use `uv run python scripts/nb.py <file.py>`
+instead — [guide 5](../5_Your_Notebooks/README.md#two-ways-to-run-a-notebook)
+explains why.
 
 > **Prefer Jupyter?** Every notebook ships with an `.ipynb` next to it. Those are
 > **generated** from the `.py` — read or run them freely, but make edits in the
