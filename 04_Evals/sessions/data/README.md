@@ -31,6 +31,7 @@ uv run --with pyarrow python scripts/make_eval_dataset.py
 | File | What is in it |
 | --- | --- |
 | `claims.json` | the fictional claims system S8's tools read and write: `policies`, `claims`, `handler_authority_gbp` |
+| `scenarios.jsonl` | ten composed scenarios for S8's gate — one `helpers.simulation.Scenario` per line, produced by S8b's atoms (`compose_scenario`, seeded with `crc32` so the set is identical on every run) |
 | `articles.jsonl` | `id`, `text` — the source article |
 | `judgments.jsonl` | `article_id`, `summary_id`, `summary`, and four scores from 1 to 5 |
 

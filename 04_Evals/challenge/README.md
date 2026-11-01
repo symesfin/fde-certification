@@ -37,10 +37,11 @@ are the assignment** — and the conclusions you can defend from them.
 > framework, write the harness it is made of, score with functions before
 > models, check a judge before believing it, generate the failures your
 > goldens did not contain, put an interval on the result, and compare two
-> prompts on every scorer. Session 8 had you simulate a user, score the whole
-> conversation, catch an agent that said the right words without checking,
-> and see why one run is a sample of one. This is where you point all of it at
-> your own endpoint.
+> prompts on every scorer. Session 8 had you draw the agent, run the
+> framework's agent metrics, decide what to write and what to import, and gate
+> a change on a saved baseline — and its from-scratch companion showed the
+> lying agent and why one run is a sample of one. This is where you point all
+> of it at your own endpoint.
 >
 > ⏰ **This challenge is due before Week 5's session, and Step 7's demo needs
 > a real person's calendar.** Book that person first.
@@ -91,9 +92,9 @@ is going to ask you for.
 | 3 | Which dimension of "correct" two people at your firm would disagree on — and whether you should score it at all | S7 |
 | 4 | Which component of your system you would change next, the scorer column you expect to move, the business number it translates to — and how many cases the interval needs before it could show it | S7 |
 | 5 | What your real users withhold until asked, and what your agent would do if it assumed the answer instead of asking | S8 |
-| 6 | What right-in-different-words and right-words-without-checking answers look like for your agent, and which of your checks would tell them apart | S8 |
-| 7 | Which `pass^k` you would put in an SLA, and how many repeats per scenario you can afford on every commit versus nightly | S8 |
-| 8 | Whether your success condition can be stated as an assertion about state rather than about text — and what that would let you stop scoring | S8 |
+| 6 | Whether your success condition can be stated as an assertion about state rather than about text — and what that would let you stop scoring | S8 |
+| 7 | What right-in-different-words and right-words-without-checking answers look like for your agent, and which of your checks would tell them apart | S8b (self-study) |
+| 8 | Which `pass^k` you would put in an SLA, and how many repeats per scenario you can afford on every commit versus nightly | S8b (self-study) |
 
 > **Jumping to one.** Open the notebook, then add the anchor to your browser's
 > address bar — `#question-7`. It works once the notebook has finished loading.
@@ -254,8 +255,8 @@ Then **run both dumb baselines** through the same `run_eval`:
 | **Echo** | returns the input | If your endpoint does not beat this, something is broken upstream |
 | **Oracle** | returns the golden output | **If this does not score 1.0 on every scorer, the scorer is wrong** — and you have just saved yourself Week 8 |
 
-The oracle is not a formality. Session 7's `contains_required` and Session 8's
-keyword success check both look correct and both fail an answer that is right
+The oracle is not a formality. Session 7's `contains_required` and the
+keyword success check in Session 8's from-scratch companion both look correct and both fail an answer that is right
 in different words. The oracle catches the first kind. Step 5 catches the
 second.
 
@@ -358,8 +359,9 @@ set will assume your system fails more than it does.
 ## Step 5 — Scenarios, one a refusal, with repeats *(if your app holds a conversation)*
 
 > **Optional for a single-turn endpoint; not optional for anything that holds
-> a conversation.** Session 8's lying agent said exactly the right words
-> without calling a single tool and passed every text check. If your app
+> a conversation.** The lying agent in Session 8's from-scratch companion
+> said exactly the right words without calling a single tool and passed every
+> text check. If your app
 > talks to people across turns, or calls tools, a single-turn eval will pass
 > that agent too, and this step is where you catch it. If your endpoint
 > answers one question and stops, skip to Step 6 and say so in the decision
@@ -367,11 +369,13 @@ set will assume your system fails more than it does.
 
 Session 8 showed conversations that all ended with the right answer and
 were all failures. To see those you score the **trajectory**, and a
-trajectory needs a user, so you simulate one.
+trajectory needs a user, so you simulate one — `helpers.simulation` has the
+loop, the scripted user and a model user; what it cannot have is your
+scenarios or the verifier that reads your system's state.
 
 **Write three scenarios** in `use_case/evals/scenarios.py`, each a goal plus
-something the user knows and will not volunteer until asked — Session 8's
-`Scenario` shape, with `knows`, `success` and `must_not`. The windscreen, the
+something the user knows and will not volunteer until asked —
+`helpers.simulation.Scenario`, with `knows`, `success` and `must_not`. The windscreen, the
 stolen laptop and the total loss in that file are one insurer's three; yours
 are the same shape with your own values:
 
@@ -385,8 +389,9 @@ are the same shape with your own values:
 Run them with the scripted user first, then with a model user. **If the user
 is a model, run each scenario at least three times and report the spread** —
 turns taken, `reached goal`, and `pass^k` — because one run of a
-non-deterministic user is a sample of one. Session 8's table is the shape:
-three scenarios × three to five repeats, minutes and a few cents.
+non-deterministic user is a sample of one. The five-run table in Session 8's
+from-scratch companion is the shape: three scenarios × three to five repeats,
+minutes and a few cents.
 
 > **Your system does not have to be multi-turn to be scored this way.** If
 > what you have is a single-turn endpoint, wrap it as `agent(traj)` and let it
@@ -396,12 +401,13 @@ three scenarios × three to five repeats, minutes and a few cents.
 > of scenarios are won without it, and finding out which is exactly the kind of
 > thing that stops you building a memory layer in Week 7 that you did not need.
 
-Two checks before you believe any of it, both from Session 8:
+Two checks before you believe any of it, both from Session 8's from-scratch
+companion:
 
 - **Test the simulated user against an oracle agent.** A user that cannot be
   satisfied by a correct answer is broken and will fail everything you point
   it at.
-- **Test the success check against a paraphrasing agent.** Session 8's
+- **Test the success check against a paraphrasing agent.** The notebook's
   `user_is_satisfied` was a keyword match, and an agent that answered every
   scenario correctly in its own words scored zero — and the oracle did not
   reveal it, because the oracle was written from the keyword. If your success
@@ -686,9 +692,9 @@ is going to ask you for.
 | 3 | Which dimension of "correct" two people at your firm would disagree on — and whether you should score it at all | S7 |
 | 4 | Which component of your system you would change next, the scorer column you expect to move, the business number it translates to — and how many cases the interval needs before it could show it | S7 |
 | 5 | What your real users withhold until asked, and what your agent would do if it assumed the answer instead of asking | S8 |
-| 6 | What right-in-different-words and right-words-without-checking answers look like for your agent, and which of your checks would tell them apart | S8 |
-| 7 | Which `pass^k` you would put in an SLA, and how many repeats per scenario you can afford on every commit versus nightly | S8 |
-| 8 | Whether your success condition can be stated as an assertion about state rather than about text — and what that would let you stop scoring | S8 |
+| 6 | Whether your success condition can be stated as an assertion about state rather than about text — and what that would let you stop scoring | S8 |
+| 7 | What right-in-different-words and right-words-without-checking answers look like for your agent, and which of your checks would tell them apart | S8b (self-study) |
+| 8 | Which `pass^k` you would put in an SLA, and how many repeats per scenario you can afford on every commit versus nightly | S8b (self-study) |
 
 > **Jumping to one.** Open the notebook, then add the anchor to your browser's
 > address bar — `#question-7`. It works once the notebook has finished loading.

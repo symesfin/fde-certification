@@ -51,8 +51,9 @@ Quicklinks are here to help you **easily navigate each week's materials** for th
 
 | 🎓 Session | ⏺️ Recording | 🖼️ Slides |
 |:-----------|:-------------|:-------------|
-| [Session 7 - Practical Evals](../04_Evals/sessions/S7_Practical_Evals.py) | Coming soon | Coming soon |
+| [Session 7 - Practical Evals](../04_Evals/sessions/S7_Practical_Evals.py) | [Recording!](https://us02web.zoom.us/rec/share/fuUYayWPbhc5be28RuDAKqpIAV5elr05tol68j3mQTIVMIEQMblEpXVfe-uHjHD3.JND5CkaU1vmZ041v) <br> passcode: `r*b2uPE0` | [Slides](https://canva.link/m7ch49pue6hyrcy) |
 | [Session 8 - Agent Evals via Simulation](../04_Evals/sessions/S8_Agent_Evals_via_Simulation.py) | Coming soon | Coming soon |
+| [Session 8b - Agent Simulation from Scratch (self-study)](../04_Evals/sessions/S8b_Agent_Simulation_From_Scratch.py) | — | — |
 
 ---
 
