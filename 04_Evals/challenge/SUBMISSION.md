@@ -10,7 +10,7 @@ Use case: [`use_case/CHARTER.md`](../../use_case/CHARTER.md). This week the use 
 | B (page by page) | One call per page, results merged |
 | C (hybrid) | A cheap model classifies pages, each page is read on its own, then assembly sums and cross-checks (account lines vs header, summary vs detail, duplicates) |
 
-**Walkthrough:** the Loom is pending (see *Demo*).
+**Walkthrough:** written, in this file, in place of the Loom video. The demo itself is given live (see *Demo*).
 
 ---
 
