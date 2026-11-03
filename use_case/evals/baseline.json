@@ -1,0 +1,315 @@
+{
+  "name": "utility-C-spike",
+  "fingerprint": "2a6cbdf0f0077529",
+  "n": 17,
+  "means": {
+    "accounts": 1.0,
+    "amounts": 1.0,
+    "usage": 1.0,
+    "header": 1.0,
+    "fully_right": 1.0,
+    "no_silent_error": 1.0
+  },
+  "errors": 0,
+  "seconds": 0.007282375008799136,
+  "meta": {
+    "scorers": [
+      "accounts",
+      "amounts",
+      "fully_right",
+      "header",
+      "no_silent_error",
+      "usage"
+    ],
+    "model": "gemini-3.5-flash",
+    "strategy": "C (page classifier, per-page reads, assembly with checks)",
+    "bills": 17,
+    "headline": "no_silent_error",
+    "label": "spike bills, not held out; replayed recorded runs, not live calls",
+    "ci": {
+      "bootstrap_95": [
+        1.0,
+        1.0
+      ],
+      "wilson_95": [
+        0.8156763396284354,
+        1.0
+      ],
+      "unit": "bill"
+    }
+  },
+  "results": [
+    {
+      "index": 0,
+      "input": "bill-36d79e6e",
+      "expected": "",
+      "actual": "",
+      "scores": {
+        "accounts": 1.0,
+        "amounts": 1.0,
+        "usage": 1.0,
+        "header": 1.0,
+        "fully_right": 1.0,
+        "no_silent_error": 1.0
+      },
+      "error": null,
+      "seconds": 0.00013475003652274609
+    },
+    {
+      "index": 1,
+      "input": "bill-9523ae2e",
+      "expected": "",
+      "actual": "",
+      "scores": {
+        "accounts": 1.0,
+        "amounts": 1.0,
+        "usage": 1.0,
+        "header": 1.0,
+        "fully_right": 1.0,
+        "no_silent_error": 1.0
+      },
+      "error": null,
+      "seconds": 0.0001228750334121287
+    },
+    {
+      "index": 2,
+      "input": "bill-b0878ee9",
+      "expected": "",
+      "actual": "",
+      "scores": {
+        "accounts": 1.0,
+        "amounts": 1.0,
+        "usage": 1.0,
+        "header": 1.0,
+        "fully_right": 1.0,
+        "no_silent_error": 1.0
+      },
+      "error": null,
+      "seconds": 0.00037766696186736226
+    },
+    {
+      "index": 3,
+      "input": "bill-981d47ca",
+      "expected": "",
+      "actual": "",
+      "scores": {
+        "accounts": 1.0,
+        "amounts": 1.0,
+        "usage": 1.0,
+        "header": 1.0,
+        "fully_right": 1.0,
+        "no_silent_error": 1.0
+      },
+      "error": null,
+      "seconds": 0.0003707919968292117
+    },
+    {
+      "index": 4,
+      "input": "bill-e3cae012",
+      "expected": "",
+      "actual": "",
+      "scores": {
+        "accounts": 1.0,
+        "amounts": 1.0,
+        "usage": 1.0,
+        "header": 1.0,
+        "fully_right": 1.0,
+        "no_silent_error": 1.0
+      },
+      "error": null,
+      "seconds": 0.0003855000250041485
+    },
+    {
+      "index": 5,
+      "input": "bill-358f5e15",
+      "expected": "",
+      "actual": "",
+      "scores": {
+        "accounts": 1.0,
+        "amounts": 1.0,
+        "usage": 1.0,
+        "header": 1.0,
+        "fully_right": 1.0,
+        "no_silent_error": 1.0
+      },
+      "error": null,
+      "seconds": 7.804099004715681e-05
+    },
+    {
+      "index": 6,
+      "input": "bill-1882639b",
+      "expected": "",
+      "actual": "",
+      "scores": {
+        "accounts": 1.0,
+        "amounts": 1.0,
+        "usage": 1.0,
+        "header": 1.0,
+        "fully_right": 1.0,
+        "no_silent_error": 1.0
+      },
+      "error": null,
+      "seconds": 6.96660135872662e-05
+    },
+    {
+      "index": 7,
+      "input": "bill-a9009a76",
+      "expected": "",
+      "actual": "",
+      "scores": {
+        "accounts": 1.0,
+        "amounts": 1.0,
+        "usage": 1.0,
+        "header": 1.0,
+        "fully_right": 1.0,
+        "no_silent_error": 1.0
+      },
+      "error": null,
+      "seconds": 6.979104364290833e-05
+    },
+    {
+      "index": 8,
+      "input": "bill-33db8a83",
+      "expected": "",
+      "actual": "",
+      "scores": {
+        "accounts": 1.0,
+        "amounts": 1.0,
+        "usage": 1.0,
+        "header": 1.0,
+        "fully_right": 1.0,
+        "no_silent_error": 1.0
+      },
+      "error": null,
+      "seconds": 6.762502016499639e-05
+    },
+    {
+      "index": 9,
+      "input": "bill-4c48c616",
+      "expected": "",
+      "actual": "",
+      "scores": {
+        "accounts": 1.0,
+        "amounts": 1.0,
+        "usage": 1.0,
+        "header": 1.0,
+        "fully_right": 1.0,
+        "no_silent_error": 1.0
+      },
+      "error": null,
+      "seconds": 8.441600948572159e-05
+    },
+    {
+      "index": 10,
+      "input": "bill-52669141",
+      "expected": "",
+      "actual": "",
+      "scores": {
+        "accounts": 1.0,
+        "amounts": 1.0,
+        "usage": 1.0,
+        "header": 1.0,
+        "fully_right": 1.0,
+        "no_silent_error": 1.0
+      },
+      "error": null,
+      "seconds": 8.129200432449579e-05
+    },
+    {
+      "index": 11,
+      "input": "bill-2f40130b",
+      "expected": "",
+      "actual": "",
+      "scores": {
+        "accounts": 1.0,
+        "amounts": 1.0,
+        "usage": 1.0,
+        "header": 1.0,
+        "fully_right": 1.0,
+        "no_silent_error": 1.0
+      },
+      "error": null,
+      "seconds": 6.808398757129908e-05
+    },
+    {
+      "index": 12,
+      "input": "bill-998aba2c",
+      "expected": "",
+      "actual": "",
+      "scores": {
+        "accounts": 1.0,
+        "amounts": 1.0,
+        "usage": 1.0,
+        "header": 1.0,
+        "fully_right": 1.0,
+        "no_silent_error": 1.0
+      },
+      "error": null,
+      "seconds": 7.366598583757877e-05
+    },
+    {
+      "index": 13,
+      "input": "bill-272ff0a3",
+      "expected": "",
+      "actual": "",
+      "scores": {
+        "accounts": 1.0,
+        "amounts": 1.0,
+        "usage": 1.0,
+        "header": 1.0,
+        "fully_right": 1.0,
+        "no_silent_error": 1.0
+      },
+      "error": null,
+      "seconds": 6.204098463058472e-05
+    },
+    {
+      "index": 14,
+      "input": "bill-ad9a962b",
+      "expected": "",
+      "actual": "",
+      "scores": {
+        "accounts": 1.0,
+        "amounts": 1.0,
+        "usage": 1.0,
+        "header": 1.0,
+        "fully_right": 1.0,
+        "no_silent_error": 1.0
+      },
+      "error": null,
+      "seconds": 6.400002166628838e-05
+    },
+    {
+      "index": 15,
+      "input": "bill-a49eecb4",
+      "expected": "",
+      "actual": "",
+      "scores": {
+        "accounts": 1.0,
+        "amounts": 1.0,
+        "usage": 1.0,
+        "header": 1.0,
+        "fully_right": 1.0,
+        "no_silent_error": 1.0
+      },
+      "error": null,
+      "seconds": 6.262498209252954e-05
+    },
+    {
+      "index": 16,
+      "input": "bill-450fc2bf",
+      "expected": "",
+      "actual": "",
+      "scores": {
+        "accounts": 1.0,
+        "amounts": 1.0,
+        "usage": 1.0,
+        "header": 1.0,
+        "fully_right": 1.0,
+        "no_silent_error": 1.0
+      },
+      "error": null,
+      "seconds": 6.200000643730164e-05
+    }
+  ]
+}

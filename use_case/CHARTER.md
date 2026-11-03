@@ -16,7 +16,7 @@
 
 **Who has it?** One real role, not a department.
 
-AP accountants, each assigned a geographic region — 9 junior/associate accountants (per the AP systems lead, 2026-04-09) — plus one accountant in the same role who handles company-wide vendors such as feed directly.
+AP accountants, each assigned a geographic region — 9 junior/associate accountants (per the client's systems owner, 2026-04-09) — plus one accountant in the same role who handles company-wide vendors such as feed directly.
 
 **What are they trying to do?**
 
@@ -90,5 +90,6 @@ An AI pipeline reads each invoice dropped in the accountant's existing folder, f
 | Week | Decision | Why, and what you rejected |
 | --- | --- | --- |
 | 3 | Retrieval approach | <!-- TC3 --> |
+| 4 | Phase 1 rescoped to utility bills | See the Week 4 rescope row in [`decisions.md`](decisions.md). General invoices move to Phase 2. |
 | 5 | Agent architecture | <!-- TC5 --> |
 | 8 | Model | <!-- TC8 --> |

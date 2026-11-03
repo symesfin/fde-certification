@@ -28,7 +28,7 @@ Myself: I am the client's only engineer and own its deployment. Approval is the 
 | 4 | How do users log in? (Okta, Entra ID, Ping, SAML, homegrown) | Accountants don't: they drop files in their usual network folders and a sync agent pushes them over a private VPN. Engineers use AWS SSO. A web UI would need an auth decision that hasn't been made; the existing private network is the cheapest option. |
 | 5 | Can the app reach the internet? Egress proxy? Allowlist? | Yes, at least to GCP: the pipeline already calls the model there from AWS. |
 | 6 | Where do secrets come from? (Vault, Secrets Manager, Key Vault) | AWS Secrets Manager (the model's service-account credentials). |
-| 7 | Who approves a deployment, and what review does it need? | Cutover: the AP systems lead and the COO sponsor agree based on shadow-mode reports, plus a formal SOW. The sponsor can't approve it alone under the current SOW, so it also needs whoever signs SOWs above him; that role isn't recorded yet. |
+| 7 | Who approves a deployment, and what review does it need? | Cutover: the client's systems owner and the COO sponsor agree based on shadow-mode reports, plus a formal SOW. The sponsor can't approve it alone under the current SOW, so it also needs whoever signs SOWs above him; that role isn't recorded yet. |
 | 8 | Is there an approved internal LLM endpoint already? | No client gateway recorded: production calls Gemini on Vertex AI directly. The course app uses my employer's LLM gateway, which the client allows its invoice data through. |
 
 **What surprised you?**
