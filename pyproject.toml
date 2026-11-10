@@ -77,6 +77,12 @@ week4 = [
     "deepeval>=4.3",              # S7 -- the one-step opener, GEval beside the hand judge, the baseline run
     "mcp>=1.2",                   # S8 -- litellm imports it when tools= is passed, same as Week 3
 ]
+week5 = [
+    "fastmcp>=4.1",               # S10 -- the capability as an MCP server, and its client
+]
+week6 = [
+    "nemoguardrails>=0.24",       # S12 -- the guardrail ladder as rails
+]
 
 # ---------------------------------------------------------------------------
 # torch wheels: CPU by default, and that is a real choice, not a limitation.
@@ -117,10 +123,8 @@ torch = [{ index = "pytorch" }]
 helpers-pending = [
     "adapter",      # fine-tuning
     "embeddings",   # dense retrieval -- the Week 3 bonus swap; no session imports it yet
-    "guardrails",   # guardrails
     "llm",          # the packaged model call, referenced from retrieval onward
     "memory",       # memory
-    "tools",        # agent architecture
     "trace",        # agent architecture
 ]
 
@@ -142,6 +146,8 @@ sandbox-only = [
     "llama-index-core",
     "pydantic",
     "deepeval",
+    "fastmcp",
+    "nemoguardrails",
     # The harness sessions build the same agent three ways. Only the from-scratch
     # one runs on the root environment; the two framework notebooks pull in the
     # whole LangChain stack plus a checkpointer, which nothing else here wants and

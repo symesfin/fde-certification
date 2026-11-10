@@ -62,6 +62,24 @@ def test_kwargs_omits_api_base_when_unset(monkeypatch):
     assert "api_base" not in cfg.kwargs()
 
 
+def test_server_tools_opt_out_goes_only_to_unsloth(monkeypatch):
+    """Other providers reject `enable_tools`, so only an Unsloth key gets it."""
+    monkeypatch.setenv("VLM_MODEL", "openai/vision")
+    monkeypatch.setenv("VLM_API_BASE", "http://127.0.0.1:8890/v1")
+    monkeypatch.setenv("VLM_API_KEY", "sk-unsloth-abc")
+    monkeypatch.setenv("LLM_API_BASE", "http://127.0.0.1:8888/v1")
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-unsloth-def")
+    cfg = config.from_env(Path("/tmp"))
+    assert cfg.without_server_tools(cfg.vlm_kwargs())["extra_body"] == {"enable_tools": False}
+    assert cfg.without_server_tools(cfg.kwargs())["extra_body"] == {"enable_tools": False}
+
+    monkeypatch.setenv("VLM_API_KEY", "sk-proj-hosted")
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-proj-hosted")
+    cfg = config.from_env(Path("/tmp"))
+    assert "extra_body" not in cfg.without_server_tools(cfg.vlm_kwargs())
+    assert "extra_body" not in cfg.without_server_tools(cfg.kwargs())
+
+
 def test_bootstrap_names_the_missing_variable(monkeypatch, tmp_path):
     (tmp_path / "pyproject.toml").write_text("")
     (tmp_path / "helpers").mkdir()
@@ -1628,3 +1646,38 @@ def test_injection_kwargs_requires_an_endpoint_not_just_a_model(monkeypatch, tmp
     kw = config.from_env(tmp_path).injection_kwargs()
     assert kw == {"model": "ollama_chat/qwen2.5:7b",
                   "api_base": "http://localhost:11434", "api_key": "EMPTY"}
+
+
+# ------------------------------------------------------------------ ui.diagram
+
+
+def test_a_diagram_is_embedded_not_linked(monkeypatch, tmp_path):
+    """A linked file would come through marimo's public/ service worker, which is
+    broken on a first open. The SVG has to travel inside the output, with its
+    <title> as the alt text and its own width as the cap."""
+    import base64
+
+    import marimo as mo
+
+    from helpers import ui
+
+    folder = tmp_path / "data" / "diagrams"
+    folder.mkdir(parents=True)
+    svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 300"><title>Data stays "here"</title></svg>'
+    (folder / "S1_Demo_task1.svg").write_text(svg, encoding="utf-8")
+    monkeypatch.setattr(mo, "notebook_dir", lambda: tmp_path)
+
+    markup = ui.diagram("S1_Demo_task1").text
+    assert "data:image/svg+xml;base64," + base64.b64encode(svg.encode()).decode() in markup
+    assert 'alt="Data stays &quot;here&quot;"' in markup
+    assert "max-width:960px" in markup
+
+
+def test_a_missing_diagram_fails_loudly(monkeypatch, tmp_path):
+    import marimo as mo
+
+    from helpers import ui
+
+    monkeypatch.setattr(mo, "notebook_dir", lambda: tmp_path)
+    with pytest.raises(FileNotFoundError):
+        ui.diagram("S1_Nothing_task9")

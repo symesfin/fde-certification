@@ -52,8 +52,32 @@ Quicklinks are here to help you **easily navigate each week's materials** for th
 | 🎓 Session | ⏺️ Recording | 🖼️ Slides |
 |:-----------|:-------------|:-------------|
 | [Session 7 - Practical Evals](../04_Evals/sessions/S7_Practical_Evals.py) | [Recording!](https://us02web.zoom.us/rec/share/fuUYayWPbhc5be28RuDAKqpIAV5elr05tol68j3mQTIVMIEQMblEpXVfe-uHjHD3.JND5CkaU1vmZ041v) <br> passcode: `r*b2uPE0` | [Slides](https://canva.link/m7ch49pue6hyrcy) |
-| [Session 8 - Agent Evals via Simulation](../04_Evals/sessions/S8_Agent_Evals_via_Simulation.py) | Coming soon | Coming soon |
+| [Session 8 - Agent Evals via Simulation](../04_Evals/sessions/S8_Agent_Evals_via_Simulation.py) | [Recording!](https://us02web.zoom.us/rec/share/uwFG1Nf6O6qb7r3PYFQSpq3EECWbGEmocK0mItVAZLd4JO9BVE8pUFNWgq2-X5Q._Qt2D7lQTqMdUIHi) <br> passcode: `3KS!E#RU` | [Slides](https://canva.link/ldi2vpwfko0a4zl) |
 | [Session 8b - Agent Simulation from Scratch (self-study)](../04_Evals/sessions/S8b_Agent_Simulation_From_Scratch.py) | — | — |
+
+---
+
+## [Week 5 - Agent Architecture](../05_Agent_Architecture/)
+
+🧑‍💻 Your demo in front of the room, then one capability six ways — tool, skill, subagent, MCP, Code Mode, UTCP — measured, so the architecture row in your decisions has numbers behind it
+
+**👨‍💻 [Weekly Technical Challenge](../05_Agent_Architecture/challenge)**
+
+| 🎓 Session | ⏺️ Recording | 🖼️ Slides |
+|:-----------|:-------------|:-------------|
+| [Session 9 - Demo Day, with the critique rubric](../05_Agent_Architecture/sessions/S9_Demo_Critique_Rubric.md) | [Recording!](https://us02web.zoom.us/rec/share/B2k2V0xkdzoahopuC2kifjhugTvs2owjTF3KkIahYfF5dga3g6Ov6a5JU6DTw3MF.hH0_5nbax9XDzy4X) <br> passcode: `1yni.s*N` | [Slides](https://canva.link/xrm1agdozo9i7kg) |
+| [Session 10 - Six Ways to Call a Capability](../05_Agent_Architecture/sessions/S10_Six_Ways_to_Call_a_Capability.py) | [Recording!](https://us02web.zoom.us/rec/share/7kCBUCJ6mQ2oXFt0NJiZIwvRTmUX0EYNo5-DMTXlIh4eCWxMEJbN0oQ764djovzc.8FmORNXr3IQXmZTK) <br> passcode: `&AEr4mmZ` | [Slides](https://canva.link/n1itpi53q119stz) |
+
+## [Week 6 - Guardrails & Adversaries](../06_Guardrails/)
+
+🛤️ Break your own app on purpose — hand-written and searched attacks, then a poisoned document — close the hole, prove it stays closed, and price every rung of the guardrail ladder in latency, money and refused users
+
+**👨‍💻 [Weekly Technical Challenge](../06_Guardrails/challenge)**
+
+| 🎓 Session | ⏺️ Recording | 🖼️ Slides |
+|:-----------|:-------------|:-------------|
+| [Session 11 - Prompt Injection](../06_Guardrails/sessions/S11_Prompt_Injection.py) | Coming soon | Coming soon |
+| [Session 12 - The Guardrail Ladder](../06_Guardrails/sessions/S12_The_Guardrail_Ladder.py) | Coming soon | Coming soon |
 
 ---
 

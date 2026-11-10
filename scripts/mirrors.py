@@ -389,7 +389,11 @@ def do_write(targets: list[Path], pin: str) -> int:
         mirror = nb.with_suffix(".ipynb")
         fresh = export(nb)
         changed = not mirror.exists() or mirror.read_text(encoding="utf-8") != fresh
-        mirror.write_text(fresh, encoding="utf-8")
+        if changed:
+            # newline="\n": .gitattributes pins *.ipynb to LF, and the default text
+            # mode would write CRLF on Windows -- which dirtied every mirror in the
+            # tree on each run, even the unchanged ones. Write only when changed.
+            mirror.write_text(fresh, encoding="utf-8", newline="\n")
         print(f"{OK} {rel(mirror)}" + ("  (updated)" if changed else "  (unchanged)"))
     return 0
 

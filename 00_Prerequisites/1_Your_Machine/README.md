@@ -79,7 +79,38 @@ your distribution, then add yourself to the `docker` group so you do not need
 sudo usermod -aG docker $USER    # log out and back in for this to take effect
 ```
 
----
+## 🟩 Node.js — needed from Week 6
+
+Week 6's prompt-injection session runs **promptfoo**, an open-source test
+runner for LLM apps. promptfoo is a Node.js program, and the notebook starts it
+with `npx`, which comes with Node. You need **Node.js 22.22 or newer**
+(promptfoo's own minimum). The current LTS release is fine.
+
+**Windows (PowerShell):**
+```powershell
+winget install OpenJS.NodeJS.LTS
+```
+Or download the LTS installer from [nodejs.org](https://nodejs.org/en/download).
+Open a **new** terminal afterwards so `node` and `npx` are on your `PATH`.
+
+**macOS:**
+```bash
+brew install node
+```
+
+**Linux:** follow the instructions for your distribution on
+[nodejs.org](https://nodejs.org/en/download). Many distributions package an
+older version than 22.22, so check.
+
+Verify, and let `npx` download promptfoo once so the session doesn't wait for
+it (the first run takes about a minute):
+```bash
+node --version                         # v22.22.0 or newer
+npx -y promptfoo@0.125.1 --version     # prints 0.125.1
+```
+
+---
+
 
 ## 🧯 If it's blocked
 

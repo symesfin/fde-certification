@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 456" role="img" aria-labelledby="title desc">
+<title id="title">Authorisation moves out of the prompt, into code the model cannot read</title>
+<desc id="desc">The assistant's model no longer holds the escalation override code or the $50,000 rule. It can ask the refunds service for a refund, but the decision is made there, in code: if the rep's role may not take the action, deny("not authorised"); if the amount is above the rep's approval limit, route_to_human, and a human signs; otherwise proceed. The refunds service holds the override code, so a carrier's note asking the assistant for it finds nothing to ask for. The policy layer is free, takes microseconds and is absolute; the human takes minutes.</desc>
+<style>
+  .bg{fill:#FBFAF7}
+  .frame{fill:none;stroke:#E4E1DA;stroke-width:1}
+  .node{fill:#FFFFFF;stroke:#CBD2DA;stroke-width:1.25}
+  .node-soft{fill:#F2F1EC;stroke:none}
+  .node-accent{fill:#EEF0FF;stroke:#4F46E5;stroke-width:1.75}
+  .node-good{fill:#EAF7EE;stroke:#2F9E44;stroke-width:1.5}
+  .node-warn{fill:#FFF1E8;stroke:#D9480F;stroke-width:1.5}
+  .zone{fill:#F4F5FF;stroke:#4F46E5;stroke-width:1.5;stroke-dasharray:6 4}
+  .zone-plain{fill:none;stroke:#AEB6C0;stroke-width:1.25;stroke-dasharray:4 4}
+  .zone-warn{fill:#FFF6F0;stroke:#D9480F;stroke-width:1.5;stroke-dasharray:6 4}
+  .bar{fill:#B9C0FF}
+  .bar-accent{fill:#4F46E5}
+  .bar-muted{fill:#D5D9DE}
+  .bar-good{fill:#2F9E44}
+  .bar-warn{fill:#D9480F}
+  .edge{fill:none;stroke:#7D8794;stroke-width:1.5}
+  .edge-accent{fill:none;stroke:#4F46E5;stroke-width:2}
+  .edge-good{fill:none;stroke:#2F9E44;stroke-width:2}
+  .edge-warn{fill:none;stroke:#D9480F;stroke-width:2}
+  .dashed{stroke-dasharray:5 4}
+  .rule{fill:none;stroke:#E4E1DA;stroke-width:1}
+  .head{fill:#7D8794}
+  .head-accent{fill:#4F46E5}
+  .head-good{fill:#2F9E44}
+  .head-warn{fill:#D9480F}
+  text{font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,sans-serif;fill:#1F2328;font-size:13px}
+  .title{font-size:17px;font-weight:650}
+  .subtitle{font-size:13px;fill:#5B6470}
+  .label{font-size:13px;font-weight:600}
+  .small{font-size:11.5px;fill:#5B6470}
+  .tiny{font-size:10.5px;fill:#5B6470}
+  .mono{font-family:Consolas,"SF Mono",ui-monospace,"JetBrains Mono",Menlo,monospace;font-size:12px}
+  .t-accent{fill:#4F46E5}
+  .t-good{fill:#2F9E44}
+  .t-warn{fill:#D9480F}
+  .t-muted{fill:#5B6470}
+  .t-inv{fill:#FFFFFF}
+  .chip{fill:#4F46E5}
+  .chip-warn{fill:#D9480F}
+  .chip-good{fill:#2F9E44}
+  .chip-muted{fill:#5B6470}
+  @media (prefers-color-scheme:dark){
+    .bg{fill:#15171C}
+    .frame{stroke:#2A2E36}
+    .node{fill:#1D2027;stroke:#3A414C}
+    .node-soft{fill:#22262E}
+    .node-accent{fill:#23264A;stroke:#8E8CFF}
+    .node-good{fill:#183224;stroke:#5FD07A}
+    .node-warn{fill:#3A2116;stroke:#FF8A4C}
+    .zone{fill:#1A1C33;stroke:#8E8CFF}
+    .zone-plain{stroke:#58606C}
+    .zone-warn{fill:#2A1A13;stroke:#FF8A4C}
+    .bar{fill:#4B4F9E}
+    .bar-accent{fill:#8E8CFF}
+    .bar-muted{fill:#3A414C}
+    .bar-good{fill:#5FD07A}
+    .bar-warn{fill:#FF8A4C}
+    .edge{stroke:#8892A0}
+    .edge-accent{stroke:#8E8CFF}
+    .edge-good{stroke:#5FD07A}
+    .edge-warn{stroke:#FF8A4C}
+    .rule{stroke:#2A2E36}
+    .head{fill:#8892A0}
+    .head-accent{fill:#8E8CFF}
+    .head-good{fill:#5FD07A}
+    .head-warn{fill:#FF8A4C}
+    text{fill:#E6E8EB}
+    .subtitle,.small,.tiny,.t-muted{fill:#9AA4AF}
+    .t-accent{fill:#A5A3FF}
+    .t-good{fill:#5FD07A}
+    .t-warn{fill:#FF8A4C}
+    .t-inv{fill:#15171C}
+    .chip{fill:#8E8CFF}
+    .chip-warn{fill:#FF8A4C}
+    .chip-good{fill:#5FD07A}
+    .chip-muted{fill:#9AA4AF}
+  }
+</style>
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="head-accent" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="arrow-good" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="head-good" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="arrow-warn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="head-warn" d="M0,0 L10,5 L0,10 z"/></marker>
+</defs>
+<rect class="bg" x="0" y="0" width="960" height="456" rx="16"/>
+
+<text class="title" x="32" y="40">Authorisation moves out of the prompt, into code the model cannot read</text>
+<text class="subtitle" x="32" y="62">The assistant can ask. The refunds service decides, with an if statement and no model.</text>
+
+<!-- ============ the assistant ============ -->
+<rect class="zone-plain" x="32" y="84" width="272" height="348" rx="14"/>
+<text class="tiny" x="50" y="108" letter-spacing="1.5" font-weight="700">THE ASSISTANT</text>
+
+<rect class="node" x="50" y="124" width="236" height="48" rx="10"/>
+<text class="label" x="168" y="153" text-anchor="middle">Customer-service rep</text>
+<line class="edge" x1="168" y1="172" x2="168" y2="194" marker-end="url(#arrow)"/>
+<text class="tiny" x="176" y="188">asks for a refund</text>
+
+<rect class="node" x="50" y="196" width="236" height="64" rx="10"/>
+<text class="label" x="168" y="222" text-anchor="middle">The model</text>
+<text class="small" x="168" y="242" text-anchor="middle">prompt, retrieved pages, tools</text>
+
+<rect class="node-soft" x="50" y="284" width="236" height="132" rx="10"/>
+<text class="small" x="66" y="308" font-weight="600">Its prompt no longer holds</text>
+<text class="small" x="66" y="326">the override code or the</text>
+<text class="small" x="66" y="344">$50,000 rule.</text>
+<text class="small t-warn" x="66" y="372" font-weight="600">A carrier's note asking for</text>
+<text class="small t-warn" x="66" y="390" font-weight="600">the code finds nothing to</text>
+<text class="small t-warn" x="66" y="408" font-weight="600">ask for.</text>
+
+<!-- ask -->
+<line class="edge" x1="286" y1="228" x2="342" y2="228" marker-end="url(#arrow)"/>
+<text class="tiny" x="325" y="220" text-anchor="middle">asks</text>
+
+<!-- ============ the refunds service ============ -->
+<rect class="node-accent" x="344" y="84" width="376" height="348" rx="14"/>
+<text class="tiny t-accent" x="362" y="108" letter-spacing="1.5" font-weight="700">LEVEL 4 · POLICY LAYER</text>
+<text class="small t-accent" x="702" y="108" text-anchor="end" font-weight="600">free · µs · absolute</text>
+<text class="label" x="362" y="134">The refunds service</text>
+<line class="rule" x1="362" y1="150" x2="702" y2="150"/>
+
+<text class="mono" x="362" y="184">if not user.may(action, resource):</text>
+<text class="mono t-muted" x="392" y="204">return deny("not authorised")</text>
+<text class="mono" x="362" y="256">if action.value &gt; user.approval_limit:</text>
+<text class="mono t-muted" x="392" y="276">return route_to_human(action)</text>
+<text class="mono" x="362" y="332">return proceed()</text>
+<text class="tiny t-accent" x="702" y="332" text-anchor="end">not a model call</text>
+
+<line class="rule" x1="362" y1="352" x2="702" y2="352"/>
+<text class="small" x="362" y="376" font-weight="600">Holds the escalation override code.</text>
+<text class="small" x="362" y="394">Checked against the rep's role, in code.</text>
+<text class="small" x="362" y="412">The model has never seen it.</text>
+
+<!-- ============ outcomes ============ -->
+<line class="edge-warn" x1="720" y1="194" x2="750" y2="194" marker-end="url(#arrow-warn)"/>
+<rect class="node-warn" x="752" y="168" width="176" height="52" rx="10"/>
+<text class="label" x="840" y="191" text-anchor="middle">Denied</text>
+<text class="small" x="840" y="209" text-anchor="middle">not authorised</text>
+
+<line class="edge" x1="720" y1="266" x2="750" y2="266" marker-end="url(#arrow)"/>
+<rect class="node" x="752" y="234" width="176" height="64" rx="10"/>
+<text class="tiny" x="840" y="252" text-anchor="middle" letter-spacing="1.5" font-weight="700">LEVEL 5 · HUMAN</text>
+<text class="label" x="840" y="271" text-anchor="middle">A human signs</text>
+<text class="small" x="840" y="289" text-anchor="middle">minutes · above the limit</text>
+
+<line class="edge-good" x1="720" y1="328" x2="750" y2="328" marker-end="url(#arrow-good)"/>
+<rect class="node-good" x="752" y="308" width="176" height="40" rx="10"/>
+<text class="label" x="840" y="333" text-anchor="middle">Proceeds</text>
+</svg>

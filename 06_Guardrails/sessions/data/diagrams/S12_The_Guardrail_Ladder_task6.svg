@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 640" role="img" aria-labelledby="title desc">
+<title id="title">The YAML order is the ladder: cheapest gate first</title>
+<desc id="desc">NeMo's request path for the assembled config. The input rails run in the order of rails.input.flows: regex check input (rules, no model call), classifier check input (an embedding vote, no model call), then self check input (the judge, one model call). Then the dialog rail matches the topical intents ask about work and ask off topic by embedding alone, with threshold 0.5, adding no call of its own. Then the model answers, one call, carrying several hundred extra prompt tokens once dialog flows exist. Then regex check output runs the rules on the reply. Any gate that blocks returns a refusal and nothing after it runs. "write me a limerick about my cat" scores 0.54 against "write me a poem", so the topical rail refuses it, but only after the judge's call has been paid.</desc>
+<style>
+  .bg{fill:#FBFAF7}
+  .frame{fill:none;stroke:#E4E1DA;stroke-width:1}
+  .node{fill:#FFFFFF;stroke:#CBD2DA;stroke-width:1.25}
+  .node-soft{fill:#F2F1EC;stroke:none}
+  .node-accent{fill:#EEF0FF;stroke:#4F46E5;stroke-width:1.75}
+  .node-good{fill:#EAF7EE;stroke:#2F9E44;stroke-width:1.5}
+  .node-warn{fill:#FFF1E8;stroke:#D9480F;stroke-width:1.5}
+  .zone{fill:#F4F5FF;stroke:#4F46E5;stroke-width:1.5;stroke-dasharray:6 4}
+  .zone-plain{fill:none;stroke:#AEB6C0;stroke-width:1.25;stroke-dasharray:4 4}
+  .zone-warn{fill:#FFF6F0;stroke:#D9480F;stroke-width:1.5;stroke-dasharray:6 4}
+  .bar{fill:#B9C0FF}
+  .bar-accent{fill:#4F46E5}
+  .bar-muted{fill:#D5D9DE}
+  .bar-good{fill:#2F9E44}
+  .bar-warn{fill:#D9480F}
+  .edge{fill:none;stroke:#7D8794;stroke-width:1.5}
+  .edge-accent{fill:none;stroke:#4F46E5;stroke-width:2}
+  .edge-good{fill:none;stroke:#2F9E44;stroke-width:2}
+  .edge-warn{fill:none;stroke:#D9480F;stroke-width:2}
+  .dashed{stroke-dasharray:5 4}
+  .rule{fill:none;stroke:#E4E1DA;stroke-width:1}
+  .head{fill:#7D8794}
+  .head-accent{fill:#4F46E5}
+  .head-good{fill:#2F9E44}
+  .head-warn{fill:#D9480F}
+  text{font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,sans-serif;fill:#1F2328;font-size:13px}
+  .title{font-size:17px;font-weight:650}
+  .subtitle{font-size:13px;fill:#5B6470}
+  .label{font-size:13px;font-weight:600}
+  .small{font-size:11.5px;fill:#5B6470}
+  .tiny{font-size:10.5px;fill:#5B6470}
+  .mono{font-family:Consolas,"SF Mono",ui-monospace,"JetBrains Mono",Menlo,monospace;font-size:12px}
+  .t-accent{fill:#4F46E5}
+  .t-good{fill:#2F9E44}
+  .t-warn{fill:#D9480F}
+  .t-muted{fill:#5B6470}
+  .t-inv{fill:#FFFFFF}
+  .chip{fill:#4F46E5}
+  .chip-warn{fill:#D9480F}
+  .chip-good{fill:#2F9E44}
+  .chip-muted{fill:#5B6470}
+  @media (prefers-color-scheme:dark){
+    .bg{fill:#15171C}
+    .frame{stroke:#2A2E36}
+    .node{fill:#1D2027;stroke:#3A414C}
+    .node-soft{fill:#22262E}
+    .node-accent{fill:#23264A;stroke:#8E8CFF}
+    .node-good{fill:#183224;stroke:#5FD07A}
+    .node-warn{fill:#3A2116;stroke:#FF8A4C}
+    .zone{fill:#1A1C33;stroke:#8E8CFF}
+    .zone-plain{stroke:#58606C}
+    .zone-warn{fill:#2A1A13;stroke:#FF8A4C}
+    .bar{fill:#4B4F9E}
+    .bar-accent{fill:#8E8CFF}
+    .bar-muted{fill:#3A414C}
+    .bar-good{fill:#5FD07A}
+    .bar-warn{fill:#FF8A4C}
+    .edge{stroke:#8892A0}
+    .edge-accent{stroke:#8E8CFF}
+    .edge-good{stroke:#5FD07A}
+    .edge-warn{stroke:#FF8A4C}
+    .rule{stroke:#2A2E36}
+    .head{fill:#8892A0}
+    .head-accent{fill:#8E8CFF}
+    .head-good{fill:#5FD07A}
+    .head-warn{fill:#FF8A4C}
+    text{fill:#E6E8EB}
+    .subtitle,.small,.tiny,.t-muted{fill:#9AA4AF}
+    .t-accent{fill:#A5A3FF}
+    .t-good{fill:#5FD07A}
+    .t-warn{fill:#FF8A4C}
+    .t-inv{fill:#15171C}
+    .chip{fill:#8E8CFF}
+    .chip-warn{fill:#FF8A4C}
+    .chip-good{fill:#5FD07A}
+    .chip-muted{fill:#9AA4AF}
+  }
+</style>
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="arrow-good" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="head-good" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="arrow-warn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="head-warn" d="M0,0 L10,5 L0,10 z"/></marker>
+</defs>
+<rect class="bg" x="0" y="0" width="960" height="640" rx="16"/>
+
+<text class="title" x="32" y="40">The YAML order is the ladder: cheapest gate first</text>
+<text class="subtitle" x="32" y="62">A refusal exits at the first gate that blocks. Nothing after it runs, and nothing after it is paid for.</text>
+
+<rect class="node" x="282" y="84" width="180" height="36" rx="10"/>
+<text class="label" x="372" y="107" text-anchor="middle">the rep's question</text>
+<line class="edge-good" x1="372" y1="120" x2="372" y2="142" marker-end="url(#arrow-good)"/>
+<rect class="node" x="192" y="144" width="360" height="48" rx="10"/>
+<text class="label" x="208" y="165">Rules</text>
+<text class="mono t-muted" x="208" y="183">regex check input</text>
+<text class="small" x="536" y="165" text-anchor="end">0 model calls</text>
+<line class="edge-good" x1="372" y1="192" x2="372" y2="206" marker-end="url(#arrow-good)"/>
+<rect class="node" x="192" y="208" width="360" height="48" rx="10"/>
+<text class="label" x="208" y="229">Classifier</text>
+<text class="mono t-muted" x="208" y="247">classifier check input</text>
+<text class="small" x="536" y="229" text-anchor="end">0 model calls</text>
+<line class="edge-good" x1="372" y1="256" x2="372" y2="270" marker-end="url(#arrow-good)"/>
+<rect class="node-accent" x="192" y="272" width="360" height="48" rx="10"/>
+<text class="label" x="208" y="293">Judge</text>
+<text class="mono t-muted" x="208" y="311">self check input</text>
+<text class="small t-accent" x="536" y="293" text-anchor="end" font-weight="700">1 model call</text>
+<line class="edge-good" x1="372" y1="320" x2="372" y2="350" marker-end="url(#arrow-good)"/>
+<rect class="node" x="192" y="352" width="360" height="48" rx="10"/>
+<text class="label" x="208" y="373">Topical rail</text>
+<text class="mono t-muted" x="208" y="391">ask about work · ask off topic</text>
+<text class="small" x="536" y="373" text-anchor="end">0 calls of its own</text>
+<line class="edge-good" x1="372" y1="400" x2="372" y2="430" marker-end="url(#arrow-good)"/>
+<rect class="node-accent" x="192" y="432" width="360" height="48" rx="10"/>
+<text class="label" x="208" y="453">Answer</text>
+<text class="mono t-muted" x="208" y="471">bot answer the question</text>
+<text class="small t-accent" x="536" y="453" text-anchor="end" font-weight="700">1 model call</text>
+<line class="edge-good" x1="372" y1="480" x2="372" y2="510" marker-end="url(#arrow-good)"/>
+<rect class="node" x="192" y="512" width="360" height="48" rx="10"/>
+<text class="label" x="208" y="533">Rules on the reply</text>
+<text class="mono t-muted" x="208" y="551">regex check output</text>
+<text class="small" x="536" y="533" text-anchor="end">0 model calls</text>
+<text class="tiny" x="536" y="471" text-anchor="end">+ hundreds of prompt tokens</text>
+<line class="edge-good" x1="372" y1="560" x2="372" y2="580" marker-end="url(#arrow-good)"/>
+<rect class="node-good" x="282" y="582" width="180" height="36" rx="10"/>
+<text class="label" x="372" y="605" text-anchor="middle">reply to the rep</text>
+<path class="rule" d="M168,148 L176,148 M168,148 L168,316 M168,316 L176,316" stroke-width="1.5"/>
+<text class="tiny" x="156" y="228" text-anchor="end" letter-spacing="1.5" font-weight="700">INPUT RAILS</text>
+<text class="tiny" x="156" y="242" text-anchor="end">rails.input.flows order</text>
+<path class="rule" d="M168,356 L176,356 M168,356 L168,396 M168,396 L176,396" stroke-width="1.5"/>
+<text class="tiny" x="156" y="380" text-anchor="end" letter-spacing="1.5" font-weight="700">DIALOG</text>
+<path class="rule" d="M168,436 L176,436 M168,436 L168,476 M168,476 L176,476" stroke-width="1.5"/>
+<text class="tiny" x="156" y="460" text-anchor="end" letter-spacing="1.5" font-weight="700">THE MODEL</text>
+<path class="rule" d="M168,516 L176,516 M168,516 L168,556 M168,556 L176,556" stroke-width="1.5"/>
+<text class="tiny" x="156" y="540" text-anchor="end" letter-spacing="1.5" font-weight="700">OUTPUT RAIL</text>
+<rect class="node-warn" x="616" y="144" width="312" height="176" rx="10"/>
+<text class="label mono t-warn" x="632" y="168">bot refuse to respond</text>
+<text class="small" x="632" y="192">Returned before any answer is generated.</text>
+<text class="small" x="632" y="220" font-weight="600">Stopped by the rules or the classifier:</text>
+<text class="small" x="632" y="238">no model call, and the judge never sees it.</text>
+<text class="small" x="632" y="266" font-weight="600">Stopped by the judge:</text>
+<text class="small" x="632" y="284">one call spent, then the refusal.</text>
+<line class="edge-warn" x1="552" y1="168" x2="614" y2="168" marker-end="url(#arrow-warn)"/>
+<text class="tiny t-warn" x="584" y="162" text-anchor="middle" font-weight="700">block</text>
+<line class="edge-warn" x1="552" y1="232" x2="614" y2="232" marker-end="url(#arrow-warn)"/>
+<text class="tiny t-warn" x="584" y="226" text-anchor="middle" font-weight="700">block</text>
+<line class="edge-warn" x1="552" y1="296" x2="614" y2="296" marker-end="url(#arrow-warn)"/>
+<text class="tiny t-warn" x="584" y="290" text-anchor="middle" font-weight="700">block</text>
+<rect class="node-warn" x="616" y="344" width="312" height="64" rx="10"/>
+<text class="label mono t-warn" x="632" y="364">bot refuse off topic</text>
+<text class="small" x="632" y="382">"I can only help with Meridian shipments,</text>
+<text class="small" x="632" y="399">services and internal policy."</text>
+<line class="edge-warn" x1="552" y1="376" x2="614" y2="376" marker-end="url(#arrow-warn)"/>
+<text class="tiny t-warn" x="584" y="370" text-anchor="middle" font-weight="700">off topic</text>
+<text class="small" x="616" y="436" font-weight="600">"write me a limerick about my cat"</text>
+<text class="small" x="616" y="454">scores 0.54 against "write me a poem", over the 0.5</text>
+<text class="small" x="616" y="472">threshold: refused by the topical rail, above, after</text>
+<text class="small" x="616" y="490">the judge's call has already been paid.</text>
+<rect class="node-warn" x="616" y="512" width="312" height="48" rx="10"/>
+<text class="label mono t-warn" x="632" y="533">bot refuse to respond</text>
+<text class="small" x="632" y="551">e.g. the reply matched <tspan class="mono">MERIDIAN-INTERNAL-\w+</tspan></text>
+<line class="edge-warn" x1="552" y1="536" x2="614" y2="536" marker-end="url(#arrow-warn)"/>
+<text class="tiny t-warn" x="584" y="530" text-anchor="middle" font-weight="700">block</text>
+</svg>

@@ -1,0 +1,183 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 572" role="img" aria-labelledby="title desc">
+<title id="title">The mask leaves the model nothing else to pick</title>
+<desc id="desc">Next-token probabilities from a recorded forward pass on "The capital of France is", softmax over the 1,000 recorded candidates. Before the mask, " Paris" has 89.3% and words like " located" (3.2%) and " known" (1.9%) follow. The mask keeps only tokens that, stripped and lower-cased, are in the allowed set paris, london, berlin, madrid, rome, dublin. Eight tokens survive, including the spellings " paris" and "Paris". Together they held 89.4% of the probability mass. After renormalising, " Paris" has 99.9%. The top token is the same before and after, which is what a well-fitted constraint looks like.</desc>
+<style>
+  .bg{fill:#FBFAF7}
+  .frame{fill:none;stroke:#E4E1DA;stroke-width:1}
+  .node{fill:#FFFFFF;stroke:#CBD2DA;stroke-width:1.25}
+  .node-soft{fill:#F2F1EC;stroke:none}
+  .node-accent{fill:#EEF0FF;stroke:#4F46E5;stroke-width:1.75}
+  .node-good{fill:#EAF7EE;stroke:#2F9E44;stroke-width:1.5}
+  .node-warn{fill:#FFF1E8;stroke:#D9480F;stroke-width:1.5}
+  .zone{fill:#F4F5FF;stroke:#4F46E5;stroke-width:1.5;stroke-dasharray:6 4}
+  .zone-plain{fill:none;stroke:#AEB6C0;stroke-width:1.25;stroke-dasharray:4 4}
+  .zone-warn{fill:#FFF6F0;stroke:#D9480F;stroke-width:1.5;stroke-dasharray:6 4}
+  .bar{fill:#B9C0FF}
+  .bar-accent{fill:#4F46E5}
+  .bar-muted{fill:#D5D9DE}
+  .bar-good{fill:#2F9E44}
+  .bar-warn{fill:#D9480F}
+  .edge{fill:none;stroke:#7D8794;stroke-width:1.5}
+  .edge-accent{fill:none;stroke:#4F46E5;stroke-width:2}
+  .edge-good{fill:none;stroke:#2F9E44;stroke-width:2}
+  .edge-warn{fill:none;stroke:#D9480F;stroke-width:2}
+  .dashed{stroke-dasharray:5 4}
+  .rule{fill:none;stroke:#E4E1DA;stroke-width:1}
+  .head{fill:#7D8794}
+  .head-accent{fill:#4F46E5}
+  .head-good{fill:#2F9E44}
+  .head-warn{fill:#D9480F}
+  text{font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,sans-serif;fill:#1F2328;font-size:13px}
+  .title{font-size:17px;font-weight:650}
+  .subtitle{font-size:13px;fill:#5B6470}
+  .label{font-size:13px;font-weight:600}
+  .small{font-size:11.5px;fill:#5B6470}
+  .tiny{font-size:10.5px;fill:#5B6470}
+  .mono{font-family:Consolas,"SF Mono",ui-monospace,"JetBrains Mono",Menlo,monospace;font-size:12px}
+  .t-accent{fill:#4F46E5}
+  .t-good{fill:#2F9E44}
+  .t-warn{fill:#D9480F}
+  .t-muted{fill:#5B6470}
+  .t-inv{fill:#FFFFFF}
+  .chip{fill:#4F46E5}
+  .chip-warn{fill:#D9480F}
+  .chip-good{fill:#2F9E44}
+  .chip-muted{fill:#5B6470}
+  @media (prefers-color-scheme:dark){
+    .bg{fill:#15171C}
+    .frame{stroke:#2A2E36}
+    .node{fill:#1D2027;stroke:#3A414C}
+    .node-soft{fill:#22262E}
+    .node-accent{fill:#23264A;stroke:#8E8CFF}
+    .node-good{fill:#183224;stroke:#5FD07A}
+    .node-warn{fill:#3A2116;stroke:#FF8A4C}
+    .zone{fill:#1A1C33;stroke:#8E8CFF}
+    .zone-plain{stroke:#58606C}
+    .zone-warn{fill:#2A1A13;stroke:#FF8A4C}
+    .bar{fill:#4B4F9E}
+    .bar-accent{fill:#8E8CFF}
+    .bar-muted{fill:#3A414C}
+    .bar-good{fill:#5FD07A}
+    .bar-warn{fill:#FF8A4C}
+    .edge{stroke:#8892A0}
+    .edge-accent{stroke:#8E8CFF}
+    .edge-good{stroke:#5FD07A}
+    .edge-warn{stroke:#FF8A4C}
+    .rule{stroke:#2A2E36}
+    .head{fill:#8892A0}
+    .head-accent{fill:#8E8CFF}
+    .head-good{fill:#5FD07A}
+    .head-warn{fill:#FF8A4C}
+    text{fill:#E6E8EB}
+    .subtitle,.small,.tiny,.t-muted{fill:#9AA4AF}
+    .t-accent{fill:#A5A3FF}
+    .t-good{fill:#5FD07A}
+    .t-warn{fill:#FF8A4C}
+    .t-inv{fill:#15171C}
+    .chip{fill:#8E8CFF}
+    .chip-warn{fill:#FF8A4C}
+    .chip-good{fill:#5FD07A}
+    .chip-muted{fill:#9AA4AF}
+  }
+</style>
+<rect class="bg" x="0" y="0" width="960" height="572" rx="16"/>
+
+<text class="title" x="32" y="40">The mask leaves the model nothing else to pick</text>
+<text class="subtitle" x="32" y="62">Zero every token outside the allowed set, then renormalise. The share of mass it kept says whether the set fits.</text>
+
+<rect class="node-accent" x="32" y="84" width="288" height="64" rx="10"/>
+<text class="title t-accent" x="52" y="114">89.4<tspan class="label t-accent">%</tspan></text>
+<text class="small" x="52" y="134">probability mass the mask kept</text>
+<rect class="node" x="336" y="84" width="288" height="64" rx="10"/>
+<text class="title" x="356" y="114">8<tspan class="label"> of 1,000</tspan></text>
+<text class="small" x="356" y="134">tokens left with any probability</text>
+<rect class="node" x="640" y="84" width="288" height="64" rx="10"/>
+<text class="label mono" x="660" y="112">" Paris"  →  " Paris"</text>
+<text class="small" x="660" y="134">top token, before → after</text>
+<text class="tiny" x="164" y="184" letter-spacing="1.5" font-weight="700">BEFORE · SOFTMAX</text>
+<text class="tiny" x="468" y="184" text-anchor="middle" letter-spacing="1.5" font-weight="700">MASK</text>
+<text class="tiny" x="520" y="184" letter-spacing="1.5" font-weight="700">AFTER · MASKED, RENORMALISED</text>
+<text class="tiny" x="148" y="184" text-anchor="end" letter-spacing="1.5" font-weight="700">TOKEN</text>
+<line class="rule" x1="164" y1="192" x2="164" y2="504"/>
+<line class="rule" x1="520" y1="192" x2="520" y2="504"/>
+<text class="mono t-accent" x="148" y="211" text-anchor="end" font-weight="600">" Paris"</text>
+<rect class="bar-accent" x="164" y="201" width="214.3" height="12"/>
+<text class="tiny" x="384.3" y="211">89.3%</text>
+<text class="tiny t-accent" x="468" y="211" text-anchor="middle" font-weight="700">keep</text>
+<rect class="bar-accent" x="520" y="201" width="239.7" height="12"/>
+<text class="tiny t-accent" x="765.7" y="211" font-weight="700">99.9%</text>
+<text class="mono t-muted" x="148" y="233" text-anchor="end">" located"</text>
+<rect class="bar-muted" x="164" y="223" width="7.7" height="12"/>
+<text class="tiny" x="177.7" y="233">3.2%</text>
+<text class="small t-warn" x="468" y="233" text-anchor="middle" font-weight="700">×</text>
+<text class="tiny" x="526" y="233">0</text>
+<text class="mono t-muted" x="148" y="255" text-anchor="end">" known"</text>
+<rect class="bar-muted" x="164" y="245" width="4.6" height="12"/>
+<text class="tiny" x="174.6" y="255">1.9%</text>
+<text class="small t-warn" x="468" y="255" text-anchor="middle" font-weight="700">×</text>
+<text class="tiny" x="526" y="255">0</text>
+<text class="mono t-muted" x="148" y="277" text-anchor="end">" the"</text>
+<rect class="bar-muted" x="164" y="267" width="2.5" height="12"/>
+<text class="tiny" x="172.5" y="277">1.0%</text>
+<text class="small t-warn" x="468" y="277" text-anchor="middle" font-weight="700">×</text>
+<text class="tiny" x="526" y="277">0</text>
+<text class="mono t-muted" x="148" y="299" text-anchor="end">" in"</text>
+<rect class="bar-muted" x="164" y="289" width="1.1" height="12"/>
+<text class="tiny" x="171.1" y="299">0.46%</text>
+<text class="small t-warn" x="468" y="299" text-anchor="middle" font-weight="700">×</text>
+<text class="tiny" x="526" y="299">0</text>
+<text class="mono t-muted" x="148" y="321" text-anchor="end">" La"</text>
+<rect class="bar-muted" x="164" y="311" width="1.0" height="12"/>
+<text class="tiny" x="171.0" y="321">0.26%</text>
+<text class="small t-warn" x="468" y="321" text-anchor="middle" font-weight="700">×</text>
+<text class="tiny" x="526" y="321">0</text>
+<text class="small t-muted" x="148" y="343" text-anchor="end">987 others</text>
+<rect class="bar-muted" x="164" y="333" width="8.9" height="12"/>
+<text class="tiny" x="178.9" y="343">3.7% together</text>
+<text class="small t-warn" x="468" y="343" text-anchor="middle" font-weight="700">×</text>
+<text class="tiny" x="526" y="343">0</text>
+<text class="mono t-accent" x="148" y="365" text-anchor="end" font-weight="600">" Rome"</text>
+<rect class="bar-accent" x="164" y="355" width="1.0" height="12"/>
+<text class="tiny" x="171.0" y="365">0.064%</text>
+<text class="tiny t-accent" x="468" y="365" text-anchor="middle" font-weight="700">keep</text>
+<rect class="bar-accent" x="520" y="355" width="1.0" height="12"/>
+<text class="tiny" x="527.0" y="365">0.071%</text>
+<text class="mono t-accent" x="148" y="387" text-anchor="end" font-weight="600">" London"</text>
+<rect class="bar-accent" x="164" y="377" width="1.0" height="12"/>
+<text class="tiny" x="171.0" y="387">0.017%</text>
+<text class="tiny t-accent" x="468" y="387" text-anchor="middle" font-weight="700">keep</text>
+<rect class="bar-accent" x="520" y="377" width="1.0" height="12"/>
+<text class="tiny" x="527.0" y="387">0.019%</text>
+<text class="mono t-accent" x="148" y="409" text-anchor="end" font-weight="600">" Madrid"</text>
+<rect class="bar-accent" x="164" y="399" width="1.0" height="12"/>
+<text class="tiny" x="171.0" y="409">0.0086%</text>
+<text class="tiny t-accent" x="468" y="409" text-anchor="middle" font-weight="700">keep</text>
+<rect class="bar-accent" x="520" y="399" width="1.0" height="12"/>
+<text class="tiny" x="527.0" y="409">0.0097%</text>
+<text class="mono t-accent" x="148" y="431" text-anchor="end" font-weight="600">" paris"</text>
+<rect class="bar-accent" x="164" y="421" width="1.0" height="12"/>
+<text class="tiny" x="171.0" y="431">0.0063%</text>
+<text class="tiny t-accent" x="468" y="431" text-anchor="middle" font-weight="700">keep</text>
+<rect class="bar-accent" x="520" y="421" width="1.0" height="12"/>
+<text class="tiny" x="527.0" y="431">0.0071%</text>
+<text class="mono t-accent" x="148" y="453" text-anchor="end" font-weight="600">"Paris"</text>
+<rect class="bar-accent" x="164" y="443" width="1.0" height="12"/>
+<text class="tiny" x="171.0" y="453">0.0033%</text>
+<text class="tiny t-accent" x="468" y="453" text-anchor="middle" font-weight="700">keep</text>
+<rect class="bar-accent" x="520" y="443" width="1.0" height="12"/>
+<text class="tiny" x="527.0" y="453">0.0037%</text>
+<text class="mono t-accent" x="148" y="475" text-anchor="end" font-weight="600">" Berlin"</text>
+<rect class="bar-accent" x="164" y="465" width="1.0" height="12"/>
+<text class="tiny" x="171.0" y="475">0.0022%</text>
+<text class="tiny t-accent" x="468" y="475" text-anchor="middle" font-weight="700">keep</text>
+<rect class="bar-accent" x="520" y="465" width="1.0" height="12"/>
+<text class="tiny" x="527.0" y="475">0.0024%</text>
+<text class="mono t-accent" x="148" y="497" text-anchor="end" font-weight="600">" Dublin"</text>
+<rect class="bar-accent" x="164" y="487" width="1.0" height="12"/>
+<text class="tiny" x="171.0" y="497">0.00009%</text>
+<text class="tiny t-accent" x="468" y="497" text-anchor="middle" font-weight="700">keep</text>
+<rect class="bar-accent" x="520" y="487" width="1.0" height="12"/>
+<text class="tiny" x="527.0" y="497">0.00010%</text>
+<text class="small" x="32" y="528">Allowed set: <tspan class="mono">paris, london, berlin, madrid, rome, dublin</tspan>, matched after strip and lower-case, so <tspan class="mono">" paris"</tspan> and <tspan class="mono">"Paris"</tspan> count too.</text>
+<text class="tiny" x="32" y="548">Recorded forward pass of LiquidAI/LFM2.5-350M on "The capital of France is". Bars share one linear scale per side.</text>
+</svg>

@@ -140,6 +140,21 @@ class Config:
             out["extra_headers"] = dict(self.headers)
         return out
 
+    def without_server_tools(self, kwargs: dict) -> dict:
+        """The same kwargs, asking an Unsloth server not to offer its own tools.
+
+        Unsloth adds its tools (web search, Python, a terminal) to every chat
+        request that sends no `tools=` of its own: about 1,400 extra prompt tokens,
+        and a small model may answer by writing code for them. Other providers
+        reject the field, so it is added only when the key is one Unsloth issued
+        (`sk-unsloth-...`). Opt-in on purpose: call it where a plain completion is
+        wanted. Requests that pass `tools=` are unaffected either way.
+        """
+        key = kwargs.get("api_key") or (self.api_key if kwargs.get("api_base") == self.api_base else None)
+        if not str(key or "").startswith("sk-unsloth-"):
+            return dict(kwargs)
+        return {**kwargs, "extra_body": {**kwargs.get("extra_body", {}), "enable_tools": False}}
+
     def __str__(self) -> str:
         where = f" @ {self.api_base}" if self.api_base else ""
         return f"{self.llm_model}{where}"

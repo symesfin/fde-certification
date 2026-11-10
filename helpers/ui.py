@@ -242,3 +242,36 @@ def lines(
         f'<div style="font-size:.85em;opacity:.8;margin-top:.25em;">{legend}</div></div>'
     )
     return mo.vstack([mo.md(f"**{title}**"), chart]) if title else chart
+
+
+def diagram(name: str, *, folder: str = "data/diagrams") -> Any:
+    """Show one of this notebook's diagrams: `<notebook dir>/data/diagrams/<name>.svg`.
+
+    The SVG is embedded in the output rather than linked. A linked file would have
+    to come through marimo's `public/` folder, which depends on a service worker:
+    it breaks on the first open and can serve a different notebook's folder when
+    two are open at once. Embedding has neither problem, and the same output shows
+    in Jupyter, where `mo.Html` renders through `_repr_html_`.
+
+    Each diagram carries its own light and dark palette, so it follows the
+    reader's colour scheme without anything here knowing about it.
+    """
+    import base64
+    import html
+    import re
+    from pathlib import Path
+
+    import marimo as mo
+
+    base = Path(mo.notebook_dir() or Path.cwd())
+    path = base / folder / f"{name}.svg"
+    svg = path.read_text(encoding="utf-8")
+    title = re.search(r"<title[^>]*>(.*?)</title>", svg, re.DOTALL)
+    width = re.search(r'viewBox="0 0 ([\d.]+) ', svg)
+    alt = html.escape(title.group(1).strip() if title else name, quote=True)
+    max_width = f"{float(width.group(1)):g}px" if width else "100%"
+    data = base64.b64encode(svg.encode("utf-8")).decode("ascii")
+    return mo.Html(
+        f'<img src="data:image/svg+xml;base64,{data}" alt="{alt}" '
+        f'style="display:block;width:100%;max-width:{max_width};height:auto;margin:0.5rem auto 1rem;">'
+    )
