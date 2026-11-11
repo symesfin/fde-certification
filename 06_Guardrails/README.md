@@ -21,7 +21,7 @@ say what each layer of defence costs in latency, money and refused users.
 
 | # | 📓 Material | What you'll build | ⏺️ Recording | 🖼️ Slides |
 | --- | --- | --- | --- | --- |
-| S11 | [`Prompt_Injection`](./sessions/S11_Prompt_Injection.py) | Attack a help assistant with **promptfoo**: hand-written and searched attacks, a poisoned document, both defences measured both ways, a poisoned tool, a sandbox escape. | Coming soon | Coming soon |
+| S11 | [`Prompt_Injection`](./sessions/S11_Prompt_Injection.py) | Attack a help assistant with **promptfoo**: hand-written and searched attacks, a poisoned document, both defences measured both ways, a poisoned tool, a sandbox escape. | [Recording!](https://us02web.zoom.us/rec/share/5tdHxgQ_hvDYlET75e-Yikbw4EMYrfUUEe7GWPy0tDouTVl8e0nPi0AADL8DYM_J.vXfPxaZ2PXvdmTIS) <br> passcode: `#b+dD@#0` | [Slides](https://canva.link/omqttn7zaq6f8oh) |
 | S12 | [`The_Guardrail_Ladder`](./sessions/S12_The_Guardrail_Ladder.py) | The guardrail ladder as one **NeMo Guardrails** config, cheapest rung first, with every rung timed and the price of a topical rail measured. | Coming soon | Coming soon |
 
 | 📝 Technical Challenge | 📁 Feedback |
