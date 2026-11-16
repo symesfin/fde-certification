@@ -76,7 +76,7 @@ Quicklinks are here to help you **easily navigate each week's materials** for th
 
 | 🎓 Session | ⏺️ Recording | 🖼️ Slides |
 |:-----------|:-------------|:-------------|
-| [Session 11 - Prompt Injection](../06_Guardrails/sessions/S11_Prompt_Injection.py) | [Recording!](https://us02web.zoom.us/rec/share/zk3jzLn5ecsuR0f-a2lnSFGBYHgxDpx7TMZjXhSMPHS2cjjXVXWmHamOzVm9Sm6k.Fa1mYUJxDoCr7Kpr) <br> passcode: `#b+dD@#0` | [Slides](https://canva.link/omqttn7zaq6f8oh) |
+| [Session 11 - Prompt Injection](../06_Guardrails/sessions/S11_Prompt_Injection.py) | [Recording!](https://us02web.zoom.us/rec/share/l-NE_QvMhb9xW8UbK7tdNPKVpUjzuP3GdxOgklpVDUYYDssKakxn_OjW9AIbFnVk.KY22BbJb9UEEo08Z) <br> passcode: `#b+dD@#0` | [Slides](https://canva.link/omqttn7zaq6f8oh) |
 | [Session 12 - The Guardrail Ladder](../06_Guardrails/sessions/S12_The_Guardrail_Ladder.py) | [Recording!](https://us02web.zoom.us/rec/share/zk3jzLn5ecsuR0f-a2lnSFGBYHgxDpx7TMZjXhSMPHS2cjjXVXWmHamOzVm9Sm6k.Fa1mYUJxDoCr7Kpr) <br> passcode: `W*e1maHn` | [Slides](https://canva.link/ahm2q549r6dkuf1) |
 
 ---
