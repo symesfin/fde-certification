@@ -83,6 +83,12 @@ week5 = [
 week6 = [
     "nemoguardrails>=0.24",       # S12 -- the guardrail ladder as rails
 ]
+week7 = [
+    "langmem>=0.0.30",            # S13 -- semantic, episodic and procedural memory
+    "langgraph>=1.2",             # S13 -- the store LangMem writes to; S14 -- the loop
+    "langchain-openai>=1.5",      # S13, S14 -- the chat model, through any OpenAI-compatible endpoint
+    "deepagents>=0.7.6",          # S14 -- loop engineering with Deep Agents
+]
 
 # ---------------------------------------------------------------------------
 # torch wheels: CPU by default, and that is a real choice, not a limitation.
@@ -156,6 +162,7 @@ sandbox-only = [
     "langgraph-checkpoint-sqlite",
     "langchain-openai",
     "deepagents",
+    "langmem",
 ]
 
 [tool.uv]

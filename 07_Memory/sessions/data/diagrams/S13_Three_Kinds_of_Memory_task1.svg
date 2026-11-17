@@ -1,0 +1,165 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 488" role="img" aria-labelledby="title desc">
+<title id="title">A store is drawers keyed by namespace, on whichever rung you need</title>
+<desc id="desc">Left: one InMemoryStore holding three drawers. The namespace ("profile", "tomas") holds a UserProfile record, ("procedures",) holds a Procedure under the key "find shipment depot", and ("episodes", "tomas") holds the observed tool calls under the key TKT-4471. A put to the same key in the same drawer replaces the old value. Right: the storage ladder, bottom to top: a dict in memory (InMemoryStore) breaks when the process restarts, JSON on disk breaks when two things write at once, SQLite (SqliteStore or PostgresStore) breaks when you need search by meaning, and a vector store (index=) adds an index to keep in sync. Most systems stop at SQLite. put, get and search are the same calls on every rung.</desc>
+<style>
+  .bg{fill:#FBFAF7}
+  .frame{fill:none;stroke:#E4E1DA;stroke-width:1}
+  .node{fill:#FFFFFF;stroke:#CBD2DA;stroke-width:1.25}
+  .node-soft{fill:#F2F1EC;stroke:none}
+  .node-accent{fill:#EEF0FF;stroke:#4F46E5;stroke-width:1.75}
+  .node-good{fill:#EAF7EE;stroke:#2F9E44;stroke-width:1.5}
+  .node-warn{fill:#FFF1E8;stroke:#D9480F;stroke-width:1.5}
+  .zone{fill:#F4F5FF;stroke:#4F46E5;stroke-width:1.5;stroke-dasharray:6 4}
+  .zone-plain{fill:none;stroke:#AEB6C0;stroke-width:1.25;stroke-dasharray:4 4}
+  .zone-warn{fill:#FFF6F0;stroke:#D9480F;stroke-width:1.5;stroke-dasharray:6 4}
+  .bar{fill:#B9C0FF}
+  .bar-accent{fill:#4F46E5}
+  .bar-muted{fill:#D5D9DE}
+  .bar-good{fill:#2F9E44}
+  .bar-warn{fill:#D9480F}
+  .edge{fill:none;stroke:#7D8794;stroke-width:1.5}
+  .edge-accent{fill:none;stroke:#4F46E5;stroke-width:2}
+  .edge-good{fill:none;stroke:#2F9E44;stroke-width:2}
+  .edge-warn{fill:none;stroke:#D9480F;stroke-width:2}
+  .dashed{stroke-dasharray:5 4}
+  .rule{fill:none;stroke:#E4E1DA;stroke-width:1}
+  .head{fill:#7D8794}
+  .head-accent{fill:#4F46E5}
+  .head-good{fill:#2F9E44}
+  .head-warn{fill:#D9480F}
+  text{font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,sans-serif;fill:#1F2328;font-size:13px}
+  .title{font-size:17px;font-weight:650}
+  .subtitle{font-size:13px;fill:#5B6470}
+  .label{font-size:13px;font-weight:600}
+  .small{font-size:11.5px;fill:#5B6470}
+  .tiny{font-size:10.5px;fill:#5B6470}
+  .mono{font-family:Consolas,"SF Mono",ui-monospace,"JetBrains Mono",Menlo,monospace;font-size:12px}
+  .t-accent{fill:#4F46E5}
+  .t-good{fill:#2F9E44}
+  .t-warn{fill:#D9480F}
+  .t-muted{fill:#5B6470}
+  .t-inv{fill:#FFFFFF}
+  .chip{fill:#4F46E5}
+  .chip-warn{fill:#D9480F}
+  .chip-good{fill:#2F9E44}
+  .chip-muted{fill:#5B6470}
+  @media (prefers-color-scheme:dark){
+    .bg{fill:#15171C}
+    .frame{stroke:#2A2E36}
+    .node{fill:#1D2027;stroke:#3A414C}
+    .node-soft{fill:#22262E}
+    .node-accent{fill:#23264A;stroke:#8E8CFF}
+    .node-good{fill:#183224;stroke:#5FD07A}
+    .node-warn{fill:#3A2116;stroke:#FF8A4C}
+    .zone{fill:#1A1C33;stroke:#8E8CFF}
+    .zone-plain{stroke:#58606C}
+    .zone-warn{fill:#2A1A13;stroke:#FF8A4C}
+    .bar{fill:#4B4F9E}
+    .bar-accent{fill:#8E8CFF}
+    .bar-muted{fill:#3A414C}
+    .bar-good{fill:#5FD07A}
+    .bar-warn{fill:#FF8A4C}
+    .edge{stroke:#8892A0}
+    .edge-accent{stroke:#8E8CFF}
+    .edge-good{stroke:#5FD07A}
+    .edge-warn{stroke:#FF8A4C}
+    .rule{stroke:#2A2E36}
+    .head{fill:#8892A0}
+    .head-accent{fill:#8E8CFF}
+    .head-good{fill:#5FD07A}
+    .head-warn{fill:#FF8A4C}
+    text{fill:#E6E8EB}
+    .subtitle,.small,.tiny,.t-muted{fill:#9AA4AF}
+    .t-accent{fill:#A5A3FF}
+    .t-good{fill:#5FD07A}
+    .t-warn{fill:#FF8A4C}
+    .t-inv{fill:#15171C}
+    .chip{fill:#8E8CFF}
+    .chip-warn{fill:#FF8A4C}
+    .chip-good{fill:#5FD07A}
+    .chip-muted{fill:#9AA4AF}
+  }
+</style>
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
+</defs>
+<rect class="bg" x="0" y="0" width="960" height="488" rx="16"/>
+
+<text class="title" x="32" y="40">A store is drawers keyed by namespace, on whichever rung you need</text>
+<text class="subtitle" x="32" y="62">The namespace isolates, the key supersedes, and the class only decides where the drawers live.</text>
+
+<!-- ============ the store ============ -->
+<rect class="zone" x="32" y="84" width="492" height="324" rx="14"/>
+<text class="tiny t-accent" x="50" y="108" letter-spacing="1.5" font-weight="700">ONE STORE, THREE DRAWERS</text>
+<text class="mono t-muted" x="508" y="108" text-anchor="end">InMemoryStore()</text>
+
+<text class="tiny" x="64" y="132" letter-spacing="1.5" font-weight="700">NAMESPACE (A TUPLE)</text>
+<text class="tiny" x="260" y="132" letter-spacing="1.5" font-weight="700">KEY → VALUE</text>
+
+<!-- drawer 1 -->
+<rect class="node-soft" x="48" y="144" width="184" height="52" rx="10"/>
+<text class="mono t-accent" x="64" y="175">("profile", "tomas")</text>
+<line class="edge" x1="232" y1="170" x2="244" y2="170"/>
+<rect class="node" x="244" y="144" width="264" height="52" rx="10"/>
+<text class="label" x="260" y="165">UserProfile</text>
+<text class="tiny t-muted" x="492" y="165" text-anchor="end">key set by LangMem</text>
+<text class="small" x="260" y="184">team · office · answer_style</text>
+
+<!-- drawer 2 -->
+<rect class="node-soft" x="48" y="208" width="184" height="52" rx="10"/>
+<text class="mono t-accent" x="64" y="239">("procedures",)</text>
+<line class="edge" x1="232" y1="234" x2="244" y2="234"/>
+<rect class="node" x="244" y="208" width="264" height="52" rx="10"/>
+<text class="mono" x="260" y="229">find shipment depot</text>
+<text class="small" x="260" y="248">Procedure: what worked, what to avoid</text>
+
+<!-- drawer 3 -->
+<rect class="node-soft" x="48" y="272" width="184" height="52" rx="10"/>
+<text class="mono t-accent" x="64" y="303">("episodes", "tomas")</text>
+<line class="edge" x1="232" y1="298" x2="244" y2="298"/>
+<rect class="node" x="244" y="272" width="264" height="52" rx="10"/>
+<text class="mono" x="260" y="293">TKT-4471</text>
+<text class="small" x="260" y="312">the tool calls that ran, from the log</text>
+
+<!-- supersede on write -->
+<line class="rule" x1="48" y1="340" x2="508" y2="340"/>
+<text class="label" x="64" y="366">Same drawer, same key: put replaces</text>
+<text class="mono" x="64" y="388">put(("facts", "tomas"), "user.team", …) ×2</text>
+<rect class="chip-good" x="392" y="356" width="116" height="24" rx="12"/>
+<text class="small t-inv" x="450" y="372" text-anchor="middle" font-weight="600">3 items, not 4</text>
+
+<!-- ============ the ladder ============ -->
+<rect class="zone-plain" x="544" y="84" width="384" height="324" rx="14"/>
+<text class="tiny" x="560" y="108" letter-spacing="1.5" font-weight="700">THE LADDER, CLIMBED FROM THE BOTTOM</text>
+
+<line class="edge" x1="568" y1="392" x2="568" y2="124" marker-end="url(#arrow)"/>
+
+<!-- rung 4 -->
+<rect class="node" x="588" y="120" width="324" height="60" rx="10"/>
+<text class="label" x="604" y="144">A vector store</text>
+<text class="mono t-accent" x="896" y="144" text-anchor="end">index=</text>
+<text class="small" x="604" y="166">adds an index to keep in sync</text>
+
+<!-- rung 3 -->
+<rect class="node-good" x="588" y="192" width="324" height="60" rx="10"/>
+<text class="label" x="604" y="216">SQLite</text>
+<text class="mono t-accent" x="896" y="216" text-anchor="end">SqliteStore / PostgresStore</text>
+<text class="small" x="604" y="238">breaks at search by meaning</text>
+<text class="tiny t-good" x="896" y="238" text-anchor="end" font-weight="700" letter-spacing="0.5">MOST STOP HERE</text>
+
+<!-- rung 2 -->
+<rect class="node" x="588" y="264" width="324" height="60" rx="10"/>
+<text class="label" x="604" y="288">JSON on disk</text>
+<text class="mono t-muted" x="896" y="288" text-anchor="end">—</text>
+<text class="small" x="604" y="310">breaks when two things write at once</text>
+
+<!-- rung 1 -->
+<rect class="node" x="588" y="336" width="324" height="60" rx="10"/>
+<text class="label" x="604" y="360">A dict in memory</text>
+<text class="mono t-accent" x="896" y="360" text-anchor="end">InMemoryStore</text>
+<text class="small" x="604" y="382">breaks when the process restarts</text>
+
+<!-- the shared interface -->
+<rect class="node-accent" x="32" y="424" width="896" height="40" rx="10"/>
+<text x="480" y="449" text-anchor="middle"><tspan class="mono t-accent">put</tspan><tspan> · </tspan><tspan class="mono t-accent">get</tspan><tspan> · </tspan><tspan class="mono t-accent">search</tspan><tspan> are the same calls on every rung. Swap the class, keep the code.</tspan></text>
+</svg>

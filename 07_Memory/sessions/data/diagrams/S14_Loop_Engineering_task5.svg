@@ -1,0 +1,184 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 560" role="img" aria-labelledby="title desc">
+<title id="title">The notes outlive the run, in a drawer keyed by the spec</title>
+<desc id="desc">Two runs of the same loop share one store. Run 1, cold, starts with no /AGENTS.md and ends with the notes it wrote. Run 2, warm, makes the same call against the same store, and memory= loads those notes before its first attempt. The drawer is the namespace ("loop-notes", "916ea3df9fbd"), the first twelve hex digits of the spec's SHA-256. Read with the same spec, it holds one note; read with the spec plus one space, the key becomes 23e1243cdde8 and it holds none. Measured on a 4B model over three cold-then-warm pairs: cold runs took 2, 2 and 5 iterations, warm runs 5, 4 and 2, and none passed.</desc>
+<style>
+  .bg{fill:#FBFAF7}
+  .frame{fill:none;stroke:#E4E1DA;stroke-width:1}
+  .node{fill:#FFFFFF;stroke:#CBD2DA;stroke-width:1.25}
+  .node-soft{fill:#F2F1EC;stroke:none}
+  .node-accent{fill:#EEF0FF;stroke:#4F46E5;stroke-width:1.75}
+  .node-good{fill:#EAF7EE;stroke:#2F9E44;stroke-width:1.5}
+  .node-warn{fill:#FFF1E8;stroke:#D9480F;stroke-width:1.5}
+  .zone{fill:#F4F5FF;stroke:#4F46E5;stroke-width:1.5;stroke-dasharray:6 4}
+  .zone-plain{fill:none;stroke:#AEB6C0;stroke-width:1.25;stroke-dasharray:4 4}
+  .zone-warn{fill:#FFF6F0;stroke:#D9480F;stroke-width:1.5;stroke-dasharray:6 4}
+  .bar{fill:#B9C0FF}
+  .bar-accent{fill:#4F46E5}
+  .bar-muted{fill:#D5D9DE}
+  .bar-good{fill:#2F9E44}
+  .bar-warn{fill:#D9480F}
+  .edge{fill:none;stroke:#7D8794;stroke-width:1.5}
+  .edge-accent{fill:none;stroke:#4F46E5;stroke-width:2}
+  .edge-good{fill:none;stroke:#2F9E44;stroke-width:2}
+  .edge-warn{fill:none;stroke:#D9480F;stroke-width:2}
+  .dashed{stroke-dasharray:5 4}
+  .rule{fill:none;stroke:#E4E1DA;stroke-width:1}
+  .head{fill:#7D8794}
+  .head-accent{fill:#4F46E5}
+  .head-good{fill:#2F9E44}
+  .head-warn{fill:#D9480F}
+  text{font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,sans-serif;fill:#1F2328;font-size:13px}
+  .title{font-size:17px;font-weight:650}
+  .subtitle{font-size:13px;fill:#5B6470}
+  .label{font-size:13px;font-weight:600}
+  .small{font-size:11.5px;fill:#5B6470}
+  .tiny{font-size:10.5px;fill:#5B6470}
+  .mono{font-family:Consolas,"SF Mono",ui-monospace,"JetBrains Mono",Menlo,monospace;font-size:12px}
+  .t-accent{fill:#4F46E5}
+  .t-good{fill:#2F9E44}
+  .t-warn{fill:#D9480F}
+  .t-muted{fill:#5B6470}
+  .t-inv{fill:#FFFFFF}
+  .chip{fill:#4F46E5}
+  .chip-warn{fill:#D9480F}
+  .chip-good{fill:#2F9E44}
+  .chip-muted{fill:#5B6470}
+  @media (prefers-color-scheme:dark){
+    .bg{fill:#15171C}
+    .frame{stroke:#2A2E36}
+    .node{fill:#1D2027;stroke:#3A414C}
+    .node-soft{fill:#22262E}
+    .node-accent{fill:#23264A;stroke:#8E8CFF}
+    .node-good{fill:#183224;stroke:#5FD07A}
+    .node-warn{fill:#3A2116;stroke:#FF8A4C}
+    .zone{fill:#1A1C33;stroke:#8E8CFF}
+    .zone-plain{stroke:#58606C}
+    .zone-warn{fill:#2A1A13;stroke:#FF8A4C}
+    .bar{fill:#4B4F9E}
+    .bar-accent{fill:#8E8CFF}
+    .bar-muted{fill:#3A414C}
+    .bar-good{fill:#5FD07A}
+    .bar-warn{fill:#FF8A4C}
+    .edge{stroke:#8892A0}
+    .edge-accent{stroke:#8E8CFF}
+    .edge-good{stroke:#5FD07A}
+    .edge-warn{stroke:#FF8A4C}
+    .rule{stroke:#2A2E36}
+    .head{fill:#8892A0}
+    .head-accent{fill:#8E8CFF}
+    .head-good{fill:#5FD07A}
+    .head-warn{fill:#FF8A4C}
+    text{fill:#E6E8EB}
+    .subtitle,.small,.tiny,.t-muted{fill:#9AA4AF}
+    .t-accent{fill:#A5A3FF}
+    .t-good{fill:#5FD07A}
+    .t-warn{fill:#FF8A4C}
+    .t-inv{fill:#15171C}
+    .chip{fill:#8E8CFF}
+    .chip-warn{fill:#FF8A4C}
+    .chip-good{fill:#5FD07A}
+    .chip-muted{fill:#9AA4AF}
+  }
+</style>
+<defs>
+  <marker id="arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="head-accent" d="M0,0 L10,5 L0,10 z"/></marker>
+</defs>
+<rect class="bg" x="0" y="0" width="960" height="560" rx="16"/>
+
+<text class="title" x="32" y="40">The notes outlive the run, in a drawer keyed by the spec</text>
+<text class="subtitle" x="32" y="62">A warm run starts from them. Whether it finishes sooner is a measurement, not a given.</text>
+
+<!-- ============ run 1 ============ -->
+<rect class="node" x="32" y="84" width="272" height="152" rx="10"/>
+<text class="tiny" x="48" y="106" letter-spacing="1.5" font-weight="700">RUN 1 · COLD</text>
+<text class="mono t-muted" x="48" y="128">ralph_loop(SPEC, …)</text>
+<line class="rule" x1="48" y1="140" x2="288" y2="140"/>
+<text class="small" x="48" y="162">starts with</text>
+<text class="label" x="48" y="180">no /AGENTS.md yet</text>
+<text class="small" x="48" y="202">ends with</text>
+<text class="label" x="48" y="220">N notes, one per failure</text>
+
+<!-- ============ the store ============ -->
+<rect class="zone" x="344" y="84" width="272" height="152" rx="14"/>
+<text class="tiny t-accent" x="360" y="106" letter-spacing="1.5" font-weight="700">ONE STORE, KEPT</text>
+<text class="mono" x="360" y="128">("loop-notes", "916ea3df9fbd")</text>
+<text class="small" x="360" y="146">key = sha256(SPEC)[:12]</text>
+<rect class="node-accent" x="360" y="158" width="240" height="64" rx="8"/>
+<text class="mono t-accent" x="372" y="178">/AGENTS.md</text>
+<text class="mono t-muted" x="372" y="196">- note 1</text>
+<text class="mono t-muted" x="372" y="212">- …</text>
+<text class="tiny t-muted" x="588" y="178" text-anchor="end">N is whatever run 1 wrote</text>
+
+<line class="edge-accent" x1="304" y1="192" x2="340" y2="192" marker-end="url(#arrow-accent)"/>
+<text class="tiny t-accent" x="322" y="182" text-anchor="middle" font-weight="700">writes</text>
+<line class="edge-accent" x1="616" y1="192" x2="652" y2="192" marker-end="url(#arrow-accent)"/>
+<text class="tiny t-accent" x="634" y="182" text-anchor="middle" font-weight="700">loads</text>
+
+<!-- ============ run 2 ============ -->
+<rect class="node" x="656" y="84" width="272" height="152" rx="10"/>
+<text class="tiny" x="672" y="106" letter-spacing="1.5" font-weight="700">RUN 2 · WARM</text>
+<text class="mono t-muted" x="672" y="128">ralph_loop(SPEC, …)</text>
+<line class="rule" x1="672" y1="140" x2="912" y2="140"/>
+<text class="small" x="672" y="162">starts with</text>
+<text class="label" x="672" y="180">run 1's N notes, via memory=</text>
+<text class="small" x="672" y="202">ends with</text>
+<text class="label" x="672" y="220">fewer iterations, or not</text>
+
+<!-- ============ change the spec ============ -->
+<rect class="node" x="32" y="264" width="432" height="264" rx="10"/>
+<text class="tiny" x="48" y="286" letter-spacing="1.5" font-weight="700">CHANGE THE SPEC, NEW DRAWER</text>
+<text class="small" x="48" y="306">one store, one note written under SPEC, read back twice</text>
+<line class="rule" x1="48" y1="320" x2="448" y2="320"/>
+<text class="tiny" x="48" y="340" letter-spacing="1" font-weight="700">READ WITH</text>
+<text class="tiny" x="250" y="340" letter-spacing="1" font-weight="700">DRAWER KEY</text>
+<text class="tiny" x="448" y="340" letter-spacing="1" font-weight="700" text-anchor="end">NOTES</text>
+
+<text x="48" y="368">the same SPEC</text>
+<text class="mono t-accent" x="250" y="368">916ea3df9fbd</text>
+<text class="label" x="448" y="368" text-anchor="end">1</text>
+
+<text x="48" y="396">SPEC plus one space</text>
+<text class="mono t-warn" x="250" y="396">23e1243cdde8</text>
+<text class="label t-warn" x="448" y="396" text-anchor="end">0</text>
+
+<text class="small" x="48" y="436">Notes about an old spec are never read against a new one.</text>
+<text class="small" x="48" y="452">That is also how they expire.</text>
+
+<!-- ============ measured ============ -->
+<rect class="node" x="496" y="264" width="432" height="264" rx="10"/>
+<text class="tiny" x="512" y="286" letter-spacing="1.5" font-weight="700">MEASURED: 4B MODEL, THREE COLD-THEN-WARM PAIRS</text>
+<text class="small" x="512" y="306">iterations each run took before it stopped</text>
+<line class="rule" x1="512" y1="320" x2="912" y2="320"/>
+
+<text class="label" x="512" y="358">cold</text>
+<rect class="node-soft" x="584" y="338" width="40" height="32" rx="8"/>
+<text class="label" x="604" y="359" text-anchor="middle">2</text>
+<rect class="node-soft" x="632" y="338" width="40" height="32" rx="8"/>
+<text class="label" x="652" y="359" text-anchor="middle">2</text>
+<rect class="node-soft" x="680" y="338" width="40" height="32" rx="8"/>
+<text class="label" x="700" y="359" text-anchor="middle">5</text>
+
+<text class="label" x="512" y="402">warm</text>
+<rect class="node-soft" x="584" y="382" width="40" height="32" rx="8"/>
+<text class="label" x="604" y="403" text-anchor="middle">5</text>
+<rect class="node-soft" x="632" y="382" width="40" height="32" rx="8"/>
+<text class="label" x="652" y="403" text-anchor="middle">4</text>
+<rect class="node-soft" x="680" y="382" width="40" height="32" rx="8"/>
+<text class="label" x="700" y="403" text-anchor="middle">2</text>
+
+<rect class="chip-muted" x="752" y="366" width="144" height="24" rx="12"/>
+<text class="small t-inv" x="824" y="382" text-anchor="middle" font-weight="600">passed: none</text>
+
+<text class="small" x="512" y="430">Two of three warm runs started further along; too few to claim a saving.</text>
+<line class="rule" x1="512" y1="444" x2="912" y2="444"/>
+<text class="tiny" x="512" y="464" letter-spacing="1.5" font-weight="700">GPT-4.1-MINI, ONE PAIR</text>
+<text class="label" x="512" y="496">cold</text>
+<rect class="node-soft" x="584" y="476" width="40" height="32" rx="8"/>
+<text class="label" x="604" y="497" text-anchor="middle">3</text>
+<text class="label" x="648" y="496">warm</text>
+<rect class="node-accent" x="704" y="476" width="40" height="32" rx="8"/>
+<text class="label t-accent" x="724" y="497" text-anchor="middle">1</text>
+<rect class="chip-good" x="764" y="480" width="148" height="24" rx="12"/>
+<text class="small t-inv" x="838" y="496" text-anchor="middle" font-weight="600">both passed</text>
+<text class="small" x="512" y="522">19,223 → 6,592 input tokens. A sample of one.</text>
+</svg>

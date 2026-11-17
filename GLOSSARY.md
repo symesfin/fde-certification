@@ -18,16 +18,20 @@ feedback form.
 | **Baseline** | What you are beating; without one, "84%" is unanchored | Week 5: S9, the second question |
 | **Batching** | Serving several requests through one forward pass, multiplying the cache by requests in flight | Week 2: S3, the hardware section |
 | **Bootstrap interval** | Resample your results thousands of times to see how much the number would move with a different sample of the same size | Week 4: S7 Task 5 |
+| **Bounded retry** | A loop that gives up after N attempts and says why it stopped | Week 7: S14 Task 3 |
 | **CA bundle** | The list of authorities your tools trust; Python's is not your operating system's | Week 1: The remediation you will need if Task 1 shows your employer's name |
 | **Canary** | A made-up secret whose only job is to be easy to detect, so a leak is a substring check | Week 6: S11 Task 1 |
 | **Capability calls** | How many times the underlying function actually ran: the work, as opposed to the loop | Week 5: S10 Task 5, the column to read first (deep dive: Task 7) |
 | **Capability report** | Pass rate per capability rather than overall — the artifact a stakeholder reads, and the baseline a change is compared against | Week 4: S8 Task 2 |
 | **Chance floor** | What a metric would read if the thing it measures were absent; a number sitting on it is not a signal | Week 4: S7 Bonus 1 |
 | **Character n-gram Jaccard** | Overlap between two texts' sets of 4-character shingles — a model-free near-duplicate detector | Week 2: S4 Task 4 |
+| **Checker** | The code that runs the acceptance criteria and decides when the loop stops | Week 7: S14 Task 2 |
 | **Chunking** | Long documents are split before indexing — here at every `##` heading — because one entry for forty pages means nothing specific | Week 3: S5 Task 1, and most retrieval bugs anywhere |
 | **Classifier** | A small model that labels text as allowed or not, trained from examples | Week 6: S12 Level 2 |
 | **Code Mode** | The model writes code that calls your function, instead of emitting a tool call | Week 5: S10 Way 5 |
 | **Constrained decoding** | Restricting generation to what a schema or grammar allows | Week 6: S12 Level 0 |
+| **Context degradation** | Long agent sessions pile up confusion, so later turns are worse than earlier ones | Week 7: S14, the reason the loop restarts |
+| **Context window** | The fixed amount of text a model can read at once | Week 7: Why memory exists at all |
 | **Context window cost** | Every tool definition, and every result a tool returns, takes up tokens on every request | Week 5: S10 Way 2, and the whole of Task 5's sweep (deep dive: Task 8) |
 | **Contextual precision / recall** | Of the chunks retrieved, how many were needed (precision); of the chunks needed, how many were retrieved (recall) — the retrieval half of a RAG score | Week 4: S7 Task 1 |
 | **Contrastive learning** | Pull matched pairs together and push mismatched ones apart, so two kinds of thing land in one comparable space — CLIP's text and image towers | Week 3: S6 Task 4 |
@@ -47,6 +51,7 @@ feedback form.
 | **Ground truth** | The answer a human judged correct, recorded before the system ran | Week 4: S7 intro, and Question #1 |
 | **Guardrail vs. evaluator** | In the request path and blocking, or after the fact on a sample | Week 6: S12 Task 6 |
 | **Harness validation** | Testing the test — feeding it agents you know are broken and checking it notices | Week 4: S8b Task 4 |
+| **Idempotent restart** | Every iteration starts from the same state, so the results are comparable | Week 7: S14 Task 4 |
 | **Inverted index / BM25** | Terms that are frequent here and rare everywhere are the informative ones; how search worked before embeddings | Week 3: S5 Task 1 |
 | **Keyframe** | One sampled frame standing in for a window of video, attached to the transcript segment it belongs to | Week 3: S6 Task 8 |
 | **KV cache** | The per-request memory that lets token 200 cost one forward pass instead of two hundred; it is what you provision alongside the weights | Week 2: S3, the hardware section |
@@ -57,8 +62,11 @@ feedback form.
 | **LLM-as-judge** | Using a model to score outputs a function cannot score | Week 4: S7 Task 4 |
 | **Logit** | The raw score for each candidate next token, before it is turned into a probability | Week 2: S3 Task 1 |
 | **Logits and masking** | Set a token's probability to zero and the model cannot emit it | Week 6: S12 Level 0 |
+| **Machine-checkable criterion** | A test, a schema or a compiler: something that returns pass or fail with no human involved | Week 7: S14 Task 2 |
 | **Modality gap** | In a shared image–text space, text vectors cluster apart from image vectors, so a text query sits closer to any text than to the right image | Week 3: S6 Task 4, and why one mixed collection is fragile |
 | **Mount** | Put one MCP server behind another under a namespace, so clients see one endpoint | Week 5: S10 Way 4 |
+| **Namespace** | The label a store files memories under; putting the user in it keeps users apart | Week 7: S13 Tasks 1 and 5 |
+| **Note accumulation** | The only thing carried from one iteration to the next is what was written down | Week 7: S14 Tasks 3 and 5 |
 | **Open weights** | A model whose parameters you can download and run yourself | Week 2: S3 Task 7 onward |
 | **OpenAPI document** | The machine-readable description an HTTP API already publishes; FastMCP generates tools from it | Week 5: S10 Way 6 |
 | **origin and upstream** | Your fork is where you push; the course repository is where you pull updates from. Different remotes, different jobs | Week 1: S1 Task 2 |
@@ -71,17 +79,23 @@ feedback form.
 | **Prompt injection** | Untrusted text reaching the model is treated as instructions, because the model cannot tell the difference | Week 6: The premise of S11 |
 | **Prototyping vs backtesting data** | Generated to exercise a pipeline, versus drawn from real outcomes and able to support a production number | Week 2: S4 Task 1, and the datasheet |
 | **Provider abstraction** | One calling convention over many model vendors, so the vendor is a config value | Week 1: S1 Task 4 |
+| **Ralph loop** | A fresh agent restarted from the spec each iteration, carrying only short notes | Week 7: S14 Task 3 |
 | **Reciprocal Rank Fusion** | Merge ranked lists by giving each item `1/(k + rank)` from every list and summing — ranks compare, raw scores from different embedders do not | Week 3: S5 Task 5, S6 Task 5 |
 | **Regression** | A change that improves one thing and quietly breaks another — the reason the harness exists at all | Week 4: Every later week |
 | **Regression test** | Every attack that worked, kept forever, run on every change | Week 6: The deliverable |
+| **Retrieval as memory** | Store facts outside the context window and fetch them when they're relevant | Week 7: S13 Task 2 |
 | **Sampling** | Choosing one token from those probabilities — the only place randomness enters | Week 2: S3 Tasks 2–6 |
 | **Scenario** | A goal plus information the user has but will not volunteer unless asked, with its own success check | Week 4: S8 Task 1; composed from atoms in S8b Task 1 |
 | **Seed** | The number that makes a random choice repeatable | Week 2: S3 Task 6; Legal's requirement |
 | **Separation and agreement** | The two halves of checking a judge — does it rank known-bad below known-good, and does it score the way a person would | Week 4: S7 Task 4, the step everyone skips |
 | **Simulated user** | A model playing a person with a goal, talking to your system so the test can run without a human | Week 4: S8b Tasks 2 and 5; `helpers.simulation` |
 | **Softmax** | The step that turns logits into probabilities that sum to one | Week 2: S3 Task 1 |
+| **Spec** | A goal, acceptance criteria a machine can check, and constraints | Week 7: S14 Task 1 |
+| **Spec-driven development** | Writing the acceptance criteria before the implementation, precisely enough to check | Week 7: S14 Task 1 |
+| **Stateless model** | The model remembers nothing between calls. Your application holds the state and sends it again | Week 7: Why memory exists at all |
 | **stdio / JSON-RPC** | The transport most local MCP servers speak | Week 5: S10 Way 4 |
 | **Subagent** | A separate model invocation with its own context, returning a summary | Week 5: S10 Way 3 |
+| **Supersede on write** | When a fact about a subject changes, replace the old entry so only one is live | Week 7: S13 Task 2 |
 | **Switch condition** | The trigger under which you would change the decision; without one, a decision is a preference | Week 5: TC5 Step 6 |
 | **The denominator** | A score means nothing without *on how many, of what* | Week 5: S9, minute 2–3.5, and the first question the room asks |
 | **The docstring is the interface** | The model chooses a tool by reading its description, so that text works as the API | Week 5: S10 Way 1 onward |
@@ -97,10 +111,12 @@ feedback form.
 | **Trajectory** | The full sequence of turns, tool calls with their arguments, and results — not just the final output | Week 4: The premise of S8, drawn at the top; S8b Task 2 records it |
 | **Unit economics** | Cost per request × requests, against the cost of the work being replaced | Week 1: S2 discussion, and TC1 Step 13 |
 | **UTCP** | A manifest describing an existing HTTP API so the client calls it directly | Week 5: S10 Way 6 |
+| **Value vs. membership** | `x in {a, b, c}` passes for every constant. `x == expected` checks the value | Week 7: S14 Task 2 |
 | **Variation axes** | The dimensions along which real inputs differ, which you generate across on purpose | Week 2: S4 Task 2 |
 | **Verifier** | A programmatic success check — tools called, fact stated, state changed — used wherever the outcome is checkable, before any judge | Week 4: S8 Task 2 (the ledger check); S8b Task 3 |
 | **Vision-language model** | A model that looks at an image and writes about it; reading is a different operation from embedding | Week 3: S6 Task 2 as a parser, Task 6 as a reader |
 | **Vocabulary** | The fixed list of every token a model knows, and the only things it can ever output | Week 2: S3 Task 1 |
+| **Write policy** | Deciding what is worth remembering, which is harder than storing it | Week 7: S13 Tasks 2 and 4 |
 
 ---
 
