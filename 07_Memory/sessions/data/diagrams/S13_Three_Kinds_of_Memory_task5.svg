@@ -1,0 +1,170 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 512" role="img" aria-labelledby="title desc">
+<title id="title">One tuple element decides whether two users share a drawer</title>
+<desc id="desc">Tomás and Kwame each store their PO approval limit with manage_memory, then each asks search_memory "what is my PO approval limit". Left, with namespace ("memories",), both entries land in one drawer and each user's search returns both: Tomás is shown Kwame's $250k limit and Kwame is shown Tomás's $50k. The leakage test fails. Right, with namespace ("memories", "{langgraph_user_id}"), the user id from each call's config splits the store into ("memories", "tomas") and ("memories", "kwame"), and each search returns only its own entry. The leakage test passes.</desc>
+<style>
+  .bg{fill:#FBFAF7}
+  .frame{fill:none;stroke:#E4E1DA;stroke-width:1}
+  .node{fill:#FFFFFF;stroke:#CBD2DA;stroke-width:1.25}
+  .node-soft{fill:#F2F1EC;stroke:none}
+  .node-accent{fill:#EEF0FF;stroke:#4F46E5;stroke-width:1.75}
+  .node-good{fill:#EAF7EE;stroke:#2F9E44;stroke-width:1.5}
+  .node-warn{fill:#FFF1E8;stroke:#D9480F;stroke-width:1.5}
+  .zone{fill:#F4F5FF;stroke:#4F46E5;stroke-width:1.5;stroke-dasharray:6 4}
+  .zone-plain{fill:none;stroke:#AEB6C0;stroke-width:1.25;stroke-dasharray:4 4}
+  .zone-warn{fill:#FFF6F0;stroke:#D9480F;stroke-width:1.5;stroke-dasharray:6 4}
+  .bar{fill:#B9C0FF}
+  .bar-accent{fill:#4F46E5}
+  .bar-muted{fill:#D5D9DE}
+  .bar-good{fill:#2F9E44}
+  .bar-warn{fill:#D9480F}
+  .edge{fill:none;stroke:#7D8794;stroke-width:1.5}
+  .edge-accent{fill:none;stroke:#4F46E5;stroke-width:2}
+  .edge-good{fill:none;stroke:#2F9E44;stroke-width:2}
+  .edge-warn{fill:none;stroke:#D9480F;stroke-width:2}
+  .dashed{stroke-dasharray:5 4}
+  .rule{fill:none;stroke:#E4E1DA;stroke-width:1}
+  .head{fill:#7D8794}
+  .head-accent{fill:#4F46E5}
+  .head-good{fill:#2F9E44}
+  .head-warn{fill:#D9480F}
+  text{font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,sans-serif;fill:#1F2328;font-size:13px}
+  .title{font-size:17px;font-weight:650}
+  .subtitle{font-size:13px;fill:#5B6470}
+  .label{font-size:13px;font-weight:600}
+  .small{font-size:11.5px;fill:#5B6470}
+  .tiny{font-size:10.5px;fill:#5B6470}
+  .mono{font-family:Consolas,"SF Mono",ui-monospace,"JetBrains Mono",Menlo,monospace;font-size:12px}
+  .t-accent{fill:#4F46E5}
+  .t-good{fill:#2F9E44}
+  .t-warn{fill:#D9480F}
+  .t-muted{fill:#5B6470}
+  .t-inv{fill:#FFFFFF}
+  .chip{fill:#4F46E5}
+  .chip-warn{fill:#D9480F}
+  .chip-good{fill:#2F9E44}
+  .chip-muted{fill:#5B6470}
+  @media (prefers-color-scheme:dark){
+    .bg{fill:#15171C}
+    .frame{stroke:#2A2E36}
+    .node{fill:#1D2027;stroke:#3A414C}
+    .node-soft{fill:#22262E}
+    .node-accent{fill:#23264A;stroke:#8E8CFF}
+    .node-good{fill:#183224;stroke:#5FD07A}
+    .node-warn{fill:#3A2116;stroke:#FF8A4C}
+    .zone{fill:#1A1C33;stroke:#8E8CFF}
+    .zone-plain{stroke:#58606C}
+    .zone-warn{fill:#2A1A13;stroke:#FF8A4C}
+    .bar{fill:#4B4F9E}
+    .bar-accent{fill:#8E8CFF}
+    .bar-muted{fill:#3A414C}
+    .bar-good{fill:#5FD07A}
+    .bar-warn{fill:#FF8A4C}
+    .edge{stroke:#8892A0}
+    .edge-accent{stroke:#8E8CFF}
+    .edge-good{stroke:#5FD07A}
+    .edge-warn{stroke:#FF8A4C}
+    .rule{stroke:#2A2E36}
+    .head{fill:#8892A0}
+    .head-accent{fill:#8E8CFF}
+    .head-good{fill:#5FD07A}
+    .head-warn{fill:#FF8A4C}
+    text{fill:#E6E8EB}
+    .subtitle,.small,.tiny,.t-muted{fill:#9AA4AF}
+    .t-accent{fill:#A5A3FF}
+    .t-good{fill:#5FD07A}
+    .t-warn{fill:#FF8A4C}
+    .t-inv{fill:#15171C}
+    .chip{fill:#8E8CFF}
+    .chip-warn{fill:#FF8A4C}
+    .chip-good{fill:#5FD07A}
+    .chip-muted{fill:#9AA4AF}
+  }
+</style>
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="arrow-good" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="head-good" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="arrow-warn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="head-warn" d="M0,0 L10,5 L0,10 z"/></marker>
+</defs>
+<rect class="bg" x="0" y="0" width="960" height="512" rx="16"/>
+
+<text class="title" x="32" y="40">One tuple element decides whether two users share a drawer</text>
+<text class="subtitle" x="32" y="62">Both ask search_memory "what is my PO approval limit". Same tools, same calls; only the namespace differs.</text>
+
+<!-- ================= left: shared ================= -->
+<rect class="zone-warn" x="32" y="84" width="440" height="408" rx="14"/>
+<text class="tiny t-warn" x="48" y="106" letter-spacing="1.5" font-weight="700">USER LEFT OUT OF THE NAMESPACE</text>
+
+<rect class="node" x="48" y="120" width="188" height="48" rx="10"/>
+<text class="label" x="142" y="140" text-anchor="middle">Tomás</text>
+<text class="mono t-muted" x="142" y="158" text-anchor="middle">as_user("tomas")</text>
+<rect class="node" x="268" y="120" width="188" height="48" rx="10"/>
+<text class="label" x="362" y="140" text-anchor="middle">Kwame</text>
+<text class="mono t-muted" x="362" y="158" text-anchor="middle">as_user("kwame")</text>
+
+<line class="edge" x1="142" y1="168" x2="142" y2="196" marker-end="url(#arrow)"/>
+<line class="edge" x1="362" y1="168" x2="362" y2="196" marker-end="url(#arrow)"/>
+
+<rect class="node" x="48" y="200" width="408" height="48" rx="10"/>
+<text class="mono" x="252" y="220" text-anchor="middle">search_memory</text>
+<text class="mono t-warn" x="252" y="238" text-anchor="middle">namespace=("memories",)</text>
+
+<line class="edge-warn" x1="142" y1="248" x2="142" y2="276" marker-end="url(#arrow-warn)"/>
+<line class="edge-warn" x1="362" y1="248" x2="362" y2="276" marker-end="url(#arrow-warn)"/>
+
+<rect class="node-warn" x="48" y="280" width="408" height="88" rx="10"/>
+<text class="mono" x="64" y="301">("memories",)</text>
+<text class="tiny t-warn" x="440" y="301" text-anchor="end" font-weight="700" letter-spacing="1">ONE DRAWER FOR EVERYONE</text>
+<rect class="node" x="60" y="312" width="186" height="44" rx="8"/>
+<text class="small" x="72" y="330">Tomás: PO approval</text>
+<text class="label" x="72" y="347">limit is $50k</text>
+<rect class="node" x="258" y="312" width="186" height="44" rx="8"/>
+<text class="small" x="270" y="330">Kwame: PO approval</text>
+<text class="label" x="270" y="347">limit is $250k</text>
+
+<text class="tiny" x="48" y="396" letter-spacing="1.5" font-weight="700">SEARCH RETURNS</text>
+<text x="48" y="418">Tomás: $50k <tspan class="t-warn" font-weight="600">and Kwame's $250k</tspan></text>
+<text x="48" y="440">Kwame: $250k <tspan class="t-warn" font-weight="600">and Tomás's $50k</tspan></text>
+
+<rect class="chip-warn" x="48" y="456" width="168" height="24" rx="12"/>
+<text class="small t-inv" x="132" y="472" text-anchor="middle" font-weight="600">leakage test fails</text>
+
+<!-- ================= right: per user ================= -->
+<rect class="zone" x="488" y="84" width="440" height="408" rx="14"/>
+<text class="tiny t-accent" x="504" y="106" letter-spacing="1.5" font-weight="700">USER IN THE NAMESPACE</text>
+
+<rect class="node" x="504" y="120" width="188" height="48" rx="10"/>
+<text class="label" x="598" y="140" text-anchor="middle">Tomás</text>
+<text class="mono t-muted" x="598" y="158" text-anchor="middle">as_user("tomas")</text>
+<rect class="node" x="724" y="120" width="188" height="48" rx="10"/>
+<text class="label" x="818" y="140" text-anchor="middle">Kwame</text>
+<text class="mono t-muted" x="818" y="158" text-anchor="middle">as_user("kwame")</text>
+
+<line class="edge" x1="598" y1="168" x2="598" y2="196" marker-end="url(#arrow)"/>
+<line class="edge" x1="818" y1="168" x2="818" y2="196" marker-end="url(#arrow)"/>
+
+<rect class="node" x="504" y="200" width="408" height="48" rx="10"/>
+<text class="mono" x="708" y="220" text-anchor="middle">search_memory</text>
+<text class="mono t-accent" x="708" y="238" text-anchor="middle">namespace=("memories", "{langgraph_user_id}")</text>
+
+<line class="edge-good" x1="598" y1="248" x2="598" y2="276" marker-end="url(#arrow-good)"/>
+<line class="edge-good" x1="818" y1="248" x2="818" y2="276" marker-end="url(#arrow-good)"/>
+
+<rect class="node-good" x="504" y="280" width="188" height="88" rx="10"/>
+<text class="mono" x="516" y="301">("memories", "tomas")</text>
+<rect class="node" x="516" y="312" width="164" height="44" rx="8"/>
+<text class="small" x="528" y="330">Tomás: PO approval</text>
+<text class="label" x="528" y="347">limit is $50k</text>
+
+<rect class="node-good" x="724" y="280" width="188" height="88" rx="10"/>
+<text class="mono" x="736" y="301">("memories", "kwame")</text>
+<rect class="node" x="736" y="312" width="164" height="44" rx="8"/>
+<text class="small" x="748" y="330">Kwame: PO approval</text>
+<text class="label" x="748" y="347">limit is $250k</text>
+
+<text class="tiny" x="504" y="396" letter-spacing="1.5" font-weight="700">SEARCH RETURNS</text>
+<text x="504" y="418">Tomás: $50k <tspan class="t-good" font-weight="600">only</tspan></text>
+<text x="504" y="440">Kwame: $250k <tspan class="t-good" font-weight="600">only</tspan></text>
+
+<rect class="chip-good" x="504" y="456" width="168" height="24" rx="12"/>
+<text class="small t-inv" x="588" y="472" text-anchor="middle" font-weight="600">leakage test passes</text>
+</svg>
