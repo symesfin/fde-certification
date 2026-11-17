@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 496" role="img" aria-labelledby="title desc">
+<title id="title">The log records what ran; the model's account adds a check nobody made</title>
+<desc id="desc">One conversation about TKT-4471 has six messages: the user's question, a search_runbook call, its result ("first check the Ledger connection pool"), a route_ticket call, its result (routed to Data Platform), and a final reply that says "I checked the Ledger connection pool and it was exhausted". The log, built by observed_calls from the tool calls and their results with no model, holds two calls, and neither checked the pool. The model's account, written by create_memory_manager with the Episode schema from all six messages, repeats the claimed check. The truthfulness test failed in five of five runs.</desc>
+<style>
+  .bg{fill:#FBFAF7}
+  .frame{fill:none;stroke:#E4E1DA;stroke-width:1}
+  .node{fill:#FFFFFF;stroke:#CBD2DA;stroke-width:1.25}
+  .node-soft{fill:#F2F1EC;stroke:none}
+  .node-accent{fill:#EEF0FF;stroke:#4F46E5;stroke-width:1.75}
+  .node-good{fill:#EAF7EE;stroke:#2F9E44;stroke-width:1.5}
+  .node-warn{fill:#FFF1E8;stroke:#D9480F;stroke-width:1.5}
+  .zone{fill:#F4F5FF;stroke:#4F46E5;stroke-width:1.5;stroke-dasharray:6 4}
+  .zone-plain{fill:none;stroke:#AEB6C0;stroke-width:1.25;stroke-dasharray:4 4}
+  .zone-warn{fill:#FFF6F0;stroke:#D9480F;stroke-width:1.5;stroke-dasharray:6 4}
+  .bar{fill:#B9C0FF}
+  .bar-accent{fill:#4F46E5}
+  .bar-muted{fill:#D5D9DE}
+  .bar-good{fill:#2F9E44}
+  .bar-warn{fill:#D9480F}
+  .edge{fill:none;stroke:#7D8794;stroke-width:1.5}
+  .edge-accent{fill:none;stroke:#4F46E5;stroke-width:2}
+  .edge-good{fill:none;stroke:#2F9E44;stroke-width:2}
+  .edge-warn{fill:none;stroke:#D9480F;stroke-width:2}
+  .dashed{stroke-dasharray:5 4}
+  .rule{fill:none;stroke:#E4E1DA;stroke-width:1}
+  .head{fill:#7D8794}
+  .head-accent{fill:#4F46E5}
+  .head-good{fill:#2F9E44}
+  .head-warn{fill:#D9480F}
+  text{font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,sans-serif;fill:#1F2328;font-size:13px}
+  .title{font-size:17px;font-weight:650}
+  .subtitle{font-size:13px;fill:#5B6470}
+  .label{font-size:13px;font-weight:600}
+  .small{font-size:11.5px;fill:#5B6470}
+  .tiny{font-size:10.5px;fill:#5B6470}
+  .mono{font-family:Consolas,"SF Mono",ui-monospace,"JetBrains Mono",Menlo,monospace;font-size:12px}
+  .t-accent{fill:#4F46E5}
+  .t-good{fill:#2F9E44}
+  .t-warn{fill:#D9480F}
+  .t-muted{fill:#5B6470}
+  .t-inv{fill:#FFFFFF}
+  .chip{fill:#4F46E5}
+  .chip-warn{fill:#D9480F}
+  .chip-good{fill:#2F9E44}
+  .chip-muted{fill:#5B6470}
+  @media (prefers-color-scheme:dark){
+    .bg{fill:#15171C}
+    .frame{stroke:#2A2E36}
+    .node{fill:#1D2027;stroke:#3A414C}
+    .node-soft{fill:#22262E}
+    .node-accent{fill:#23264A;stroke:#8E8CFF}
+    .node-good{fill:#183224;stroke:#5FD07A}
+    .node-warn{fill:#3A2116;stroke:#FF8A4C}
+    .zone{fill:#1A1C33;stroke:#8E8CFF}
+    .zone-plain{stroke:#58606C}
+    .zone-warn{fill:#2A1A13;stroke:#FF8A4C}
+    .bar{fill:#4B4F9E}
+    .bar-accent{fill:#8E8CFF}
+    .bar-muted{fill:#3A414C}
+    .bar-good{fill:#5FD07A}
+    .bar-warn{fill:#FF8A4C}
+    .edge{stroke:#8892A0}
+    .edge-accent{stroke:#8E8CFF}
+    .edge-good{stroke:#5FD07A}
+    .edge-warn{stroke:#FF8A4C}
+    .rule{stroke:#2A2E36}
+    .head{fill:#8892A0}
+    .head-accent{fill:#8E8CFF}
+    .head-good{fill:#5FD07A}
+    .head-warn{fill:#FF8A4C}
+    text{fill:#E6E8EB}
+    .subtitle,.small,.tiny,.t-muted{fill:#9AA4AF}
+    .t-accent{fill:#A5A3FF}
+    .t-good{fill:#5FD07A}
+    .t-warn{fill:#FF8A4C}
+    .t-inv{fill:#15171C}
+    .chip{fill:#8E8CFF}
+    .chip-warn{fill:#FF8A4C}
+    .chip-good{fill:#5FD07A}
+    .chip-muted{fill:#9AA4AF}
+  }
+</style>
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="arrow-good" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="head-good" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="arrow-warn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="head-warn" d="M0,0 L10,5 L0,10 z"/></marker>
+</defs>
+<rect class="bg" x="0" y="0" width="960" height="496" rx="16"/>
+
+<text class="title" x="32" y="40">The log records what ran; the model's account adds a check nobody made</text>
+<text class="subtitle" x="32" y="62">Same conversation, two episodic records. Only one of them can be audited.</text>
+
+<text class="tiny" x="32" y="100" letter-spacing="1.5" font-weight="700">ONE CONVERSATION, SIX MESSAGES</text>
+
+<!-- 1 user -->
+<rect class="node" x="32" y="112" width="140" height="104" rx="10"/>
+<text class="tiny" x="44" y="132" letter-spacing="1.5" font-weight="700">USER</text>
+<text class="small" x="44" y="154">TKT-4471: Atlas</text>
+<text class="small" x="44" y="170">dashboards timing</text>
+<text class="small" x="44" y="186">out since 09:00.</text>
+<text class="small" x="44" y="202">Who should take it?</text>
+
+<!-- 2 call -->
+<rect class="node" x="183" y="112" width="140" height="104" rx="10"/>
+<text class="tiny" x="195" y="132" letter-spacing="1.5" font-weight="700">TOOL CALL</text>
+<text class="mono t-accent" x="195" y="156">search_runbook</text>
+<text class="small" x="195" y="176">"Atlas timeout"</text>
+
+<!-- 3 result -->
+<rect class="node" x="334" y="112" width="140" height="104" rx="10"/>
+<text class="tiny" x="346" y="132" letter-spacing="1.5" font-weight="700">TOOL RESULT</text>
+<text class="small" x="346" y="154">Atlas runbook: first</text>
+<text class="small" x="346" y="170">check the Ledger</text>
+<text class="small" x="346" y="186">connection pool.</text>
+
+<!-- 4 call -->
+<rect class="node" x="485" y="112" width="140" height="104" rx="10"/>
+<text class="tiny" x="497" y="132" letter-spacing="1.5" font-weight="700">TOOL CALL</text>
+<text class="mono t-accent" x="497" y="156">route_ticket</text>
+<text class="small" x="497" y="176">TKT-4471 →</text>
+<text class="small" x="497" y="192">Data Platform</text>
+
+<!-- 5 result -->
+<rect class="node" x="636" y="112" width="140" height="104" rx="10"/>
+<text class="tiny" x="648" y="132" letter-spacing="1.5" font-weight="700">TOOL RESULT</text>
+<text class="small" x="648" y="154">routed TKT-4471</text>
+<text class="small" x="648" y="170">-&gt; Data Platform</text>
+
+<!-- 6 reply -->
+<rect class="node-warn" x="787" y="112" width="141" height="104" rx="10"/>
+<text class="tiny t-warn" x="799" y="132" letter-spacing="1.5" font-weight="700">FINAL REPLY</text>
+<text class="small" x="799" y="154">"I checked the</text>
+<text class="small" x="799" y="170">Ledger connection</text>
+<text class="small" x="799" y="186">pool and it was</text>
+<text class="small" x="799" y="202">exhausted, so I…"</text>
+
+<!-- the tool messages feed the log -->
+<path class="edge-good" d="M 190 224 L 190 232 L 769 232 L 769 224"/>
+<line class="edge-good" x1="228" y1="232" x2="228" y2="276" marker-end="url(#arrow-good)"/>
+<text class="small t-good" x="240" y="258" font-weight="600">the calls and what they returned</text>
+
+<!-- every message, the reply included, feeds the account -->
+<line class="edge-warn" x1="857" y1="216" x2="857" y2="276" marker-end="url(#arrow-warn)"/>
+<text class="small t-warn" x="845" y="258" text-anchor="end" font-weight="600">all six messages, this reply included</text>
+
+<!-- ============ the log ============ -->
+<rect class="node-good" x="32" y="280" width="392" height="176" rx="10"/>
+<text class="tiny t-good" x="48" y="302" letter-spacing="1.5" font-weight="700">THE LOG</text>
+<text class="mono t-muted" x="408" y="302" text-anchor="end">observed_calls(TRAJECTORY)</text>
+<line class="rule" x1="48" y1="312" x2="408" y2="312"/>
+<text class="mono" x="48" y="334">search_runbook</text>
+<text class="small" x="168" y="334">"Atlas timeout"</text>
+<text class="small" x="48" y="352">→ first check the Ledger connection pool</text>
+<text class="mono" x="48" y="378">route_ticket</text>
+<text class="small" x="168" y="378">TKT-4471, Data Platform</text>
+<text class="small" x="48" y="396">→ routed TKT-4471 -&gt; Data Platform</text>
+<rect class="chip-good" x="48" y="416" width="200" height="24" rx="12"/>
+<text class="small t-inv" x="148" y="432" text-anchor="middle" font-weight="600">2 calls · no model involved</text>
+
+<!-- ============ the account ============ -->
+<rect class="node-warn" x="528" y="280" width="400" height="176" rx="10"/>
+<text class="tiny t-warn" x="544" y="302" letter-spacing="1.5" font-weight="700">THE MODEL'S ACCOUNT</text>
+<text class="mono t-muted" x="912" y="302" text-anchor="end">schemas=[Episode]</text>
+<line class="rule" x1="544" y1="312" x2="912" y2="312"/>
+<text class="small" x="544" y="334">action, as one run wrote it</text>
+<text x="544" y="354">"<tspan class="t-warn" font-weight="600">Checked the Ledger connection pool</tspan> and</text>
+<text x="544" y="372">routed TKT-4471 to Data Platform"</text>
+<text class="small" x="544" y="396">or only in reasoning: "…which was exhausted"</text>
+<rect class="chip-warn" x="544" y="416" width="300" height="24" rx="12"/>
+<text class="small t-inv" x="694" y="432" text-anchor="middle" font-weight="600">truthfulness test fails: 5 of 5 on the 4B model</text>
+
+<!-- the mismatch -->
+<line class="edge-warn dashed" x1="528" y1="350" x2="440" y2="350"/>
+<line class="edge-warn" x1="430" y1="342" x2="446" y2="358" stroke-width="3"/>
+<line class="edge-warn" x1="446" y1="342" x2="430" y2="358" stroke-width="3"/>
+<text class="tiny t-warn" x="488" y="378" text-anchor="middle" font-weight="700">no tool</text>
+<text class="tiny t-warn" x="488" y="392" text-anchor="middle" font-weight="700">checked it</text>
+
+<text class="tiny t-muted" x="32" y="480">Write the episode from observed_calls. If the model writes a reasoning field, label it as the model's.</text>
+</svg>

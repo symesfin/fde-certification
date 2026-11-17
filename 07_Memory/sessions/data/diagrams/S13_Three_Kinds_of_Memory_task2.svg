@@ -1,0 +1,176 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 536" role="img" aria-labelledby="title desc">
+<title id="title">The manager can only update a fact it was shown</title>
+<desc id="desc">One conversation, "Update: I moved to the Data Platform team in June.", goes to two LangMem memory store managers. Left, the default collection schema in namespace ("memories", "tomas") holds six facts, fact-0 to fact-5, with the team fact sixth. With no index, search returns the first five unranked, and query_limit=5 keeps those, so the team fact is never shown to the model. The model adds a seventh entry, and both teams are now stored: the staleness test fails. Right, the UserProfile schema in ("profile", "tomas") holds one record with enable_inserts=False. The record is always inside the window, so the model updates its team field from Revenue Systems to Data Platform: the staleness test passes.</desc>
+<style>
+  .bg{fill:#FBFAF7}
+  .frame{fill:none;stroke:#E4E1DA;stroke-width:1}
+  .node{fill:#FFFFFF;stroke:#CBD2DA;stroke-width:1.25}
+  .node-soft{fill:#F2F1EC;stroke:none}
+  .node-accent{fill:#EEF0FF;stroke:#4F46E5;stroke-width:1.75}
+  .node-good{fill:#EAF7EE;stroke:#2F9E44;stroke-width:1.5}
+  .node-warn{fill:#FFF1E8;stroke:#D9480F;stroke-width:1.5}
+  .zone{fill:#F4F5FF;stroke:#4F46E5;stroke-width:1.5;stroke-dasharray:6 4}
+  .zone-plain{fill:none;stroke:#AEB6C0;stroke-width:1.25;stroke-dasharray:4 4}
+  .zone-warn{fill:#FFF6F0;stroke:#D9480F;stroke-width:1.5;stroke-dasharray:6 4}
+  .bar{fill:#B9C0FF}
+  .bar-accent{fill:#4F46E5}
+  .bar-muted{fill:#D5D9DE}
+  .bar-good{fill:#2F9E44}
+  .bar-warn{fill:#D9480F}
+  .edge{fill:none;stroke:#7D8794;stroke-width:1.5}
+  .edge-accent{fill:none;stroke:#4F46E5;stroke-width:2}
+  .edge-good{fill:none;stroke:#2F9E44;stroke-width:2}
+  .edge-warn{fill:none;stroke:#D9480F;stroke-width:2}
+  .dashed{stroke-dasharray:5 4}
+  .rule{fill:none;stroke:#E4E1DA;stroke-width:1}
+  .head{fill:#7D8794}
+  .head-accent{fill:#4F46E5}
+  .head-good{fill:#2F9E44}
+  .head-warn{fill:#D9480F}
+  text{font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,sans-serif;fill:#1F2328;font-size:13px}
+  .title{font-size:17px;font-weight:650}
+  .subtitle{font-size:13px;fill:#5B6470}
+  .label{font-size:13px;font-weight:600}
+  .small{font-size:11.5px;fill:#5B6470}
+  .tiny{font-size:10.5px;fill:#5B6470}
+  .mono{font-family:Consolas,"SF Mono",ui-monospace,"JetBrains Mono",Menlo,monospace;font-size:12px}
+  .t-accent{fill:#4F46E5}
+  .t-good{fill:#2F9E44}
+  .t-warn{fill:#D9480F}
+  .t-muted{fill:#5B6470}
+  .t-inv{fill:#FFFFFF}
+  .chip{fill:#4F46E5}
+  .chip-warn{fill:#D9480F}
+  .chip-good{fill:#2F9E44}
+  .chip-muted{fill:#5B6470}
+  @media (prefers-color-scheme:dark){
+    .bg{fill:#15171C}
+    .frame{stroke:#2A2E36}
+    .node{fill:#1D2027;stroke:#3A414C}
+    .node-soft{fill:#22262E}
+    .node-accent{fill:#23264A;stroke:#8E8CFF}
+    .node-good{fill:#183224;stroke:#5FD07A}
+    .node-warn{fill:#3A2116;stroke:#FF8A4C}
+    .zone{fill:#1A1C33;stroke:#8E8CFF}
+    .zone-plain{stroke:#58606C}
+    .zone-warn{fill:#2A1A13;stroke:#FF8A4C}
+    .bar{fill:#4B4F9E}
+    .bar-accent{fill:#8E8CFF}
+    .bar-muted{fill:#3A414C}
+    .bar-good{fill:#5FD07A}
+    .bar-warn{fill:#FF8A4C}
+    .edge{stroke:#8892A0}
+    .edge-accent{stroke:#8E8CFF}
+    .edge-good{stroke:#5FD07A}
+    .edge-warn{stroke:#FF8A4C}
+    .rule{stroke:#2A2E36}
+    .head{fill:#8892A0}
+    .head-accent{fill:#8E8CFF}
+    .head-good{fill:#5FD07A}
+    .head-warn{fill:#FF8A4C}
+    text{fill:#E6E8EB}
+    .subtitle,.small,.tiny,.t-muted{fill:#9AA4AF}
+    .t-accent{fill:#A5A3FF}
+    .t-good{fill:#5FD07A}
+    .t-warn{fill:#FF8A4C}
+    .t-inv{fill:#15171C}
+    .chip{fill:#8E8CFF}
+    .chip-warn{fill:#FF8A4C}
+    .chip-good{fill:#5FD07A}
+    .chip-muted{fill:#9AA4AF}
+  }
+</style>
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="head-accent" d="M0,0 L10,5 L0,10 z"/></marker>
+</defs>
+<rect class="bg" x="0" y="0" width="960" height="536" rx="16"/>
+
+<text class="title" x="32" y="40">The manager can only update a fact it was shown</text>
+<text class="subtitle" x="32" y="62">With no index, the manager's search shows it the first five entries, unranked. A sixth fact never makes it in.</text>
+
+<!-- the conversation -->
+<rect class="node" x="160" y="84" width="640" height="36" rx="10"/>
+<text class="tiny" x="272" y="106" letter-spacing="1.5" font-weight="700">USER</text>
+<text x="316" y="107">"Update: I moved to the Data Platform team in June."</text>
+
+<!-- ============ left: the collection ============ -->
+<rect class="zone-warn" x="32" y="144" width="440" height="376" rx="14"/>
+<text class="tiny t-warn" x="48" y="166" letter-spacing="1.5" font-weight="700">DEFAULT SCHEMA: A COLLECTION</text>
+
+<rect class="node" x="48" y="176" width="408" height="36" rx="10"/>
+<text class="mono" x="252" y="198" text-anchor="middle">create_memory_store_manager(MODEL)</text>
+
+<text class="mono t-muted" x="48" y="232">("memories", "tomas")</text>
+
+<rect class="node" x="48" y="244" width="260" height="28" rx="8"/>
+<text class="mono t-muted" x="60" y="263">fact-0</text>
+<text class="small" x="116" y="262">office is Dublin</text>
+<rect class="node" x="48" y="276" width="260" height="28" rx="8"/>
+<text class="mono t-muted" x="60" y="295">fact-1</text>
+<text class="small" x="116" y="294">answers under 100 words</text>
+<rect class="node" x="48" y="308" width="260" height="28" rx="8"/>
+<text class="mono t-muted" x="60" y="327">fact-2</text>
+<text class="small" x="116" y="326">approves POs up to $50k</text>
+<rect class="node" x="48" y="340" width="260" height="28" rx="8"/>
+<text class="mono t-muted" x="60" y="359">fact-3</text>
+<text class="small" x="116" y="358">on call for Ledger's batch</text>
+<rect class="node" x="48" y="372" width="260" height="28" rx="8"/>
+<text class="mono t-muted" x="60" y="391">fact-4</text>
+<text class="small" x="116" y="390">expenses in Concur</text>
+<rect class="node-warn" x="48" y="404" width="260" height="28" rx="8"/>
+<text class="mono t-warn" x="60" y="423">fact-5</text>
+<text class="small" x="116" y="422">team is Revenue Systems</text>
+<rect class="node-warn" x="48" y="444" width="260" height="28" rx="8"/>
+<text class="mono t-warn" x="60" y="463">new</text>
+<text class="small" x="116" y="462">team is Data Platform</text>
+
+<!-- the window -->
+<path class="edge-accent" d="M 318 244 L 326 244 L 326 400 L 318 400"/>
+<line class="edge-accent" x1="326" y1="244" x2="326" y2="216" marker-end="url(#arrow-accent)"/>
+<text class="mono t-accent" x="338" y="306">query_limit=5</text>
+<text class="small" x="338" y="326">the first five,</text>
+<text class="small" x="338" y="342">shown to the model</text>
+<text class="small t-warn" x="338" y="422" font-weight="600">never shown</text>
+<text class="small t-warn" x="338" y="462" font-weight="600">added as a 7th</text>
+
+<rect class="chip-warn" x="48" y="484" width="296" height="24" rx="12"/>
+<text class="small t-inv" x="196" y="500" text-anchor="middle" font-weight="600">staleness test fails: 7 entries, both teams</text>
+<text class="tiny t-muted" x="352" y="500">on every run measured</text>
+
+<!-- ============ right: the profile ============ -->
+<rect class="zone" x="488" y="144" width="440" height="376" rx="14"/>
+<text class="tiny t-accent" x="504" y="166" letter-spacing="1.5" font-weight="700">USERPROFILE: ONE RECORD PER USER</text>
+
+<rect class="node" x="504" y="176" width="408" height="36" rx="10"/>
+<text class="mono" x="708" y="198" text-anchor="middle">… schemas=[UserProfile], enable_inserts=False</text>
+
+<text class="mono t-muted" x="504" y="232">("profile", "tomas")</text>
+
+<rect class="node-good" x="504" y="244" width="356" height="116" rx="10"/>
+<text class="mono" x="520" y="268">profile</text>
+<text class="tiny t-muted" x="844" y="268" text-anchor="end">UserProfile</text>
+<line class="rule" x1="520" y1="280" x2="844" y2="280"/>
+<text class="small" x="520" y="302">team</text>
+<text class="t-muted" x="616" y="302">Revenue Systems</text>
+<line class="edge" x1="614" y1="298" x2="722" y2="298"/>
+<text class="label t-good" x="736" y="302">→ Data Platform</text>
+<text class="small" x="520" y="324">office</text>
+<text x="616" y="324">Dublin</text>
+<text class="small" x="520" y="346">answer_style</text>
+<text x="616" y="346">under 100 words</text>
+
+<path class="edge-accent" d="M 870 244 L 878 244 L 878 360 L 870 360"/>
+<line class="edge-accent" x1="878" y1="244" x2="878" y2="216" marker-end="url(#arrow-accent)"/>
+
+<text class="small" x="504" y="390">One record is always inside the window, so the model sees</text>
+<text class="small" x="504" y="408">the old team. With inserts off, it can only update it in place.</text>
+<text class="small" x="504" y="440">A field per subject means there is never an old entry</text>
+<text class="small" x="504" y="458">to go looking for.</text>
+
+<rect class="chip-good" x="504" y="484" width="296" height="24" rx="12"/>
+<text class="small t-inv" x="652" y="500" text-anchor="middle" font-weight="600">staleness test passes: 1 entry, one team</text>
+<!-- the conversation reaches both managers -->
+<line class="edge" x1="368" y1="120" x2="368" y2="174" marker-end="url(#arrow)"/>
+<line class="edge" x1="784" y1="120" x2="784" y2="174" marker-end="url(#arrow)"/>
+</svg>
