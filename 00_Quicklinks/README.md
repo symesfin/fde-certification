@@ -88,7 +88,7 @@ Quicklinks are here to help you **easily navigate each week's materials** for th
 
 | 🎓 Session | ⏺️ Recording | 🖼️ Slides |
 |:-----------|:-------------|:-------------|
-| [Session 13 - Three Kinds of Memory](../07_Memory/sessions/S13_Three_Kinds_of_Memory.py) | Recording!](https://us02web.zoom.us/rec/share/acq5H3ozFH27Tf-Zd0ky27vSLQcjbX8d19rjUvDZe7fPh6vlqFuBlTozNIr0PFwP.tFzln87qm1gCMSfV) <br> passcode: `0dqaRT?f` | [Slides](https://canva.link/c658yq1qmh1fgtq) |
+| [Session 13 - Three Kinds of Memory](../07_Memory/sessions/S13_Three_Kinds_of_Memory.py) | [Recording!](https://us02web.zoom.us/rec/share/acq5H3ozFH27Tf-Zd0ky27vSLQcjbX8d19rjUvDZe7fPh6vlqFuBlTozNIr0PFwP.tFzln87qm1gCMSfV) <br> passcode: `0dqaRT?f` | [Slides](https://canva.link/c658yq1qmh1fgtq) |
 | [Session 14 - Loop Engineering](../07_Memory/sessions/S14_Loop_Engineering.py) | Coming soon | Coming soon |
 
 ---
