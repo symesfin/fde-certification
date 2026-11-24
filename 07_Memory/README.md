@@ -17,7 +17,7 @@ turn, and write the three tests that catch it when it starts to slip.
 
 | # | 📓 Material | What you'll build | ⏺️ Recording | 🖼️ Slides |
 | --- | --- | --- | --- | --- |
-| S13 | [`Three_Kinds_of_Memory`](./sessions/S13_Three_Kinds_of_Memory.py) | Semantic, procedural and episodic memory with **LangMem** on a **LangGraph store**, each with the test that catches it failing, plus the two-user leakage test. | Coming soon | Coming soon |
+| S13 | [`Three_Kinds_of_Memory`](./sessions/S13_Three_Kinds_of_Memory.py) | Semantic, procedural and episodic memory with **LangMem** on a **LangGraph store**, each with the test that catches it failing, plus the two-user leakage test. | [Recording!](https://us02web.zoom.us/rec/share/acq5H3ozFH27Tf-Zd0ky27vSLQcjbX8d19rjUvDZe7fPh6vlqFuBlTozNIr0PFwP.tFzln87qm1gCMSfV) <br> passcode: `0dqaRT?f` | [Slides](https://canva.link/c658yq1qmh1fgtq) |
 | S14 | [`Loop_Engineering`](./sessions/S14_Loop_Engineering.py) | A spec a machine can check, a checker you break on purpose, and a bounded loop around a fresh **LangChain Deep Agent** each iteration. | Coming soon | Coming soon |
 
 | 📝 Technical Challenge | 📁 Feedback |
